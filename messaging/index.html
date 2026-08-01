@@ -3,43 +3,153 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Messaging Connector</title>
+<title>Colourdiam Messaging</title>
 <meta name="theme-color" content="#0f1115">
 <style>
 :root {
-  --bg: #0f1115;
+  --bg: #0b0d12;
+  --bg-chat: #0d1217;
+  --sidebar: #111418;
   --card: #1a1d24;
   --border: #262b36;
   --text: #e6e9ef;
   --muted: #8b93a7;
   --green: #22c55e;
+  --teal: #075e54;
   --amber: #f59e0b;
   --red: #ef4444;
   --blue: #3b82f6;
   --gold: #d4af37;
+  --in-bubble: #202833;
+  --out-bubble: #0e5a46;
+  --header: #1f2c33;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: var(--bg);
   color: var(--text);
-  min-height: 100vh;
-  padding: 20px;
+  height: 100vh;
+  overflow: hidden;
 }
-.container { max-width: 860px; margin: 0 auto; }
-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
-header h1 { font-size: 24px; font-weight: 800; color: var(--gold); }
-header p { color: var(--muted); margin-top: 4px; font-size: 13px; }
+.app { display: flex; flex-direction: column; height: 100vh; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--header); padding: 0 16px; height: 52px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand .logo { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--gold), #a07d1f); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #0f1115; font-size: 14px; }
+.brand h1 { font-size: 17px; font-weight: 700; color: var(--text); }
+.brand h1 span { color: var(--gold); }
+.nav-tabs { display: flex; gap: 6px; }
+.nav-tabs button {
+  background: transparent; border: none; color: var(--muted); font-size: 13px; font-weight: 700;
+  padding: 8px 14px; border-radius: 8px; cursor: pointer;
+}
+.nav-tabs button.active { background: var(--out-bubble); color: #7ef2c0; }
+
+.main { flex: 1; display: flex; overflow: hidden; }
+
+/* Chats view (WhatsApp-like) */
+.view { display: none; flex: 1; min-width: 0; }
+.view.active { display: flex; }
+
+.chats-wrap { display: flex; flex: 1; min-width: 0; }
+.sidebar {
+  width: 340px; min-width: 340px; background: var(--sidebar);
+  border-right: 1px solid var(--border); display: flex; flex-direction: column;
+}
+.sidebar-search { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.sidebar-search input {
+  width: 100%; background: var(--card); border: 1px solid var(--border); color: var(--text);
+  padding: 10px 14px; border-radius: 20px; font-size: 13px; outline: none;
+}
+.sidebar-search input:focus { border-color: var(--green); }
+.contact-list { flex: 1; overflow-y: auto; }
+.contact-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+}
+.contact-item:hover { background: rgba(255,255,255,.03); }
+.contact-item.active { background: var(--out-bubble); }
+.avatar {
+  width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 17px;
+}
+.ci-main { flex: 1; min-width: 0; }
+.ci-top { display: flex; justify-content: space-between; align-items: baseline; }
+.ci-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ci-time { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+.ci-last { display: flex; justify-content: space-between; align-items: center; margin-top: 3px; }
+.ci-msg { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 210px; }
+.unread {
+  background: var(--green); color: #06281b; font-size: 11px; font-weight: 700;
+  border-radius: 999px; padding: 1px 7px; min-width: 18px; text-align: center;
+}
+.platform-tag { font-size: 9px; font-weight: 700; color: var(--gold); border: 1px solid var(--gold); border-radius: 4px; padding: 1px 5px; margin-left: 6px; vertical-align: 1px; }
+
+.chat-panel { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--bg-chat); }
+#chat-open { flex: 1; min-width: 0; display: none; flex-direction: column; }
+#chat-open.open { display: flex; }
+.chat-empty {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  color: var(--muted);
+}
+.chat-empty .big { font-size: 60px; opacity: .3; }
+.chat-header {
+  display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+  background: var(--header); border-bottom: 1px solid var(--border);
+}
+.chat-header .avatar { width: 38px; height: 38px; font-size: 14px; }
+.ch-header-main { flex: 1; min-width: 0; }
+.ch-name { font-weight: 600; font-size: 15px; }
+.ch-status { font-size: 12px; color: var(--muted); }
+.ch-header-btn { background: transparent; border: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 6px; }
+
+.messages { flex: 1; overflow-y: auto; padding: 18px 20px; display: flex; flex-direction: column; gap: 2px; }
+.day-divider { text-align: center; margin: 12px 0; }
+.day-divider span {
+  background: var(--card); border: 1px solid var(--border); color: var(--muted);
+  font-size: 11px; font-weight: 600; padding: 3px 12px; border-radius: 999px;
+}
+.msg-row { display: flex; margin-bottom: 4px; }
+.msg-row.in { justify-content: flex-start; }
+.msg-row.out { justify-content: flex-end; }
+.bubble {
+  max-width: 65%; padding: 8px 12px; border-radius: 10px; font-size: 14px; line-height: 1.45;
+  position: relative; word-break: break-word; white-space: pre-wrap;
+}
+.msg-row.in .bubble { background: var(--in-bubble); border-top-left-radius: 2px; }
+.msg-row.out .bubble { background: var(--out-bubble); border-top-right-radius: 2px; }
+.msg-row.out .bubble .ticks { color: #7ef2c0; font-size: 11px; }
+.bubble .time { display: block; text-align: right; font-size: 10px; color: var(--muted); margin-top: 3px; }
+.msg-row.out .bubble .time { color: rgba(255,255,255,.5); }
+
+.input-bar {
+  display: flex; align-items: flex-end; gap: 8px; padding: 10px 14px;
+  background: var(--header); border-top: 1px solid var(--border);
+}
+.input-bar textarea {
+  flex: 1; resize: none; background: var(--card); border: 1px solid var(--border); color: var(--text);
+  border-radius: 20px; padding: 10px 16px; font-size: 14px; font-family: inherit; outline: none; max-height: 110px;
+}
+.input-bar textarea:focus { border-color: var(--green); }
+.send-btn {
+  width: 42px; height: 42px; border-radius: 50%; border: none; background: var(--green);
+  color: #06281b; font-size: 18px; font-weight: 800; cursor: pointer; flex-shrink: 0;
+}
+.send-btn:active { transform: scale(.95); }
+.send-btn:disabled { opacity: .4; cursor: default; }
+
+/* Connector view */
+.connector-view { flex: 1; overflow-y: auto; padding: 20px; }
+.connector-inner { max-width: 820px; margin: 0 auto; }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
 .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .card-title { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 16px; }
-.logo { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 17px; color: #fff; flex-shrink: 0; }
 .step { font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: .08em; }
-.status-dot { width: 10px; height: 10px; border-radius: 50%; }
-.status-online { background: var(--green); box-shadow: 0 0 8px var(--green); }
-.status-pending { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
-.status-offline { background: var(--red); box-shadow: 0 0 8px var(--red); }
-.status-label { font-size: 12px; color: var(--muted); }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .form-row .full { grid-column: 1 / -1; }
 label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
@@ -55,102 +165,159 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
 .webhook-box code { font-size: 12px; color: var(--text); word-break: break-all; font-family: "SF Mono", Menlo, monospace; }
 .copy-btn { background: var(--card); border: 1px solid var(--border); color: var(--green); padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .copy-btn:hover { border-color: var(--green); }
-.copy-btn:active { opacity: .7; }
 .copy-btn.done { color: var(--gold); border-color: var(--gold); }
 .details { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 14px; }
 .details summary { color: var(--blue); font-size: 13px; font-weight: 600; cursor: pointer; }
 .details ol { margin: 10px 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.7; }
 .details ol li::marker { color: var(--gold); }
-.install-steps { margin: 8px 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.9; }
-.install-steps li::marker { color: var(--gold); }
-.badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; }
+.status-online { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.status-pending { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+.status-label { font-size: 12px; color: var(--muted); }
+.logo-lg { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 17px; color: #fff; flex-shrink: 0; }
 .env-out { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; font-family: "SF Mono", Menlo, monospace; font-size: 12px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; color: var(--text); min-height: 120px; }
-.btn {
-  background: var(--gold); color: #0f1115; border: none; border-radius: 10px;
-  padding: 12px 20px; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%;
-}
-.btn:active { opacity: .8; }
+.btn { background: var(--gold); color: #0f1115; border: none; border-radius: 10px; padding: 12px 20px; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%; }
 .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+.btn:active { opacity: .8; }
 .note { color: var(--muted); font-size: 12px; margin-top: 10px; }
-.cmd { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: "SF Mono", Menlo, monospace; font-size: 12px; color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0; }
 .msg { font-size: 13px; padding: 10px 14px; border-radius: 10px; margin-top: 10px; display: none; }
 .msg.ok { display: block; background: rgba(34,197,94,.12); color: var(--green); }
-.msg.err { display: block; background: rgba(244,63,94,.12); color: var(--red); }
-.step-title { font-size: 13px; font-weight: 700; color: var(--text); margin: 12px 0 6px; text-transform: uppercase; letter-spacing: .05em; }
+.install-steps { margin: 8px 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.9; }
+.install-steps li::marker { color: var(--gold); }
 .ghost-desc { color: var(--muted); font-size: 13px; line-height: 1.6; margin-bottom: 10px; }
-@media (max-width: 600px) {
-  .form-row { grid-template-columns: 1fr; }
-  body { padding: 14px; }
+.cmd { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: "SF Mono", Menlo, monospace; font-size: 12px; color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0; }
+
+@media (max-width: 760px) {
+  .sidebar { width: 100%; min-width: 100%; }
+  .chat-panel { display: none; }
+  .chat-panel.show-mobile { display: flex; position: fixed; inset: 0; z-index: 20; }
+  .sidebar.hide-mobile { display: none; }
 }
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <div>
-      <h1>Messaging Connector</h1>
-      <p>Connect WhatsApp, Instagram, Facebook, TikTok, LINE &amp; WeChat to n8n</p>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">C</div>
+      <h1>Colourdiam <span>Messaging</span></h1>
     </div>
-    <span class="badge"><span class="status-dot status-pending"></span> auto-config</span>
-  </header>
-
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title"><div class="logo" style="background:#3b82f6">n8n</div><span>n8n Instance</span></div>
-      <span class="step">STEP 1</span>
+    <div class="nav-tabs">
+      <button class="active" data-view="chats" onclick="switchView('chats')">Chats</button>
+      <button data-view="connector" onclick="switchView('connector')">Connector</button>
     </div>
-    <div class="form-row">
-      <div><label>n8n URL</label><input id="n8n-url" placeholder="https://dhruval.n8n-hub.site"></div>
-      <div><label>n8n API Key</label><input id="n8n-api-key" type="password" placeholder="Settings -> API -> Create API key"></div>
-    </div>
-    <div class="form-row">
-      <div class="full"><label>Verify Token (shared by all platforms)</label><input id="verify-token" type="password" placeholder="change_me_verify_token"></div>
-    </div>
-    <p class="hint">The verify token is checked when Meta/TikTok verify your webhook URL. Keep the same value everywhere — it must match the token you enter in each platform console.</p>
   </div>
 
-  <div id="platforms"></div>
+  <div class="main">
+    <!-- Chats view -->
+    <div id="view-chats" class="view active">
+      <div class="chats-wrap">
+        <aside class="sidebar" id="sidebar">
+          <div class="sidebar-search"><input id="search" placeholder="Search chats..." oninput="renderContacts()"></div>
+          <div class="contact-list" id="contact-list"></div>
+        </aside>
+        <section class="chat-panel" id="chat-panel">
+          <div id="chat-empty" class="chat-empty">
+            <div class="big">💬</div>
+            <div>Select a chat to start messaging</div>
+            <div style="font-size:12px">Powered by your n8n workflows · colourdiam.com</div>
+          </div>
+          <div id="chat-open" style="display:none">
+            <div class="chat-header">
+              <div class="avatar" id="ch-avatar"></div>
+              <div class="ch-header-main">
+                <div class="ch-name" id="ch-name"></div>
+                <div class="ch-status" id="ch-status"></div>
+              </div>
+              <button class="ch-header-btn" onclick="backToList()">‹</button>
+            </div>
+            <div class="messages" id="messages"></div>
+            <div class="input-bar">
+              <textarea id="msg-input" rows="1" placeholder="Type a message" onkeydown="onKey(event)"></textarea>
+              <button class="send-btn" id="send-btn" onclick="sendMsg()">➤</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
 
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title"><div class="logo" style="background:#22c55e">ENV</div><span>Generated .env</span></div>
-      <span class="step">STEP 3</span>
+    <!-- Connector view -->
+    <div id="view-connector" class="view">
+      <div class="connector-view">
+        <div class="connector-inner">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title"><div class="logo-lg" style="background:#3b82f6">n8n</div><span>n8n Instance</span></div>
+              <span class="step">STEP 1</span>
+            </div>
+            <div class="form-row">
+              <div><label>n8n URL</label><input id="n8n-url" placeholder="https://dhruval.n8n-hub.site"></div>
+              <div><label>n8n API Key</label><input id="n8n-api-key" type="password" placeholder="Settings -> API -> Create API key"></div>
+            </div>
+            <div class="form-row">
+              <div class="full"><label>Verify Token (shared by all platforms)</label><input id="verify-token" type="password" placeholder="change_me_verify_token"></div>
+            </div>
+            <p class="hint">The verify token is checked when Meta/TikTok verify your webhook URL. Keep the same value everywhere — it must match the token you enter in each platform console.</p>
+          </div>
+
+          <div id="platforms"></div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title"><div class="logo-lg" style="background:#22c55e">ENV</div><span>Generated .env</span></div>
+              <span class="step">STEP 3</span>
+            </div>
+            <div class="env-out" id="env-out"></div>
+            <div class="form-row" style="margin-top:14px">
+              <div><button class="btn" onclick="copyEnv()">Copy .env</button></div>
+              <div><button class="btn btn-ghost" onclick="resetAll()">Reset</button></div>
+            </div>
+            <p class="note">Save this as <code>.env</code> in the project root, then run <code>npm run import</code> to push all workflows to n8n.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title"><div class="logo-lg" style="background:#8b93a7">RUN</div><span>Deploy to n8n</span></div>
+              <span class="step">STEP 4</span>
+            </div>
+            <div class="ghost-desc">Copy the .env above into your project, then import the workflows:</div>
+            <div class="cmd"><code>npm run import</code><button class="copy-btn" onclick="copyCmd(this, 'npm run import')">Copy</button></div>
+            <ol class="install-steps">
+              <li>In each platform's webhook settings, point the callback URL at your n8n webhook URL (shown above each platform).</li>
+              <li>Subscribe to the events listed for that platform.</li>
+              <li>Activate each imported workflow in n8n.</li>
+            </ol>
+            <div class="msg" id="msg"></div>
+          </div>
+
+          <p style="color:var(--muted);font-size:12px;text-align:center;margin-top:16px">Config is saved locally on this device. Tokens never leave your browser.</p>
+        </div>
+      </div>
     </div>
-    <div class="env-out" id="env-out"></div>
-    <div class="form-row" style="margin-top:14px">
-      <div><button class="btn" onclick="copyEnv()">Copy .env</button></div>
-      <div><button class="btn btn-ghost" onclick="resetAll()">Reset</button></div>
-    </div>
-    <p class="note">Save this as <code>.env</code> in the project root, then run <code>npm run import</code> to push all workflows to n8n.</p>
   </div>
-
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title"><div class="logo" style="background:#8b93a7">RUN</div><span>Deploy to n8n</span></div>
-      <span class="step">STEP 4</span>
-    </div>
-    <div class="ghost-desc">Copy the .env above into your project, then import the workflows:</div>
-    <div class="cmd"><code>npm run import</code><button class="copy-btn" onclick="copyCmd(this, 'npm run import')">Copy</button></div>
-    <ol class="install-steps">
-      <li>In each platform's webhook settings, point the callback URL at your n8n webhook URL (shown above each platform).</li>
-      <li>Subscribe to the events listed for that platform.</li>
-      <li>Activate each imported workflow in n8n.</li>
-    </ol>
-    <div class="msg" id="msg"></div>
-  </div>
-
-  <p style="color:var(--muted);font-size:12px;text-align:center;margin-top:16px">Config is saved locally on this device. Tokens never leave your browser.</p>
 </div>
 
 <script>
 const CFG_KEY = "mc_cfg_v1";
+const CHAT_KEY = "mc_chat_v1";
+
+function esc(v) {
+  return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function load(key) { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch (e) { return {}; } }
+function save(key, v) { localStorage.setItem(key, JSON.stringify(v)); }
+
+function switchView(v) {
+  document.querySelectorAll(".nav-tabs button").forEach(b => b.classList.toggle("active", b.dataset.view === v));
+  document.querySelectorAll(".view").forEach(el => el.classList.toggle("active", el.id === "view-" + v));
+}
+
+/* ---------------- Connector ---------------- */
 
 const PLATFORMS = [
   {
-    id: "whatsapp",
-    name: "WhatsApp Cloud API",
-    icon: "W",
-    color: "#25d366",
+    id: "whatsapp", name: "WhatsApp Cloud API", icon: "W", color: "#25d366",
     path: "/webhook/whatsapp-hook",
     fields: [
       { key: "whatsapp_access_token", label: "Access Token", type: "password", ph: "Paste WhatsApp access token" },
@@ -160,15 +327,11 @@ const PLATFORMS = [
     steps: [
       "In the Meta Developer app, open the WhatsApp product and get a test number.",
       "Copy the temporary access token from the WhatsApp Cloud API settings.",
-      "Copy the Phone Number ID from the same screen.",
-      "Add these in the WhatsApp API Console (graph.facebook.com/v19.0/PHONE_ID/messages)."
+      "Copy the Phone Number ID from the same screen."
     ]
   },
   {
-    id: "instagram",
-    name: "Instagram Messenger",
-    icon: "IG",
-    color: "#e4405f",
+    id: "instagram", name: "Instagram Messenger", icon: "IG", color: "#e4405f",
     path: "/webhook/instagram-hook",
     fields: [
       { key: "instagram_access_token", label: "Instagram Token", type: "password", ph: "Token with instagram_manage_messages" }
@@ -182,10 +345,7 @@ const PLATFORMS = [
     ]
   },
   {
-    id: "facebook",
-    name: "Facebook Messenger",
-    icon: "F",
-    color: "#0866ff",
+    id: "facebook", name: "Facebook Messenger", icon: "F", color: "#0866ff",
     path: "/webhook/facebook-hook",
     fields: [
       { key: "facebook_page_access_token", label: "Page Access Token", type: "password", ph: "Token with pages_messaging" }
@@ -199,11 +359,7 @@ const PLATFORMS = [
     ]
   },
   {
-    id: "tiktok",
-    name: "TikTok Messenger",
-    icon: "TT",
-    color: "#000000",
-    border: "1px solid #555",
+    id: "tiktok", name: "TikTok Messenger", icon: "TT", color: "#000000", border: "1px solid #555",
     path: "/webhook/tiktok-hook",
     fields: [
       { key: "tiktok_access_token", label: "Messaging API Token", type: "password", ph: "tiktok.business.messaging.write token" }
@@ -217,10 +373,7 @@ const PLATFORMS = [
     ]
   },
   {
-    id: "line",
-    name: "LINE Official",
-    icon: "L",
-    color: "#06c755",
+    id: "line", name: "LINE Official", icon: "L", color: "#06c755",
     path: "/webhook/line-hook",
     fields: [
       { key: "line_channel_access_token", label: "Channel Access Token", type: "password", ph: "Messaging API channel token" }
@@ -234,10 +387,7 @@ const PLATFORMS = [
     ]
   },
   {
-    id: "wechat",
-    name: "WeChat Official Account",
-    icon: "微",
-    color: "#07c160",
+    id: "wechat", name: "WeChat Official Account", icon: "微", color: "#07c160",
     path: "/webhook/wechat-hook",
     fields: [
       { key: "wechat_token", label: "Server Token", type: "password", ph: "WeChat server Token" },
@@ -254,25 +404,20 @@ const PLATFORMS = [
   }
 ];
 
-function load() {
-  try { return JSON.parse(localStorage.getItem(CFG_KEY)) || {}; } catch (e) { return {}; }
-}
-function save(cfg) { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }
-
 function render() {
-  const cfg = load();
+  const cfg = load(CFG_KEY);
   const n8nHost = (cfg.n8n_url || "https://dhruval.n8n-hub.site").replace(/\/$/, "");
   const box = document.getElementById("platforms");
-  box.innerHTML = PLATFORMS.map((p, idx) => {
-    const missing = p.fields.filter(f => !(cfg[f.key] || "").trim()).map(f => f.key);
-    const done = missing.length === 0;
+  box.innerHTML = PLATFORMS.map((p) => {
+    const missing = p.fields.filter(f => !(cfg[f.key] || "").trim()).length;
+    const done = missing === 0;
     const st = done ? "status-online" : "status-pending";
-    const lbl = done ? "Configured" : (missing.length === p.fields.length ? "Not set" : "Partial");
+    const lbl = done ? "Configured" : (missing === p.fields.length ? "Not set" : "Partial");
     const border = p.border ? `border:${p.border}` : "";
     return `
     <div class="card">
       <div class="card-head">
-        <div class="card-title"><div class="logo" style="background:${p.color};${border}">${p.icon}</div><span>${p.name}</span></div>
+        <div class="card-title"><div class="logo-lg" style="background:${p.color};${border}">${p.icon}</div><span>${p.name}</span></div>
         <div style="text-align:right">
           <div class="status-dot ${st}"></div>
           <div class="status-label">${lbl}</div>
@@ -296,48 +441,22 @@ function render() {
   renderEnv();
 }
 
-function esc(v) {
-  return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-}
-
 function onField(pid, key, value) {
-  const cfg = load();
+  const cfg = load(CFG_KEY);
   cfg[key] = value;
-  save(cfg);
-  renderStatuses();
+  save(CFG_KEY, cfg);
   renderEnv();
 }
 
-function renderStatuses() {
-  const cfg = load();
-  PLATFORMS.forEach((p, idx) => {
-    const missing = p.fields.filter(f => !(cfg[f.key] || "").trim()).length;
-    const card = document.getElementById("platforms").children[idx];
-    if (!card) return;
-    const dot = card.querySelector(".status-dot");
-    const label = card.querySelector(".status-label");
-    if (missing === 0) {
-      dot.className = "status-dot status-online";
-      label.textContent = "Configured";
-    } else if (missing === p.fields.length) {
-      dot.className = "status-dot status-pending";
-      label.textContent = "Not set";
-    } else {
-      dot.className = "status-dot status-pending";
-      label.textContent = "Partial";
-    }
-  });
-}
-
 function renderEnv() {
-  const cfg = load();
+  const cfg = load(CFG_KEY);
   const host = (cfg.n8n_url || "https://dhruval.n8n-hub.site").replace(/\/$/, "");
   const env = [
     "# n8n connection",
     `N8N_URL=${host}`,
     `N8N_API_KEY=${cfg.n8n_api_key || "your_n8n_api_key"}`,
     "",
-    "# Meta verification token (must match each platform webhook config)",
+    "# Meta verification token",
     `META_VERIFY_TOKEN=${cfg.verify_token || "change_me_verify_token"}`,
     "",
     "# WhatsApp Cloud API",
@@ -366,23 +485,20 @@ function renderEnv() {
 
 function copyText(btn, text) {
   navigator.clipboard.writeText(text).then(() => {
-    btn.classList.add("done");
-    btn.textContent = "Copied";
+    btn.classList.add("done"); btn.textContent = "Copied";
     setTimeout(() => { btn.classList.remove("done"); btn.textContent = "Copy URL"; }, 1500);
   }).catch(() => {});
 }
 
 function copyCmd(btn, text) {
   navigator.clipboard.writeText(text).then(() => {
-    btn.classList.add("done");
-    btn.textContent = "Copied";
+    btn.classList.add("done"); btn.textContent = "Copied";
     setTimeout(() => { btn.classList.remove("done"); btn.textContent = "Copy"; }, 1500);
   }).catch(() => {});
 }
 
 function copyEnv() {
-  const text = document.getElementById("env-out").textContent;
-  navigator.clipboard.writeText(text).then(() => {
+  navigator.clipboard.writeText(document.getElementById("env-out").textContent).then(() => {
     const msg = document.getElementById("msg");
     msg.className = "msg ok";
     msg.textContent = ".env copied to clipboard. Save it as .env in the project root and run `npm run import`.";
@@ -392,23 +508,203 @@ function copyEnv() {
 
 function resetAll() {
   localStorage.removeItem(CFG_KEY);
+  document.getElementById("n8n-url").value = "https://dhruval.n8n-hub.site";
+  document.getElementById("n8n-api-key").value = "";
+  document.getElementById("verify-token").value = "";
   render();
 }
+
+/* ---------------- Chats (WhatsApp-like) ---------------- */
+
+const SEED = [
+  {
+    id: "priya", name: "Priya M.", platform: "WhatsApp", color: "#e4405f", initials: "PM",
+    online: true, lastMsg: "The ring exceeded photos, the color is even more vivid!",
+    time: "10:42", unread: 2,
+    messages: [
+      { from: "them", text: "Hi! I saw the pink diamond ring on your site, it's gorgeous.", time: "09:58" },
+      { from: "me", text: "Thank you! That's a 1.2ct fancy pink, GIA certified. Shipping to Singapore was smooth for a client last week.", time: "10:05", ticks: true },
+      { from: "them", text: "The ring exceeded photos, the color is even more vivid!", time: "10:42" }
+    ]
+  },
+  {
+    id: "james", name: "James Carter", platform: "WhatsApp", color: "#25d366", initials: "JC",
+    online: false, lastMsg: "The certification paperwork gave me total peace of mind.",
+    time: "Yesterday", unread: 0,
+    messages: [
+      { from: "them", text: "Bought a yellow diamond pendant as an anniversary gift. My wife hasn't taken it off since!", time: "Mon" },
+      { from: "me", text: "Wonderful to hear! The certification paperwork gave me total peace of mind.", time: "Mon", ticks: true }
+    ]
+  },
+  {
+    id: "natcha", name: "Natcha S.", platform: "Instagram", color: "#3b82f6", initials: "NS",
+    online: true, lastMsg: "Someone actually walked me through clarity over a video call!",
+    time: "09:15", unread: 1,
+    messages: [
+      { from: "them", text: "What stood out was the personal attention — someone actually walked me through clarity and cut differences over a video call before I committed to my earrings.", time: "09:15" }
+    ]
+  },
+  {
+    id: "david", name: "David Lindqvist", platform: "Facebook", color: "#0866ff", initials: "DL",
+    online: false, lastMsg: "Will be back for a blue diamond next.",
+    time: "Tue", unread: 0,
+    messages: [
+      { from: "them", text: "Colour Diam's GIA certs matched exactly what was described. Will be back for a blue diamond next.", time: "Tue" },
+      { from: "me", text: "We'll keep you first in line for blue diamonds, David!", time: "Tue", ticks: true }
+    ]
+  },
+  {
+    id: "ananya", name: "Ananya R.", platform: "TikTok", color: "#8b93a7", initials: "AR",
+    online: true, lastMsg: "The custom design process took about three weeks.",
+    time: "11:02", unread: 0,
+    messages: [
+      { from: "them", text: "The custom design process for my engagement ring took about three weeks start to finish. They sent progress photos at each stage, which I really appreciated.", time: "11:02" },
+      { from: "me", text: "So glad you loved the progress updates!", time: "11:08", ticks: true }
+    ]
+  },
+  {
+    id: "michael", name: "Michael Tan", platform: "LINE", color: "#06c755", initials: "MT",
+    online: false, lastMsg: "Arrived beautifully packaged and right on schedule.",
+    time: "Yesterday", unread: 0,
+    messages: [
+      { from: "them", text: "Ordered a bracelet for my mother's birthday — arrived beautifully packaged and right on schedule. The brown diamond setting is exactly the warm tone we wanted.", time: "Yesterday" },
+      { from: "me", text: "Happy birthday to your mother! Enjoy the bracelet.", time: "Yesterday", ticks: true }
+    ]
+  }
+];
+
+function chatData() {
+  return load(CHAT_KEY);
+}
+
+function openChat(id) {
+  const d = chatData();
+  if (!d.contacts) d.contacts = JSON.parse(JSON.stringify(SEED));
+  const c = d.contacts.find(x => x.id === id);
+  if (!c) return;
+  c.unread = 0;
+  save(CHAT_KEY, d);
+  renderContacts();
+  renderChat(c);
+  document.getElementById("chat-empty").style.display = "none";
+  document.getElementById("chat-open").classList.add("open");
+  const panel = document.getElementById("chat-panel");
+  panel.classList.add("show-mobile");
+  document.getElementById("sidebar").classList.add("hide-mobile");
+  document.getElementById("search").value = "";
+  scrollBottom();
+}
+
+function backToList() {
+  document.getElementById("chat-panel").classList.remove("show-mobile");
+  document.getElementById("sidebar").classList.remove("hide-mobile");
+  document.getElementById("chat-empty").style.display = "flex";
+  document.getElementById("chat-open").classList.remove("open");
+}
+
+function timeFmt() {
+  const d = new Date();
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function sendMsg() {
+  const input = document.getElementById("msg-input");
+  const text = input.value.trim();
+  if (!text) return;
+  const d = chatData();
+  const c = d.contacts.find(x => x.id === (d.activeId || ""));
+  if (!c) return;
+  c.messages.push({ from: "me", text, time: timeFmt(), ticks: true });
+  c.lastMsg = text;
+  c.time = "Now";
+  d.activeId = c.id;
+  save(CHAT_KEY, d);
+  input.value = "";
+  renderContacts();
+  renderChat(c);
+  scrollBottom();
+  if (window.innerWidth > 760) {
+    setTimeout(() => {
+      const d2 = chatData();
+      const c2 = d2.contacts.find(x => x.id === c.id);
+      if (!c2) return;
+      c2.messages.push({ from: "them", text: "Thanks for your message! Our team will reply shortly — this is an automated reply from Colourdiam.", time: timeFmt() });
+      c2.lastMsg = "Thanks for your message! Our team will reply shortly.";
+      c2.time = "Now";
+      save(CHAT_KEY, d2);
+      renderContacts();
+      renderChat(c2);
+      scrollBottom();
+    }, 1200);
+  }
+}
+
+function onKey(e) {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+}
+
+function scrollBottom() {
+  const m = document.getElementById("messages");
+  m.scrollTop = m.scrollHeight;
+}
+
+function renderContacts() {
+  const d = chatData();
+  if (!d.contacts) d.contacts = JSON.parse(JSON.stringify(SEED));
+  const q = (document.getElementById("search").value || "").toLowerCase();
+  const list = document.getElementById("contact-list");
+  const filtered = d.contacts.filter(c => c.name.toLowerCase().includes(q));
+  if (!filtered.length) { list.innerHTML = '<div style="padding:20px;color:var(--muted);font-size:13px;text-align:center">No chats found</div>'; return; }
+  list.innerHTML = filtered.map(c => `
+    <div class="contact-item ${d.activeId === c.id ? 'active' : ''}" onclick="openChat('${c.id}')">
+      <div class="avatar" style="background:${c.color}">${c.initials}</div>
+      <div class="ci-main">
+        <div class="ci-top">
+          <span class="ci-name">${esc(c.name)}<span class="platform-tag">${esc(c.platform)}</span></span>
+          <span class="ci-time">${esc(c.time)}</span>
+        </div>
+        <div class="ci-last">
+          <span class="ci-msg">${c.unread ? '🟢 ' : ''}${esc(c.lastMsg)}</span>
+          ${c.unread ? `<span class="unread">${c.unread}</span>` : ""}
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+function renderChat(c) {
+  document.getElementById("ch-avatar").textContent = c.initials;
+  document.getElementById("ch-avatar").style.background = c.color;
+  document.getElementById("ch-name").textContent = c.name;
+  document.getElementById("ch-status").textContent = (c.online ? "online" : "offline") + " · " + c.platform;
+  const m = document.getElementById("messages");
+  let lastDay = "";
+  m.innerHTML = c.messages.map(msg => {
+    const d = msg.time === "Now" || /^(\d{1,2}):/.test(msg.time) ? "Today" : (msg.time === "Yesterday" ? "Yesterday" : msg.time);
+    const divider = (d !== lastDay) ? `<div class="day-divider"><span>${d}</span></div>` : "";
+    lastDay = d;
+    const ticks = msg.from === "me" ? `<span class="ticks"> ✓✓</span>` : "";
+    return `${divider}<div class="msg-row ${msg.from === "me" ? "out" : "in"}"><div class="bubble">${esc(msg.text)}${ticks}<span class="time">${esc(msg.time)}</span></div></div>`;
+  }).join("");
+  m.scrollTop = m.scrollHeight;
+}
+
+/* ---------------- Init ---------------- */
 
 const urlInput = document.getElementById("n8n-url");
 const apiInput = document.getElementById("n8n-api-key");
 const vtInput = document.getElementById("verify-token");
 
-urlInput.addEventListener("input", () => { const c = load(); c.n8n_url = urlInput.value; save(c); render(); });
-apiInput.addEventListener("input", () => { const c = load(); c.n8n_api_key = apiInput.value; save(c); renderEnv(); });
-vtInput.addEventListener("input", () => { const c = load(); c.verify_token = vtInput.value; save(c); renderEnv(); });
+urlInput.addEventListener("input", () => { const c = load(CFG_KEY); c.n8n_url = urlInput.value; save(CFG_KEY, c); render(); });
+apiInput.addEventListener("input", () => { const c = load(CFG_KEY); c.n8n_api_key = apiInput.value; save(CFG_KEY, c); renderEnv(); });
+vtInput.addEventListener("input", () => { const c = load(CFG_KEY); c.verify_token = vtInput.value; save(CFG_KEY, c); renderEnv(); });
 
 (function init() {
-  const cfg = load();
+  const cfg = load(CFG_KEY);
   urlInput.value = cfg.n8n_url || "https://dhruval.n8n-hub.site";
   apiInput.value = cfg.n8n_api_key || "";
   vtInput.value = cfg.verify_token || "";
   render();
+  renderContacts();
 })();
 </script>
 </body>
