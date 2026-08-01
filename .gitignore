@@ -1,0 +1,15 @@
+# Secrets - never commit real credentials
+.env
+*.env.local
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+
+# n8n exports with credentials
+*.n8n
