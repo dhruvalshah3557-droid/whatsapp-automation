@@ -1,0 +1,10 @@
+{
+  "name": "meta-messaging-automation",
+  "version": "1.0.0",
+  "description": "n8n automation workflows for WhatsApp, Instagram Messenger and Facebook Messenger",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "import": "node scripts/import-workflows.mjs"
+  }
+}

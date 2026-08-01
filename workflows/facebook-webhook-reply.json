@@ -1,0 +1,249 @@
+{
+  "name": "Facebook Messenger - Receive and Auto-Reply",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "facebook-hook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "00000000-0000-4000-8000-000000000201",
+      "name": "Verify Facebook Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-4000-8000-000000000301",
+              "leftValue": "={{ $json.query.hub.verify_token }}",
+              "rightValue": "change_me_verify_token",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "00000000-0000-4000-8000-000000000202",
+      "name": "Check verify token",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [220, -60]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.query.hub.challenge }}",
+        "options": {}
+      },
+      "id": "00000000-0000-4000-8000-000000000203",
+      "name": "Return challenge",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [440, -140]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "Verification failed",
+        "options": {}
+      },
+      "id": "00000000-0000-4000-8000-000000000204",
+      "name": "Reject",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [440, 40]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "facebook-hook",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "00000000-0000-4000-8000-000000000205",
+      "name": "Facebook Events",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.2,
+      "position": [0, 220]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-4000-8000-000000000302",
+              "leftValue": "={{ $json.body.entry[0].messaging[0].message }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            },
+            {
+              "id": "00000000-0000-4000-8000-000000000303",
+              "leftValue": "={{ $json.body.entry[0].messaging[0].message.is_echo }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "00000000-0000-4000-8000-000000000206",
+      "name": "Is inbound message",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [220, 220]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-4000-8000-000000000304",
+              "leftValue": "={{ $json.body.entry[0].messaging[0].message.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            }
+          ]
+        }
+      },
+      "id": "00000000-0000-4000-8000-000000000207",
+      "name": "Is text message",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 220]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/me/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer change_me_facebook_page_token"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"recipient\":{\"id\":\"{{ $json.body.entry[0].messaging[0].sender.id }}\"},\"message\":{\"text\":\"Thanks for your Facebook message!\"}}",
+        "options": {}
+      },
+      "id": "00000000-0000-4000-8000-000000000208",
+      "name": "Send Facebook Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 220]
+    }
+  ],
+  "connections": {
+    "Verify Facebook Webhook": {
+      "Check verify token": {
+        "main": [
+          [
+            {
+              "node": "Check verify token",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "Check verify token": {
+      "Return challenge": {
+        "main": [
+          [
+            {
+              "node": "Return challenge",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Reject",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "Facebook Events": {
+      "Is inbound message": {
+        "main": [
+          [
+            {
+              "node": "Is inbound message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "Is inbound message": {
+      "Is text message": {
+        "main": [
+          [
+            {
+              "node": "Is text message",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      }
+    },
+    "Is text message": {
+      "Send Facebook Reply": {
+        "main": [
+          [
+            {
+              "node": "Send Facebook Reply",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      }
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

@@ -1,0 +1,109 @@
+{
+  "name": "WhatsApp - Broadcast to Recipients",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "00000000-0000-4000-8000-000000000301",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const contacts = [\n  { to: 'RECIPIENT_1_PHONE_NUMBER', message: 'Hello! This is a broadcast message from your WhatsApp bot.' },\n  { to: 'RECIPIENT_2_PHONE_NUMBER', message: 'Hello! This is a broadcast message from your WhatsApp bot.' }\n];\nreturn contacts;"
+      },
+      "id": "00000000-0000-4000-8000-000000000302",
+      "name": "Recipients list",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "batchSize": 1
+      },
+      "id": "00000000-0000-4000-8000-000000000303",
+      "name": "Process each recipient",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/YOUR_PHONE_NUMBER_ID/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer change_me_whatsapp_token"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"messaging_product\":\"whatsapp\",\"to\":\"{{ $json.to }}\",\"type\":\"text\",\"text\":{\"body\":\"{{ $json.message }}\"}}",
+        "options": {}
+      },
+      "id": "00000000-0000-4000-8000-000000000304",
+      "name": "Send WhatsApp Broadcast",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 0]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "Recipients list": {
+        "main": [
+          [
+            {
+              "node": "Recipients list",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "Recipients list": {
+      "Process each recipient": {
+        "main": [
+          [
+            {
+              "node": "Process each recipient",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "Process each recipient": {
+      "Send WhatsApp Broadcast": {
+        "main": [
+          [
+            {
+              "node": "Send WhatsApp Broadcast",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Process each recipient",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}
