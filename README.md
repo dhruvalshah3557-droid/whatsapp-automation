@@ -16,6 +16,18 @@ Automation workflows for n8n covering **WhatsApp (Cloud API)**, **Instagram Mess
 
 Each inbound workflow contains two webhook nodes on the same path: a `GET` node that answers Meta's subscription verification (echos the `hub.challenge` when the verify token matches) and a `POST` node that receives events. TikTok uses a single `POST` webhook that echoes back `challenge_code` for verification and processes message events in the same request. LINE uses a single `POST` webhook (no GET verification). WeChat uses a `GET` webhook for the SHA1 `echostr` verification and a `POST` webhook that replies with passive XML messages.
 
+## Connection wizard app
+
+The `messaging/` folder contains a standalone web app (`messaging/index.html`) that walks you through connecting every platform:
+
+- Enter your n8n URL, API key and verify token.
+- Enter each platform's tokens (WhatsApp, Instagram, Facebook, TikTok, LINE, WeChat).
+- It auto-builds the webhook URL for each platform (copy button) and shows per-platform setup steps.
+- It generates a ready-to-use `.env` file (copy button) and shows the n8n import command.
+- Config is saved locally in your browser — tokens never leave your device.
+
+Open it by serving the `messaging/` folder or via GitHub Pages.
+
 ## Deploy to your n8n instance
 
 1. Create an API key in n8n: **Settings -> API -> Create API key**.

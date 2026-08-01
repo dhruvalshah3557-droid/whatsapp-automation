@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Messaging Connector</title>
+<meta name="theme-color" content="#0f1115">
+<style>
+:root {
+  --bg: #0f1115;
+  --card: #1a1d24;
+  --border: #262b36;
+  --text: #e6e9ef;
+  --muted: #8b93a7;
+  --green: #22c55e;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --gold: #d4af37;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 20px;
+}
+.container { max-width: 860px; margin: 0 auto; }
+header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+header h1 { font-size: 24px; font-weight: 800; color: var(--gold); }
+header p { color: var(--muted); margin-top: 4px; font-size: 13px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+.card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.card-title { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 16px; }
+.logo { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 17px; color: #fff; flex-shrink: 0; }
+.step { font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: .08em; }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; }
+.status-online { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.status-pending { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+.status-offline { background: var(--red); box-shadow: 0 0 8px var(--red); }
+.status-label { font-size: 12px; color: var(--muted); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-row .full { grid-column: 1 / -1; }
+label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+input, textarea {
+  width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
+  padding: 11px 12px; border-radius: 10px; font-size: 14px; outline: none; font-family: inherit;
+}
+textarea { resize: vertical; min-height: 90px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; }
+input:focus, textarea:focus { border-color: var(--gold); }
+input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
+.hint { color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.5; }
+.webhook-box { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-top: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.webhook-box code { font-size: 12px; color: var(--text); word-break: break-all; font-family: "SF Mono", Menlo, monospace; }
+.copy-btn { background: var(--card); border: 1px solid var(--border); color: var(--green); padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.copy-btn:hover { border-color: var(--green); }
+.copy-btn:active { opacity: .7; }
+.copy-btn.done { color: var(--gold); border-color: var(--gold); }
+.details { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 14px; }
+.details summary { color: var(--blue); font-size: 13px; font-weight: 600; cursor: pointer; }
+.details ol { margin: 10px 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.details ol li::marker { color: var(--gold); }
+.install-steps { margin: 8px 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.9; }
+.install-steps li::marker { color: var(--gold); }
+.badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.env-out { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; font-family: "SF Mono", Menlo, monospace; font-size: 12px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; color: var(--text); min-height: 120px; }
+.btn {
+  background: var(--gold); color: #0f1115; border: none; border-radius: 10px;
+  padding: 12px 20px; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%;
+}
+.btn:active { opacity: .8; }
+.btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+.note { color: var(--muted); font-size: 12px; margin-top: 10px; }
+.cmd { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: "SF Mono", Menlo, monospace; font-size: 12px; color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0; }
+.msg { font-size: 13px; padding: 10px 14px; border-radius: 10px; margin-top: 10px; display: none; }
+.msg.ok { display: block; background: rgba(34,197,94,.12); color: var(--green); }
+.msg.err { display: block; background: rgba(244,63,94,.12); color: var(--red); }
+.step-title { font-size: 13px; font-weight: 700; color: var(--text); margin: 12px 0 6px; text-transform: uppercase; letter-spacing: .05em; }
+.ghost-desc { color: var(--muted); font-size: 13px; line-height: 1.6; margin-bottom: 10px; }
+@media (max-width: 600px) {
+  .form-row { grid-template-columns: 1fr; }
+  body { padding: 14px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <h1>Messaging Connector</h1>
+      <p>Connect WhatsApp, Instagram, Facebook, TikTok, LINE &amp; WeChat to n8n</p>
+    </div>
+    <span class="badge"><span class="status-dot status-pending"></span> auto-config</span>
+  </header>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title"><div class="logo" style="background:#3b82f6">n8n</div><span>n8n Instance</span></div>
+      <span class="step">STEP 1</span>
+    </div>
+    <div class="form-row">
+      <div><label>n8n URL</label><input id="n8n-url" placeholder="https://dhruval.n8n-hub.site"></div>
+      <div><label>n8n API Key</label><input id="n8n-api-key" type="password" placeholder="Settings -> API -> Create API key"></div>
+    </div>
+    <div class="form-row">
+      <div class="full"><label>Verify Token (shared by all platforms)</label><input id="verify-token" type="password" placeholder="change_me_verify_token"></div>
+    </div>
+    <p class="hint">The verify token is checked when Meta/TikTok verify your webhook URL. Keep the same value everywhere — it must match the token you enter in each platform console.</p>
+  </div>
+
+  <div id="platforms"></div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title"><div class="logo" style="background:#22c55e">ENV</div><span>Generated .env</span></div>
+      <span class="step">STEP 3</span>
+    </div>
+    <div class="env-out" id="env-out"></div>
+    <div class="form-row" style="margin-top:14px">
+      <div><button class="btn" onclick="copyEnv()">Copy .env</button></div>
+      <div><button class="btn btn-ghost" onclick="resetAll()">Reset</button></div>
+    </div>
+    <p class="note">Save this as <code>.env</code> in the project root, then run <code>npm run import</code> to push all workflows to n8n.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title"><div class="logo" style="background:#8b93a7">RUN</div><span>Deploy to n8n</span></div>
+      <span class="step">STEP 4</span>
+    </div>
+    <div class="ghost-desc">Copy the .env above into your project, then import the workflows:</div>
+    <div class="cmd"><code>npm run import</code><button class="copy-btn" onclick="copyCmd(this, 'npm run import')">Copy</button></div>
+    <ol class="install-steps">
+      <li>In each platform's webhook settings, point the callback URL at your n8n webhook URL (shown above each platform).</li>
+      <li>Subscribe to the events listed for that platform.</li>
+      <li>Activate each imported workflow in n8n.</li>
+    </ol>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <p style="color:var(--muted);font-size:12px;text-align:center;margin-top:16px">Config is saved locally on this device. Tokens never leave your browser.</p>
+</div>
+
+<script>
+const CFG_KEY = "mc_cfg_v1";
+
+const PLATFORMS = [
+  {
+    id: "whatsapp",
+    name: "WhatsApp Cloud API",
+    icon: "W",
+    color: "#25d366",
+    path: "/webhook/whatsapp-hook",
+    fields: [
+      { key: "whatsapp_access_token", label: "Access Token", type: "password", ph: "Paste WhatsApp access token" },
+      { key: "whatsapp_phone_number_id", label: "Phone Number ID", type: "text", ph: "e.g. 105283939382919" }
+    ],
+    subscribe: "Subscribe to field: messages",
+    steps: [
+      "In the Meta Developer app, open the WhatsApp product and get a test number.",
+      "Copy the temporary access token from the WhatsApp Cloud API settings.",
+      "Copy the Phone Number ID from the same screen.",
+      "Add these in the WhatsApp API Console (graph.facebook.com/v19.0/PHONE_ID/messages)."
+    ]
+  },
+  {
+    id: "instagram",
+    name: "Instagram Messenger",
+    icon: "IG",
+    color: "#e4405f",
+    path: "/webhook/instagram-hook",
+    fields: [
+      { key: "instagram_access_token", label: "Instagram Token", type: "password", ph: "Token with instagram_manage_messages" }
+    ],
+    subscribe: "Subscribe to field: messages",
+    steps: [
+      "Connect an Instagram Business account to your Meta app.",
+      "Generate a long-lived token with the instagram_manage_messages scope.",
+      "Set the callback URL to your n8n webhook URL and the same verify token.",
+      "Subscribe the 'messages' webhook field in the app's Webhooks settings."
+    ]
+  },
+  {
+    id: "facebook",
+    name: "Facebook Messenger",
+    icon: "F",
+    color: "#0866ff",
+    path: "/webhook/facebook-hook",
+    fields: [
+      { key: "facebook_page_access_token", label: "Page Access Token", type: "password", ph: "Token with pages_messaging" }
+    ],
+    subscribe: "Subscribe to field: messages",
+    steps: [
+      "Create a Facebook Page and connect it to your Meta app.",
+      "Generate a Page access token with the pages_messaging permission.",
+      "Add the webhook to your app with the same verify token.",
+      "Select your Page and subscribe to the 'messages' field."
+    ]
+  },
+  {
+    id: "tiktok",
+    name: "TikTok Messenger",
+    icon: "TT",
+    color: "#000000",
+    border: "1px solid #555",
+    path: "/webhook/tiktok-hook",
+    fields: [
+      { key: "tiktok_access_token", label: "Messaging API Token", type: "password", ph: "tiktok.business.messaging.write token" }
+    ],
+    subscribe: "Subscribe to event: message",
+    steps: [
+      "Create an app in the TikTok Developer Portal and enable the Messaging API product.",
+      "Generate a user access token with the tiktok.business.messaging.write scope.",
+      "Point the webhook URL at your n8n webhook URL (no GET verify for TikTok).",
+      "Subscribe the 'message' event in the app's webhook settings."
+    ]
+  },
+  {
+    id: "line",
+    name: "LINE Official",
+    icon: "L",
+    color: "#06c755",
+    path: "/webhook/line-hook",
+    fields: [
+      { key: "line_channel_access_token", label: "Channel Access Token", type: "password", ph: "Messaging API channel token" }
+    ],
+    subscribe: "All events (no GET verification)",
+    steps: [
+      "Create a provider/channel (Messaging API channel) in LINE Developers console.",
+      "Generate a Channel Access Token for the channel.",
+      "Set the webhook URL to your n8n webhook URL.",
+      "Enable the webhook toggle for the channel."
+    ]
+  },
+  {
+    id: "wechat",
+    name: "WeChat Official Account",
+    icon: "微",
+    color: "#07c160",
+    path: "/webhook/wechat-hook",
+    fields: [
+      { key: "wechat_token", label: "Server Token", type: "password", ph: "WeChat server Token" },
+      { key: "wechat_app_id", label: "AppID", type: "text", ph: "wx... AppID" },
+      { key: "wechat_app_secret", label: "AppSecret", type: "password", ph: "AppSecret" }
+    ],
+    subscribe: "All message types (SHA1 echostr verify)",
+    steps: [
+      "Register a 服务号 (Service Account) and get the AppID/AppSecret.",
+      "In the platform console, set the server URL to your n8n webhook URL and the Token.",
+      "Enable the server config so WeChat can verify the URL and forward messages.",
+      "Replies are returned as passive XML within 5 seconds."
+    ]
+  }
+];
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(CFG_KEY)) || {}; } catch (e) { return {}; }
+}
+function save(cfg) { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }
+
+function render() {
+  const cfg = load();
+  const n8nHost = (cfg.n8n_url || "https://dhruval.n8n-hub.site").replace(/\/$/, "");
+  const box = document.getElementById("platforms");
+  box.innerHTML = PLATFORMS.map((p, idx) => {
+    const missing = p.fields.filter(f => !(cfg[f.key] || "").trim()).map(f => f.key);
+    const done = missing.length === 0;
+    const st = done ? "status-online" : "status-pending";
+    const lbl = done ? "Configured" : (missing.length === p.fields.length ? "Not set" : "Partial");
+    const border = p.border ? `border:${p.border}` : "";
+    return `
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title"><div class="logo" style="background:${p.color};${border}">${p.icon}</div><span>${p.name}</span></div>
+        <div style="text-align:right">
+          <div class="status-dot ${st}"></div>
+          <div class="status-label">${lbl}</div>
+        </div>
+      </div>
+      <div class="form-row">
+        ${p.fields.map(f => `
+          <div class="${p.fields.length === 1 ? 'full' : ''}">
+            <label>${f.label}</label>
+            <input id="in-${p.id}-${f.key}" type="${f.type}" placeholder="${f.ph}" value="${esc(cfg[f.key] || "")}" oninput="onField('${p.id}','${f.key}',this.value)">
+          </div>`).join("")}
+      </div>
+      <div class="webhook-box"><code>${n8nHost}${p.path}</code><button class="copy-btn" onclick="copyText(this,'${n8nHost}${p.path}')">Copy URL</button></div>
+      <p class="hint">${p.subscribe}</p>
+      <details class="details">
+        <summary>Setup steps</summary>
+        <ol>${p.steps.map(s => `<li>${s}</li>`).join("")}</ol>
+      </details>
+    </div>`;
+  }).join("");
+  renderEnv();
+}
+
+function esc(v) {
+  return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function onField(pid, key, value) {
+  const cfg = load();
+  cfg[key] = value;
+  save(cfg);
+  renderStatuses();
+  renderEnv();
+}
+
+function renderStatuses() {
+  const cfg = load();
+  PLATFORMS.forEach((p, idx) => {
+    const missing = p.fields.filter(f => !(cfg[f.key] || "").trim()).length;
+    const card = document.getElementById("platforms").children[idx];
+    if (!card) return;
+    const dot = card.querySelector(".status-dot");
+    const label = card.querySelector(".status-label");
+    if (missing === 0) {
+      dot.className = "status-dot status-online";
+      label.textContent = "Configured";
+    } else if (missing === p.fields.length) {
+      dot.className = "status-dot status-pending";
+      label.textContent = "Not set";
+    } else {
+      dot.className = "status-dot status-pending";
+      label.textContent = "Partial";
+    }
+  });
+}
+
+function renderEnv() {
+  const cfg = load();
+  const host = (cfg.n8n_url || "https://dhruval.n8n-hub.site").replace(/\/$/, "");
+  const env = [
+    "# n8n connection",
+    `N8N_URL=${host}`,
+    `N8N_API_KEY=${cfg.n8n_api_key || "your_n8n_api_key"}`,
+    "",
+    "# Meta verification token (must match each platform webhook config)",
+    `META_VERIFY_TOKEN=${cfg.verify_token || "change_me_verify_token"}`,
+    "",
+    "# WhatsApp Cloud API",
+    `WHATSAPP_ACCESS_TOKEN=${cfg.whatsapp_access_token || "change_me_whatsapp_token"}`,
+    `WHATSAPP_PHONE_NUMBER_ID=${cfg.whatsapp_phone_number_id || "change_me_phone_number_id"}`,
+    "",
+    "# Instagram Messenger",
+    `INSTAGRAM_ACCESS_TOKEN=${cfg.instagram_access_token || "change_me_instagram_token"}`,
+    "",
+    "# Facebook Messenger",
+    `FACEBOOK_PAGE_ACCESS_TOKEN=${cfg.facebook_page_access_token || "change_me_facebook_page_token"}`,
+    "",
+    "# TikTok Messenger",
+    `TIKTOK_ACCESS_TOKEN=${cfg.tiktok_access_token || "change_me_tiktok_token"}`,
+    "",
+    "# LINE Official",
+    `LINE_CHANNEL_ACCESS_TOKEN=${cfg.line_channel_access_token || "change_me_line_token"}`,
+    "",
+    "# WeChat Official Account",
+    `WECHAT_TOKEN=${cfg.wechat_token || "change_me_wechat_token"}`,
+    `WECHAT_APP_ID=${cfg.wechat_app_id || "change_me_wechat_app_id"}`,
+    `WECHAT_APP_SECRET=${cfg.wechat_app_secret || "change_me_wechat_app_secret"}`
+  ].join("\n");
+  document.getElementById("env-out").textContent = env;
+}
+
+function copyText(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add("done");
+    btn.textContent = "Copied";
+    setTimeout(() => { btn.classList.remove("done"); btn.textContent = "Copy URL"; }, 1500);
+  }).catch(() => {});
+}
+
+function copyCmd(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add("done");
+    btn.textContent = "Copied";
+    setTimeout(() => { btn.classList.remove("done"); btn.textContent = "Copy"; }, 1500);
+  }).catch(() => {});
+}
+
+function copyEnv() {
+  const text = document.getElementById("env-out").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const msg = document.getElementById("msg");
+    msg.className = "msg ok";
+    msg.textContent = ".env copied to clipboard. Save it as .env in the project root and run `npm run import`.";
+    setTimeout(() => { msg.className = "msg"; }, 4000);
+  }).catch(() => {});
+}
+
+function resetAll() {
+  localStorage.removeItem(CFG_KEY);
+  render();
+}
+
+const urlInput = document.getElementById("n8n-url");
+const apiInput = document.getElementById("n8n-api-key");
+const vtInput = document.getElementById("verify-token");
+
+urlInput.addEventListener("input", () => { const c = load(); c.n8n_url = urlInput.value; save(c); render(); });
+apiInput.addEventListener("input", () => { const c = load(); c.n8n_api_key = apiInput.value; save(c); renderEnv(); });
+vtInput.addEventListener("input", () => { const c = load(); c.verify_token = vtInput.value; save(c); renderEnv(); });
+
+(function init() {
+  const cfg = load();
+  urlInput.value = cfg.n8n_url || "https://dhruval.n8n-hub.site";
+  apiInput.value = cfg.n8n_api_key || "";
+  vtInput.value = cfg.verify_token || "";
+  render();
+})();
+</script>
+</body>
+</html>
