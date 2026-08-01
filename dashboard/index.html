@@ -22,6 +22,7 @@
   --amber: #f59e0b;
   --red: #ef4444;
   --blue: #3b82f6;
+  --gold: #d4af37;
   --tabbar: 64px;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,13 +31,13 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  padding: 24px;
+  padding: 16px;
   padding-bottom: calc(var(--tabbar) + 24px);
 }
 .container { max-width: 1200px; margin: 0 auto; }
-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; gap: 12px; flex-wrap: wrap; }
-header h1 { font-size: 24px; font-weight: 700; }
-header p { color: var(--muted); margin-top: 4px; font-size: 14px; }
+header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+header h1 { font-size: 22px; font-weight: 700; color: var(--gold); }
+header p { color: var(--muted); margin-top: 4px; font-size: 13px; }
 .website-btn {
   display: inline-flex; align-items: center; gap: 8px;
   background: var(--card); border: 1px solid var(--border); color: var(--green);
@@ -48,7 +49,8 @@ header p { color: var(--muted); margin-top: 4px; font-size: 14px; }
 .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
 .stat-card .value { font-size: 26px; font-weight: 700; }
 .stat-card .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; margin-top: 4px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.grid-sm { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
 .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .card-title { display: flex; align-items: center; gap: 10px; font-weight: 600; }
@@ -72,20 +74,52 @@ footer { margin-top: 24px; color: var(--muted); font-size: 12px; text-align: cen
 .tab-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
 .tab-sub { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
 
+.hero {
+  background: linear-gradient(135deg, #1a1d24, #2a2112);
+  border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 24px; text-align: center;
+}
+.hero h2 { font-size: 28px; color: var(--gold); margin-bottom: 8px; }
+.hero p { color: var(--muted); margin-bottom: 20px; }
+.hero-tags { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.hero-tags .chip { background: rgba(212,175,55,.15); color: var(--gold); }
+.badge { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+
+.tile {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px; text-align: center; text-decoration: none; color: var(--text);
+  display: block;
+}
+.tile:active { border-color: var(--gold); }
+.tile .t-icon { width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; font-size: 20px; }
+.tile .t-name { font-weight: 600; font-size: 14px; }
+.tile .t-sub { color: var(--muted); font-size: 12px; margin-top: 4px; }
+.tile .t-cta { color: var(--gold); font-size: 12px; font-weight: 700; margin-top: 8px; }
+
+.color-tile { display: block; text-decoration: none; color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+.color-tile .swatch { width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 8px; border: 2px solid var(--border); }
+.color-tile .c-name { font-size: 14px; font-weight: 600; }
+.color-tile .c-cta { color: var(--gold); font-size: 12px; margin-top: 4px; }
+
+.filter-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.filter-chips button { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 8px 14px; border-radius: 999px; font-size: 13px; cursor: pointer; }
+.filter-chips button.active { background: rgba(212,175,55,.15); color: var(--gold); border-color: var(--gold); }
+
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .form-row .full { grid-column: 1 / -1; }
-input, select {
+input, select, textarea {
   width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
-  padding: 12px; border-radius: 10px; font-size: 14px; outline: none;
+  padding: 12px; border-radius: 10px; font-size: 14px; outline: none; font-family: inherit;
 }
-input:focus, select:focus { border-color: var(--green); }
+textarea { resize: vertical; min-height: 80px; }
+input:focus, select:focus, textarea:focus { border-color: var(--gold); }
 label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
 .btn {
-  background: var(--green); color: #0f1115; border: none; border-radius: 10px;
+  background: var(--gold); color: #0f1115; border: none; border-radius: 10px;
   padding: 12px 20px; font-weight: 700; font-size: 14px; cursor: pointer;
 }
 .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
 .btn-danger { background: rgba(244,63,94,.15); color: var(--red); }
+.btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--border); }
 .btn:active { opacity: .8; }
 .list { display: flex; flex-direction: column; gap: 8px; }
 .list-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
@@ -96,13 +130,18 @@ label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px
 .amt-neg { color: var(--red); }
 .empty { color: var(--muted); font-size: 13px; text-align: center; padding: 24px 0; }
 
+.link-list { display: flex; flex-direction: column; gap: 8px; }
+.link-list a { display: flex; justify-content: space-between; align-items: center; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: 500; }
+.link-list a:active { border-color: var(--gold); }
+.link-list .arrow { color: var(--muted); }
+
 #install {
   position: fixed;
   bottom: calc(var(--tabbar) + 16px); left: 50%; transform: translateX(-50%);
-  background: #22c55e; color: #0f1115;
+  background: var(--gold); color: #0f1115;
   border: none; border-radius: 999px; padding: 12px 24px;
   font-weight: 700; font-size: 14px; cursor: pointer;
-  box-shadow: 0 4px 20px rgba(34,197,94,.4);
+  box-shadow: 0 4px 20px rgba(212,175,55,.4);
   display: none; z-index: 100;
 }
 
@@ -117,14 +156,15 @@ label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px
   gap: 2px; color: var(--muted); background: none; border: none;
   font-size: 10px; font-weight: 600; cursor: pointer; padding: 6px 0;
 }
-.tab-item .ico { font-size: 20px; line-height: 1; }
-.tab-item.active { color: var(--green); }
+.tab-item .ico { font-size: 16px; line-height: 1; font-weight: 800; }
+.tab-item.active { color: var(--gold); }
 
 @media (max-width: 600px) {
-  body { padding: 12px 12px 24px; padding-bottom: calc(var(--tabbar) + 12px); }
-  header h1 { font-size: 20px; }
+  body { padding: 12px; padding-bottom: calc(var(--tabbar) + 12px); }
+  header h1 { font-size: 19px; }
   .grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
+  .hero h2 { font-size: 22px; }
 }
 </style>
 </head>
@@ -133,35 +173,114 @@ label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px
   <header>
     <div>
       <h1>Colourdiam</h1>
-      <p>Business dashboard — automation, sales, purchases &amp; costs</p>
+      <p>Elegant &amp; Timeless Diamond Jewelry</p>
     </div>
-    <a class="website-btn" href="https://www.colourdiam.com" target="_blank" rel="noopener">Visit www.colourdiam.com ↗</a>
+    <a class="website-btn" href="https://www.colourdiam.com" target="_blank" rel="noopener">www.colourdiam.com ↗</a>
   </header>
 
   <section id="tab-home" class="tab-content active">
+    <div class="hero">
+      <h2>Elegant &amp; Timeless Diamond Jewelry</h2>
+      <p>Rings | Earrings | Necklaces | Bracelets — Certified Diamonds | Custom Designs</p>
+      <div class="hero-tags">
+        <span class="chip">Free Shipping</span>
+        <span class="chip">100% Money Back</span>
+        <span class="chip">Lifetime Warranty</span>
+        <span class="chip">Support 24/7</span>
+      </div>
+    </div>
+
+    <div class="tab-title">Shop by Category</div>
+    <div class="grid-sm" id="home-cats"></div>
+
+    <div class="tab-title" style="margin-top:20px">Business Overview</div>
     <div class="stats">
-      <div class="stat-card"><div class="value" id="h-platforms">7</div><div class="label">Platforms</div></div>
       <div class="stat-card"><div class="value" id="h-total-sales">$0</div><div class="label">Total Sales</div></div>
       <div class="stat-card"><div class="value" id="h-total-purchase">$0</div><div class="label">Purchases</div></div>
       <div class="stat-card"><div class="value" id="h-total-cost">$0</div><div class="label">Costs</div></div>
       <div class="stat-card"><div class="value" id="h-profit">$0</div><div class="label">Profit</div></div>
     </div>
 
-    <div class="tab-title">Platform Status</div>
-    <div class="grid" id="home-grid"></div>
-
-    <footer>Data is saved locally on this device. Website: www.colourdiam.com</footer>
+    <footer>Data saved locally on this device · Website: www.colourdiam.com</footer>
   </section>
 
-  <section id="tab-platforms" class="tab-content">
-    <div class="tab-title">Messaging Platforms</div>
-    <div class="tab-sub">Automation workflows — inbound webhook receive + auto-reply</div>
-    <div class="grid" id="grid"></div>
+  <section id="tab-shop" class="tab-content">
+    <div class="tab-title">Fine Diamond Jewelry</div>
+    <div class="tab-sub">Browse our collection — categories and filters</div>
+
+    <div class="grid-sm" id="shop-cats"></div>
+
+    <div class="tab-title" style="margin-top:20px">Filters</div>
+    <div class="card">
+      <div class="tab-sub" style="margin-bottom:8px">Metal</div>
+      <div class="filter-chips" id="f-metal"></div>
+      <div class="tab-sub" style="margin-bottom:8px">Purity</div>
+      <div class="filter-chips" id="f-purity"></div>
+      <div class="tab-sub" style="margin-bottom:8px">Shape</div>
+      <div class="filter-chips" id="f-shape"></div>
+      <div class="tab-sub" style="margin-bottom:8px">Color</div>
+      <div class="filter-chips" id="f-color"></div>
+      <div class="tab-sub" style="margin-bottom:8px">Carat</div>
+      <div class="filter-chips" id="f-carat"></div>
+      <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="openFilteredShop()">View Matching Items on Website</button>
+    </div>
+
+    <div class="tab-title" style="margin-top:20px">Shop on Our Website</div>
+    <div class="card" style="text-align:center">
+      <p class="tab-sub" style="margin-bottom:12px">Browse the full catalog and purchase securely online.</p>
+      <a class="btn website-btn" style="justify-content:center" href="https://www.colourdiam.com/product" target="_blank" rel="noopener">Shop Now on colourdiam.com</a>
+    </div>
   </section>
 
-  <section id="tab-sales" class="tab-content">
-    <div class="tab-title">Sales</div>
-    <div class="tab-sub">Record sales to customers</div>
+  <section id="tab-diamonds" class="tab-content">
+    <div class="tab-title">Colour Diamonds</div>
+    <div class="tab-sub">Browse our hand-picked selection of fine fancy colored diamonds</div>
+    <div class="grid-sm" id="diamond-grid"></div>
+  </section>
+
+  <section id="tab-design" class="tab-content">
+    <div class="tab-title">Design Your Own</div>
+    <div class="tab-sub">Create a custom piece — tell us what you want</div>
+    <div class="card">
+      <div class="form-row">
+        <div><label>Full Name</label><input id="d-name" placeholder="Your name"></div>
+        <div><label>Email</label><input id="d-email" type="email" placeholder="you@email.com"></div>
+        <div><label>Phone / WhatsApp</label><input id="d-phone" placeholder="+852 9644 0155"></div>
+        <div><label>Product Type</label>
+          <select id="d-type"><option>Ring</option><option>Earring</option><option>Necklace</option><option>Bracelet</option><option>Pendant</option><option>Loose Diamond</option></select>
+        </div>
+        <div><label>Budget ($)</label><input id="d-budget" type="number" min="0" placeholder="e.g. 5000"></div>
+        <div><label>Stone Color</label>
+          <select id="d-color"><option>White</option><option>Pink</option><option>Blue</option><option>Yellow</option><option>Green</option><option>Other</option></select>
+        </div>
+        <div class="full"><label>Message / Requirements</label><textarea id="d-msg" placeholder="Describe your ideal piece..."></textarea></div>
+        <div class="full"><button class="btn" onclick="submitDesign()">Submit Design Request</button></div>
+      </div>
+    </div>
+
+    <div class="tab-title" style="margin-top:16px">Contact for Price</div>
+    <div class="card">
+      <div class="form-row">
+        <div class="full"><label>Your Email</label><input id="c-price-email" type="email" placeholder="you@email.com"></div>
+        <div class="full"><label>Message</label><textarea id="c-price-msg" placeholder="Which piece would you like pricing for?"></textarea></div>
+        <div class="full"><button class="btn btn-ghost" onclick="submitPrice()">Request Price on Website</button></div>
+      </div>
+    </div>
+
+    <div class="tab-title" style="margin-top:16px">Newsletter</div>
+    <div class="card">
+      <p class="tab-sub" style="margin-bottom:12px">Get exclusive offers and new arrivals.</p>
+      <div class="form-row">
+        <div class="full"><label>Email</label><input id="n-email" type="email" placeholder="you@email.com"></div>
+        <div class="full"><button class="btn btn-ghost" onclick="subscribeNews()">Subscribe</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-business" class="tab-content">
+    <div class="tab-title">Business</div>
+
+    <div class="tab-sub" style="font-weight:600;color:var(--text)">Sales</div>
     <div class="card">
       <div class="form-row">
         <div><label>Product / Item</label><input id="s-item" placeholder="e.g. Yellow Diamond Ring"></div>
@@ -174,11 +293,8 @@ label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px
       </div>
     </div>
     <div class="card"><div class="card-title" style="margin-bottom:12px">Recent Sales</div><div class="list" id="sales-list"></div></div>
-  </section>
 
-  <section id="tab-purchase" class="tab-content">
-    <div class="tab-title">Purchases</div>
-    <div class="tab-sub">Record stock / diamond purchases from suppliers</div>
+    <div class="tab-sub" style="font-weight:600;color:var(--text);margin-top:20px">Purchases</div>
     <div class="card">
       <div class="form-row">
         <div><label>Item</label><input id="p-item" placeholder="e.g. Loose Blue Diamond"></div>
@@ -189,11 +305,8 @@ label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px
       </div>
     </div>
     <div class="card"><div class="card-title" style="margin-bottom:12px">Recent Purchases</div><div class="list" id="purchase-list"></div></div>
-  </section>
 
-  <section id="tab-cost" class="tab-content">
-    <div class="tab-title">Costs</div>
-    <div class="tab-sub">Track business expenses</div>
+    <div class="tab-sub" style="font-weight:600;color:var(--text);margin-top:20px">Costs</div>
     <div class="card">
       <div class="form-row">
         <div><label>Description</label><input id="c-desc" placeholder="e.g. Shipping, marketing"></div>
@@ -206,6 +319,12 @@ label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px
       </div>
     </div>
     <div class="card"><div class="card-title" style="margin-bottom:12px">Recent Costs</div><div class="list" id="cost-list"></div></div>
+
+    <div class="tab-sub" style="font-weight:600;color:var(--text);margin-top:20px">Messaging Platforms</div>
+    <div class="grid" id="grid"></div>
+
+    <div class="tab-title" style="margin-top:24px">Information</div>
+    <div class="link-list" id="info-links"></div>
   </section>
 
   <button id="install" hidden>Install app</button>
@@ -213,10 +332,10 @@ label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px
 
 <nav class="tabbar">
   <button class="tab-item active" data-tab="home"><span class="ico">H</span>Home</button>
-  <button class="tab-item" data-tab="platforms"><span class="ico">P</span>Platforms</button>
-  <button class="tab-item" data-tab="sales"><span class="ico">S</span>Sales</button>
-  <button class="tab-item" data-tab="purchase"><span class="ico">B</span>Purchase</button>
-  <button class="tab-item" data-tab="cost"><span class="ico">C</span>Cost</button>
+  <button class="tab-item" data-tab="shop"><span class="ico">S</span>Shop</button>
+  <button class="tab-item" data-tab="diamonds"><span class="ico">D</span>Diamonds</button>
+  <button class="tab-item" data-tab="design"><span class="ico">C</span>Design</button>
+  <button class="tab-item" data-tab="business"><span class="ico">B</span>Business</button>
 </nav>
 
 <script>
@@ -248,6 +367,77 @@ document.querySelectorAll(".tab-item").forEach(btn => {
     document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
   });
 });
+
+const SITE = "https://www.colourdiam.com";
+
+const categories = [
+  { name: "Rings", icon: "R", color: "#d4af37", url: SITE + "/product/ring/1" },
+  { name: "Earrings", icon: "E", color: "#b8860b", url: SITE + "/product/earring/1" },
+  { name: "Necklaces", icon: "N", color: "#e6c200", url: SITE + "/product/necklace-necklace-pendant/1" },
+  { name: "Bracelets", icon: "B", color: "#c9a84c", url: SITE + "/product/bracelet/1" },
+  { name: "Pendants", icon: "P", color: "#d4af37", url: SITE + "/product/necklace-pendant/1" }
+];
+
+const diamonds = [
+  { name: "Black", hex: "#111111" },
+  { name: "Blue", hex: "#3b82f6" },
+  { name: "Brown", hex: "#8b5e34" },
+  { name: "Gray", hex: "#9ca3af" },
+  { name: "Green", hex: "#22c55e" },
+  { name: "Orange", hex: "#f97316" },
+  { name: "Pink", hex: "#ec4899" },
+  { name: "Purple", hex: "#a855f7" },
+  { name: "Red", hex: "#ef4444" },
+  { name: "Violet", hex: "#8b5cf6" },
+  { name: "White", hex: "#e5e7eb" },
+  { name: "Yellow", hex: "#eab308" }
+];
+
+const filters = {
+  metal: ["Gold", "White Gold"],
+  purity: ["18K", "9K", "Silver"],
+  shape: ["Round", "Pear", "Oval", "Emerald", "Heart", "Cushion", "Radiant", "Princess", "Marquise", "Baguettes", "Trillion", "Half Moon", "Other"],
+  color: ["D-Z", "Blue", "Brown", "Gray", "Green", "Orange", "Pink", "White", "Yellow"],
+  carat: ["0.01-0.50 Ct.", "0.50-1.00 Ct.", "1.00-2.00 Ct.", "2.00-5.00 Ct.", "5.00+ Ct."]
+};
+
+const selectedFilters = { metal: "", purity: "", shape: "", color: "", carat: "" };
+
+function buildFilterChips(id, key) {
+  const el = document.getElementById(id);
+  el.innerHTML = filters[key].map(v =>
+    `<button data-k="${key}" data-v="${v}" class="${selectedFilters[key] === v ? 'active' : ''}">${v}</button>`
+  ).join("");
+}
+
+function openFilteredShop() {
+  const parts = [];
+  for (const [k, v] of Object.entries(selectedFilters)) {
+    if (v) parts.push(k + "=" + encodeURIComponent(v));
+  }
+  const url = parts.length ? SITE + "/product?" + parts.join("&") : SITE + "/product";
+  window.open(url, "_blank", "noopener");
+}
+
+function renderCategories() {
+  const html = categories.map(c =>
+    `<a class="tile" href="${c.url}" target="_blank" rel="noopener">
+       <div class="t-icon" style="background:${c.color}">${c.icon}</div>
+       <div class="t-name">${c.name}</div>
+       <div class="t-cta">Shop Now →</div>
+     </a>`).join("");
+  document.getElementById("home-cats").innerHTML = html;
+  document.getElementById("shop-cats").innerHTML = html;
+}
+
+function renderDiamonds() {
+  document.getElementById("diamond-grid").innerHTML = diamonds.map(d =>
+    `<a class="color-tile" href="${SITE}/diamonds/${d.name.toLowerCase()}" target="_blank" rel="noopener">
+       <div class="swatch" style="background:${d.hex}"></div>
+       <div class="c-name">${d.name}</div>
+       <div class="c-cta">Shop →</div>
+     </a>`).join("");
+}
 
 const platforms = [
   { name: "WhatsApp", logo: "W", color: "#25d366", path: "/webhook/whatsapp-hook", workflow: "whatsapp-webhook-reply.json", reply: true, status: "pending", label: "Configured", rows: [["Cloud API", "messaging_product"], ["Broadcast", "whatsapp-broadcast.json"]] },
@@ -289,7 +479,26 @@ function platformCard(p) {
 
 function renderPlatforms() {
   document.getElementById("grid").innerHTML = platforms.map(platformCard).join("");
-  document.getElementById("home-grid").innerHTML = platforms.map(platformCard).join("");
+}
+
+const infoLinks = [
+  ["Frequently Asked Questions", "/faq"],
+  ["Education", "/education"],
+  ["Newsletter", "/news"],
+  ["Blog", "/blog"],
+  ["About Us", "/aboutus"],
+  ["Privacy & Policy", "/privacy-policy"],
+  ["Terms & Conditions", "/terms-condition"],
+  ["Return Policy", "/returnpolicy"],
+  ["Contact Us", "/contactus"],
+  ["Sign In", "/login"],
+  ["Sign Up", "/register"]
+];
+
+function renderInfoLinks() {
+  document.getElementById("info-links").innerHTML = infoLinks.map(([label, path]) =>
+    `<a href="${SITE}${path}" target="_blank" rel="noopener"><span>${label}</span><span class="arrow">→</span></a>`
+  ).join("");
 }
 
 function store(key, data) { localStorage.setItem("cd_" + key, JSON.stringify(data)); }
@@ -416,10 +625,56 @@ function renderStats() {
   document.getElementById("h-total-purchase").textContent = fmt(totalPurchase);
   document.getElementById("h-total-cost").textContent = fmt(totalCost);
   document.getElementById("h-profit").textContent = fmt(totalSales - totalPurchase - totalCost);
-  document.getElementById("h-platforms").textContent = platforms.length;
 }
 
+function submitDesign() {
+  const name = document.getElementById("d-name").value.trim();
+  const email = document.getElementById("d-email").value.trim();
+  const type = document.getElementById("d-type").value;
+  const msg = document.getElementById("d-msg").value.trim();
+  if (!name || !email) { alert("Enter your name and email"); return; }
+  const reqs = load("designs");
+  reqs.unshift({ name, email, type, date: today(), msg });
+  store("designs", reqs);
+  alert("Design request saved! Open the website to continue: " + SITE);
+  ["d-name", "d-email", "d-phone", "d-budget", "d-msg"].forEach(id => document.getElementById(id).value = "");
+  window.open(SITE + "/product", "_blank", "noopener");
+}
+
+function submitPrice() {
+  const email = document.getElementById("c-price-email").value.trim();
+  if (!email) { alert("Enter your email"); return; }
+  window.open(SITE + "/contactus", "_blank", "noopener");
+  document.getElementById("c-price-email").value = "";
+  document.getElementById("c-price-msg").value = "";
+}
+
+function subscribeNews() {
+  const email = document.getElementById("n-email").value.trim();
+  if (!email) { alert("Enter your email"); return; }
+  const subs = load("newsletter");
+  subs.unshift({ email, date: today() });
+  store("newsletter", subs);
+  alert("Subscribed! Check the website newsletter.");
+  document.getElementById("n-email").value = "";
+  window.open(SITE + "/newsletter", "_blank", "noopener");
+}
+
+Object.keys(filters).forEach(k => {
+  buildFilterChips("f-" + k, k);
+});
+document.querySelectorAll(".filter-chips button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const key = btn.dataset.k;
+    selectedFilters[key] = selectedFilters[key] === btn.dataset.v ? "" : btn.dataset.v;
+    buildFilterChips("f-" + key, key);
+  });
+});
+
+renderCategories();
+renderDiamonds();
 renderPlatforms();
+renderInfoLinks();
 renderSales();
 renderPurchases();
 renderCosts();
