@@ -193,10 +193,15 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
 .ghost-desc { color: var(--muted); font-size: 13px; line-height: 1.6; margin-bottom: 10px; }
 .cmd { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: "SF Mono", Menlo, monospace; font-size: 12px; color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0; }
 
+.ai-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ai-panel { flex: 1; }
+#ai-settings input { font-size: 13px; }
+#ai-quick .copy-btn { font-size: 11px; padding: 6px 10px; border-radius: 999px; }
+
 @media (max-width: 760px) {
   .sidebar { width: 100%; min-width: 100%; }
-  .chat-panel { display: none; }
-  .chat-panel.show-mobile { display: flex; position: fixed; inset: 0; z-index: 20; }
+  #chat-panel { display: none; }
+  #chat-panel.show-mobile { display: flex; position: fixed; inset: 0; z-index: 20; }
   .sidebar.hide-mobile { display: none; }
 }
 </style>
@@ -210,6 +215,7 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
     </div>
     <div class="nav-tabs">
       <button class="active" data-view="chats" onclick="switchView('chats')">Chats</button>
+      <button data-view="ai" onclick="switchView('ai')">AI Bot</button>
       <button data-view="connector" onclick="switchView('connector')">Connector</button>
     </div>
   </div>
@@ -244,6 +250,49 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
             </div>
           </div>
         </section>
+      </div>
+    </div>
+
+    <!-- AI Bot view -->
+    <div id="view-ai" class="view">
+      <div class="ai-wrap">
+        <div class="chat-panel ai-panel">
+          <div class="chat-header">
+            <div class="avatar" style="background:linear-gradient(135deg,#d4af37,#8b5cf6)">AI</div>
+            <div class="ch-header-main">
+              <div class="ch-name">Colourdiam AI Assistant</div>
+              <div class="ch-status" id="ai-status">Ready — updates your connector directly</div>
+            </div>
+            <button class="ch-header-btn" onclick="aiToggleSettings()">⚙</button>
+          </div>
+
+          <div id="ai-settings" style="display:none;background:var(--header);border-bottom:1px solid var(--border);padding:12px 14px">
+            <div class="form-row">
+              <div><label>API Base URL</label><input id="ai-base" placeholder="https://api.openai.com/v1"></div>
+              <div><label>Model</label><input id="ai-model" placeholder="gpt-4o-mini"></div>
+            </div>
+            <div class="form-row">
+              <div class="full"><label>API Key (stored only on this device)</label><input id="ai-key" type="password" placeholder="sk-..."></div>
+            </div>
+            <button class="btn btn-ghost" style="width:100%" onclick="aiSaveSettings()">Save Settings</button>
+            <p class="hint">Optional. Without a key the bot still works in offline mode using built-in commands. Your key is saved only in this browser and sent only to the API base URL you enter.</p>
+          </div>
+
+          <div class="messages" id="ai-messages"></div>
+
+          <div id="ai-quick" class="input-bar" style="flex-wrap:wrap;padding-bottom:6px">
+            <button class="copy-btn" onclick="aiQuick('set whatsapp token to <PASTE_TOKEN>')">Set WhatsApp token</button>
+            <button class="copy-btn" onclick="aiQuick('show status')">Status</button>
+            <button class="copy-btn" onclick="aiQuick('show env')">Show .env</button>
+            <button class="copy-btn" onclick="aiQuick('set n8n url to <URL>')">Set n8n URL</button>
+            <button class="copy-btn" onclick="aiQuick('help')">Help</button>
+          </div>
+
+          <div class="input-bar">
+            <textarea id="ai-input" rows="1" placeholder="Ask the AI to configure something... e.g. set instagram token to X" onkeydown="aiKey(event)"></textarea>
+            <button class="send-btn" id="ai-send-btn" onclick="aiSend()">➤</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -323,6 +372,8 @@ function save(key, v) { localStorage.setItem(key, JSON.stringify(v)); }
 function switchView(v) {
   document.querySelectorAll(".nav-tabs button").forEach(b => b.classList.toggle("active", b.dataset.view === v));
   document.querySelectorAll(".view").forEach(el => el.classList.toggle("active", el.id === "view-" + v));
+  document.getElementById("chat-panel").classList.remove("show-mobile");
+  document.getElementById("sidebar").classList.remove("hide-mobile");
 }
 
 /* ---------------- Connector ---------------- */
@@ -594,6 +645,7 @@ function openChat(id) {
   if (!d.contacts) d.contacts = JSON.parse(JSON.stringify(SEED));
   const c = d.contacts.find(x => x.id === id);
   if (!c) return;
+  d.activeId = id;
   c.unread = 0;
   save(CHAT_KEY, d);
   renderContacts();
@@ -700,6 +752,269 @@ function renderChat(c) {
   m.scrollTop = m.scrollHeight;
 }
 
+/* ---------------- AI Bot ---------------- */
+
+const AI_KEY = "mc_ai_v1";
+const AI_MSG_KEY = "mc_ai_msgs_v1";
+
+function aiLoad() { return load(AI_KEY); }
+function aiSave(c) { save(AI_KEY, c); }
+function aiMsgs() { const d = load(AI_MSG_KEY); return Array.isArray(d) ? d : []; }
+function aiSaveMsgs(msgs) { save(AI_MSG_KEY, msgs); }
+
+const AI_SYSTEM = `You are "Colourdiam AI Assistant", a helpful assistant inside a web app that manages a WhatsApp/messaging automation setup powered by n8n.
+The app manages connections for: WhatsApp Cloud API, Instagram Messenger, Facebook Messenger, TikTok Messenger, LINE Official, WeChat Official Account.
+It also has a business dashboard at www.colourdiam.com (a diamond jewelry company).
+Help the user with:
+- Setting tokens and credentials. When the user asks to set a token, reply with exactly one line in the format:
+  SET:<field>=<value>
+  where field is one of: whatsapp_access_token, whatsapp_phone_number_id, instagram_access_token, facebook_page_access_token, tiktok_access_token, line_channel_access_token, wechat_token, wechat_app_id, wechat_app_secret, n8n_url, n8n_api_key, verify_token.
+  Then add a short confirmation sentence.
+- Answering questions about the setup steps.
+- Suggesting how to import workflows to n8n (npm run import).
+Keep answers concise and friendly. If you cannot set something, explain why.`;
+
+function aiInit() {
+  const msgs = aiMsgs();
+  if (!msgs.length) {
+    msgs.push({ role: "assistant", text: "Hi! I'm the Colourdiam AI Assistant. I can update your connector settings directly. Try: \"set whatsapp token to ...\", \"show status\", \"show env\", or \"set n8n url to ...\"" });
+    aiSaveMsgs(msgs);
+  }
+  aiRender();
+}
+
+function aiToggleSettings() {
+  const el = document.getElementById("ai-settings");
+  el.style.display = el.style.display === "none" ? "block" : "none";
+  const c = aiLoad();
+  document.getElementById("ai-base").value = c.base || "";
+  document.getElementById("ai-model").value = c.model || "";
+  document.getElementById("ai-key").value = c.key || "";
+}
+
+function aiSaveSettings() {
+  const c = {
+    base: document.getElementById("ai-base").value.trim(),
+    model: document.getElementById("ai-model").value.trim(),
+    key: document.getElementById("ai-key").value.trim()
+  };
+  aiSave(c);
+  document.getElementById("ai-settings").style.display = "none";
+  const st = document.getElementById("ai-status");
+  st.textContent = c.base && c.key ? "Connected — AI mode on" : "Ready — offline mode (commands only)";
+}
+
+function aiStatusText() {
+  const c = aiLoad();
+  return c.base && c.key ? "Connected — AI mode on" : "Ready — offline mode (commands only)";
+}
+
+function aiQuick(tpl) {
+  const input = document.getElementById("ai-input");
+  input.value = tpl;
+  input.focus();
+  if (tpl.includes("<")) {
+    input.select();
+  } else {
+    aiSend();
+  }
+}
+
+function aiKey(e) {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); aiSend(); }
+}
+
+function aiScroll() {
+  const m = document.getElementById("ai-messages");
+  m.scrollTop = m.scrollHeight;
+}
+
+function aiAppend(role, text) {
+  const msgs = aiMsgs();
+  msgs.push({ role, text });
+  aiSaveMsgs(msgs);
+  aiRender();
+}
+
+function aiRender() {
+  const m = document.getElementById("ai-messages");
+  const msgs = aiMsgs();
+  if (!msgs.length) { m.innerHTML = ""; return; }
+  let lastDay = "";
+  m.innerHTML = msgs.map(msg => {
+    const isMe = msg.role === "user";
+    const d = "Today";
+    const divider = (d !== lastDay) ? `<div class="day-divider"><span>${d}</span></div>` : "";
+    lastDay = d;
+    return `${divider}<div class="msg-row ${isMe ? "out" : "in"}"><div class="bubble" style="${isMe ? "" : "background:#202a3a"}">${esc(msg.text)}</div></div>`;
+  }).join("");
+  aiScroll();
+}
+
+function aiApplySetting(field, value) {
+  const cfg = load(CFG_KEY);
+  cfg[field] = value;
+  save(CFG_KEY, cfg);
+  render();
+  renderEnv();
+  return cfg[field];
+}
+
+function aiHandleCommand(text) {
+  const t = text.trim();
+  const lower = t.toLowerCase();
+
+  if (lower === "help") {
+    return "I can update your connector directly. Commands:\n• set whatsapp token to <value>\n• set instagram token to <value>\n• set facebook page token to <value>\n• set tiktok token to <value>\n• set line token to <value>\n• set wechat token to <value>\n• set n8n url to <url>\n• set n8n api key to <key>\n• set verify token to <value>\n• show status\n• show env\n\nAlso say it in plain words, e.g. \"change the instagram token to ABC\". I'll handle it.";
+  }
+
+  if (lower === "show status") {
+    const cfg = load(CFG_KEY);
+    const lines = PLATFORMS.map(p => {
+      const missing = p.fields.filter(f => !(cfg[f.key] || "").trim()).length;
+      const st = missing === 0 ? "configured" : (missing === p.fields.length ? "not set" : "partial");
+      return `• ${p.name}: ${st}`;
+    });
+    lines.unshift(`n8n: ${cfg.n8n_url || "https://dhruval.n8n-hub.site"} · verify token: ${cfg.verify_token ? "set" : "not set"}`);
+    return lines.join("\n");
+  }
+
+  if (lower === "show env") {
+    const cfg = load(CFG_KEY);
+    const host = (cfg.n8n_url || "https://dhruval.n8n-hub.site").replace(/\/$/, "");
+    return [
+      `N8N_URL=${host}`,
+      `N8N_API_KEY=${cfg.n8n_api_key || "your_n8n_api_key"}`,
+      `META_VERIFY_TOKEN=${cfg.verify_token || "change_me_verify_token"}`,
+      `WHATSAPP_ACCESS_TOKEN=${cfg.whatsapp_access_token || "change_me_whatsapp_token"}`,
+      `WHATSAPP_PHONE_NUMBER_ID=${cfg.whatsapp_phone_number_id || "change_me_phone_number_id"}`,
+      `INSTAGRAM_ACCESS_TOKEN=${cfg.instagram_access_token || "change_me_instagram_token"}`,
+      `FACEBOOK_PAGE_ACCESS_TOKEN=${cfg.facebook_page_access_token || "change_me_facebook_page_token"}`,
+      `TIKTOK_ACCESS_TOKEN=${cfg.tiktok_access_token || "change_me_tiktok_token"}`,
+      `LINE_CHANNEL_ACCESS_TOKEN=${cfg.line_channel_access_token || "change_me_line_token"}`,
+      `WECHAT_TOKEN=${cfg.wechat_token || "change_me_wechat_token"}`,
+      `WECHAT_APP_ID=${cfg.wechat_app_id || "change_me_wechat_app_id"}`,
+      `WECHAT_APP_SECRET=${cfg.wechat_app_secret || "change_me_wechat_app_secret"}`
+    ].join("\n");
+  }
+
+  const FIELD_ALIASES = {
+    whatsapp: "whatsapp_access_token",
+    whatsapptoken: "whatsapp_access_token",
+    instagram: "instagram_access_token",
+    instagramtoken: "instagram_access_token",
+    facebook: "facebook_page_access_token",
+    facebookpage: "facebook_page_access_token",
+    facebookpagetoken: "facebook_page_access_token",
+    tiktok: "tiktok_access_token",
+    tiktoktoken: "tiktok_access_token",
+    line: "line_channel_access_token",
+    linetoken: "line_channel_access_token",
+    wechat: "wechat_token",
+    wechattoken: "wechat_token",
+    "n8nurl": "n8n_url",
+    "n8n api key": "n8n_api_key",
+    "n8napikey": "n8n_api_key",
+    "verify token": "verify_token",
+    "verifytoken": "verify_token",
+    "phonenumberid": "whatsapp_phone_number_id",
+    "phone number id": "whatsapp_phone_number_id",
+    "whatsappphonenumberid": "whatsapp_phone_number_id",
+    "appid": "wechat_app_id",
+    "appsecret": "wechat_app_secret"
+  };
+
+  const setMatch = lower.match(/^set\s+(.+?)\s+to\s+(.+)$/);
+  if (setMatch) {
+    const key = FIELD_ALIASES[setMatch[1].replace(/\s+/g, "").toLowerCase()];
+    if (!key) return "Sorry, I don't know that field. Try: whatsapp token, instagram token, facebook page token, tiktok token, line token, wechat token, n8n url, n8n api key, verify token, phone number id.";
+    const value = setMatch[2].trim();
+    aiApplySetting(key, value);
+    return `Done! ${key} has been updated in the connector.`;
+  }
+
+  const chgMatch = lower.match(/(?:change|update|set)\s+(?:the\s+)?(.+?)\s+to\s+(.+)$/);
+  if (chgMatch) {
+    const key = FIELD_ALIASES[chgMatch[1].replace(/\s+/g, "").toLowerCase()];
+    if (!key) return "Sorry, I couldn't work out which setting to change. Try: \"set whatsapp token to ...\"";
+    const value = chgMatch[2].trim();
+    aiApplySetting(key, value);
+    return `Done! ${key} has been updated in the connector.`;
+  }
+
+  return null;
+}
+
+async function aiCallLLM(userText) {
+  const c = aiLoad();
+  const url = (c.base || "").replace(/\/$/, "") + "/chat/completions";
+  const body = {
+    model: c.model || "gpt-4o-mini",
+    messages: [
+      { role: "system", content: AI_SYSTEM },
+      ...aiMsgs().slice(-10)
+    ],
+    temperature: 0.4
+  };
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + c.key },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error("LLM error " + res.status);
+  const data = await res.json();
+  const text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || "";
+  const setLine = text.split("\n").find(l => l.startsWith("SET:"));
+  if (setLine) {
+    const kv = setLine.slice(4).split("=");
+    if (kv.length === 2) {
+      aiApplySetting(kv[0].trim(), kv[1].trim());
+    }
+    return text.split("\n").filter(l => !l.startsWith("SET:")).join("\n").trim() + "\n\n(Connector updated!)";
+  }
+  return text;
+}
+
+async function aiSend() {
+  const input = document.getElementById("ai-input");
+  const btn = document.getElementById("ai-send-btn");
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+  aiAppend("user", text);
+
+  const offline = aiHandleCommand(text);
+  if (offline !== null) {
+    aiAppend("assistant", offline);
+    return;
+  }
+
+  const c = aiLoad();
+  if (c.base && c.key) {
+    btn.disabled = true;
+    btn.textContent = "…";
+    aiAppend("assistant", "Thinking…");
+    try {
+      const reply = await aiCallLLM(text);
+      const msgs = aiMsgs();
+      if (msgs.length && msgs[msgs.length - 1].text === "Thinking…") msgs.pop();
+      msgs.push({ role: "assistant", text: reply });
+      aiSaveMsgs(msgs);
+      aiRender();
+    } catch (err) {
+      const msgs = aiMsgs();
+      if (msgs.length && msgs[msgs.length - 1].text === "Thinking…") msgs.pop();
+      msgs.push({ role: "assistant", text: "Sorry, I hit an error calling the AI: " + (err.message || err) + ". Check your API Base URL / key in settings." });
+      aiSaveMsgs(msgs);
+      aiRender();
+    }
+    btn.disabled = false;
+    btn.textContent = "➤";
+  } else {
+    aiAppend("assistant", "To talk to me with AI, open the ⚙ settings and add your API base URL and key. Meanwhile I can still update your connector with commands (try the buttons above, or \"set whatsapp token to X\").");
+  }
+}
+
 /* ---------------- Init ---------------- */
 
 const urlInput = document.getElementById("n8n-url");
@@ -717,6 +1032,8 @@ vtInput.addEventListener("input", () => { const c = load(CFG_KEY); c.verify_toke
   vtInput.value = cfg.verify_token || "";
   render();
   renderContacts();
+  document.getElementById("ai-status").textContent = aiStatusText();
+  aiInit();
 })();
 </script>
 </body>

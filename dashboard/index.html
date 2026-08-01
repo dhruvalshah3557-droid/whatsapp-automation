@@ -147,6 +147,12 @@ label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px
 .an-note { color: var(--muted); font-size: 12px; margin-top: 8px; }
 .an-empty { color: var(--muted); font-size: 13px; text-align: center; padding: 24px 0; }
 
+.ai-chat { display: flex; flex-direction: column; gap: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; max-height: 420px; overflow-y: auto; }
+.ai-bubble { max-width: 82%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+.ai-bubble.in { align-self: flex-start; background: var(--card); border: 1px solid var(--border); border-top-left-radius: 2px; }
+.ai-bubble.out { align-self: flex-end; background: #0e5a46; border-top-right-radius: 2px; color: #e6f7f0; }
+.ai-empty-hint { color: var(--muted); font-size: 12px; text-align: center; padding: 12px 0; }
+
 #install {
   position: fixed;
   bottom: calc(var(--tabbar) + 16px); left: 50%; transform: translateX(-50%);
@@ -406,6 +412,39 @@ label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px
     </div>
   </section>
 
+  <section id="tab-ai" class="tab-content">
+    <div class="tab-title">AI Assistant</div>
+    <div class="tab-sub">Ask the AI to manage your business data directly</div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-title">AI Settings</div></div>
+      <div class="form-row">
+        <div><label>API Base URL</label><input id="ai-base" placeholder="https://api.openai.com/v1"></div>
+        <div><label>Model</label><input id="ai-model" placeholder="gpt-4o-mini"></div>
+      </div>
+      <div class="form-row">
+        <div class="full"><label>API Key (stored only on this device)</label><input id="ai-key" type="password" placeholder="sk-..."></div>
+      </div>
+      <button class="btn btn-ghost" style="width:100%" onclick="aiSaveSettings()">Save Settings</button>
+      <p class="an-note">Optional. Without a key the bot still works offline using built-in commands (add sale, add purchase, add cost, show stats). Your key is saved only in this browser.</p>
+    </div>
+
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <div class="ai-chat" id="ai-messages"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <button class="btn btn-sm btn-ghost" onclick="aiQuick('add sale')">Add sale</button>
+        <button class="btn btn-sm btn-ghost" onclick="aiQuick('add purchase')">Add purchase</button>
+        <button class="btn btn-sm btn-ghost" onclick="aiQuick('add cost')">Add cost</button>
+        <button class="btn btn-sm btn-ghost" onclick="aiQuick('show stats')">Show stats</button>
+        <button class="btn btn-sm btn-ghost" onclick="aiQuick('help')">Help</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-end">
+        <textarea id="ai-input" style="flex:1;min-height:44px" placeholder='e.g. "add a sale of 5000 for a yellow diamond ring to James Carter"' onkeydown="aiKey(event)"></textarea>
+        <button class="btn" style="width:auto;padding:12px 20px" onclick="aiSend()">Send</button>
+      </div>
+    </div>
+  </section>
+
   <button id="install" hidden>Install app</button>
 </div>
 
@@ -415,6 +454,7 @@ label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px
   <button class="tab-item" data-tab="diamonds"><span class="ico">D</span>Diamonds</button>
   <button class="tab-item" data-tab="design"><span class="ico">C</span>Design</button>
   <button class="tab-item" data-tab="analytics"><span class="ico">A</span>Analytics</button>
+  <button class="tab-item" data-tab="ai"><span class="ico">AI</span>AI</button>
   <button class="tab-item" data-tab="business"><span class="ico">B</span>Business</button>
 </nav>
 
@@ -1011,6 +1051,249 @@ function anRender(d) {
 
 anFill();
 
+/* ---------------- AI Bot ---------------- */
+
+const AI_KEY = "cd_ai_cfg";
+const AI_MSG_KEY = "cd_ai_msgs";
+
+function aiLoad() { try { return JSON.parse(localStorage.getItem(AI_KEY)) || {}; } catch (e) { return {}; } }
+function aiSave(c) { localStorage.setItem(AI_KEY, JSON.stringify(c)); }
+function aiMsgs() { try { const d = JSON.parse(localStorage.getItem(AI_MSG_KEY)); return Array.isArray(d) ? d : []; } catch (e) { return []; } }
+function aiSaveMsgs(msgs) { localStorage.setItem(AI_MSG_KEY, JSON.stringify(msgs)); }
+
+const AI_SYSTEM = `You are "Colourdiam AI Assistant", inside the ColourDiam business dashboard (a diamond jewelry company at www.colourdiam.com).
+You can manage the business records stored locally:
+- Sales (fields: item, customer, amount, status: paid/pending/deposit)
+- Purchases (fields: item, supplier, amount, date)
+- Costs (fields: desc, amount, cat: Shipping/Marketing/Supplies/Other, date)
+When the user asks to add or change records, reply with exactly one line starting with:
+  CMD:addSale|item=...|customer=...|amount=...
+  CMD:addPurchase|item=...|supplier=...|amount=...
+  CMD:addCost|desc=...|amount=...|cat=...
+Only include fields the user provided (amount is required for all). Use the exact field names above. After the CMD line, add a short friendly confirmation sentence.
+Also support questions about stats, the website, and messaging setup. Keep answers concise.`;
+
+function aiInit() {
+  const msgs = aiMsgs();
+  if (!msgs.length) {
+    msgs.push({ role: "assistant", text: "Hi! I'm your ColourDiam AI Assistant. I can update your business records directly. Try: \"add a sale of 5000 for a yellow diamond ring to James Carter\", \"add a purchase of 2000 for a loose diamond\", \"add a cost of 150 for shipping\", or \"show stats\"." });
+    aiSaveMsgs(msgs);
+  }
+  aiRender();
+}
+
+function aiStatusText() {
+  const c = aiLoad();
+  return c.base && c.key ? "Connected — AI mode on" : "Ready — offline mode (commands only)";
+}
+
+function aiSaveSettings() {
+  const c = {
+    base: document.getElementById("ai-base").value.trim(),
+    model: document.getElementById("ai-model").value.trim(),
+    key: document.getElementById("ai-key").value.trim()
+  };
+  aiSave(c);
+  aiAppend("assistant", c.base && c.key ? "Settings saved — AI mode is now on." : "Settings cleared — running in offline command mode.");
+}
+
+function aiQuick(tpl) {
+  const input = document.getElementById("ai-input");
+  input.value = tpl;
+  input.focus();
+  if (tpl.includes("<")) input.select();
+  else aiSend();
+}
+
+function aiKey(e) {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); aiSend(); }
+}
+
+function aiScroll() {
+  const m = document.getElementById("ai-messages");
+  m.scrollTop = m.scrollHeight;
+}
+
+function aiAppend(role, text) {
+  const msgs = aiMsgs();
+  msgs.push({ role, text });
+  aiSaveMsgs(msgs);
+  aiRender();
+}
+
+function aiRender() {
+  const m = document.getElementById("ai-messages");
+  const msgs = aiMsgs();
+  if (!msgs.length) { m.innerHTML = '<div class="ai-empty-hint">No conversation yet.</div>'; return; }
+  m.innerHTML = msgs.map(msg =>
+    `<div class="ai-bubble ${msg.role === "user" ? "out" : "in"}">${esc(msg.text)}</div>`
+  ).join("");
+  aiScroll();
+}
+
+function aiFmt(n) { const v = Number(n) || 0; return v.toLocaleString("en-US", { style: "currency", currency: "USD" }); }
+function aiToday() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+
+function aiAddSale(item, customer, amount, status) {
+  const sales = load("sales");
+  sales.unshift({ item: item || "Custom piece", customer: customer || "", amount: Number(amount) || 0, status: status || "paid", date: aiToday() });
+  store("sales", sales);
+  renderSales(); renderStats();
+  return `Added sale: ${item || "Custom piece"} for ${aiFmt(amount)}${customer ? " — " + customer : ""}.`;
+}
+
+function aiAddPurchase(item, supplier, amount) {
+  const purchases = load("purchases");
+  purchases.unshift({ item: item || "Inventory", supplier: supplier || "", amount: Number(amount) || 0, date: aiToday() });
+  store("purchases", purchases);
+  renderPurchases(); renderStats();
+  return `Added purchase: ${item || "Inventory"} for ${aiFmt(amount)}${supplier ? " — " + supplier : ""}.`;
+}
+
+function aiAddCost(desc, amount, cat) {
+  const costs = load("costs");
+  costs.unshift({ desc: desc || "Expense", amount: Number(amount) || 0, cat: cat || "Other", date: aiToday() });
+  store("costs", costs);
+  renderCosts(); renderStats();
+  return `Added cost: ${desc || "Expense"} for ${aiFmt(amount)} (${cat || "Other"}).`;
+}
+
+function aiHandleCommand(text) {
+  const lower = text.trim().toLowerCase();
+
+  if (lower === "help") {
+    return "I can update your business records directly. Try commands like:\n• \"add a sale of 5000 for a yellow diamond ring to James Carter\"\n• \"add a purchase of 2000 for a loose blue diamond\"\n• \"add a cost of 150 for shipping\"\n• \"show stats\"\n• \"show sales\"";
+  }
+
+  if (lower === "show stats" || lower === "stats") {
+    const totalSales = load("sales").reduce((a, s) => a + (s.amount || 0), 0);
+    const totalPurchase = load("purchases").reduce((a, p) => a + (p.amount || 0), 0);
+    const totalCost = load("costs").reduce((a, c) => a + (c.amount || 0), 0);
+    return `Current stats:\n• Total Sales: ${aiFmt(totalSales)}\n• Purchases: ${aiFmt(totalPurchase)}\n• Costs: ${aiFmt(totalCost)}\n• Profit: ${aiFmt(totalSales - totalPurchase - totalCost)}`;
+  }
+
+  if (lower === "show sales") {
+    const sales = load("sales");
+    if (!sales.length) return "No sales recorded yet.";
+    return "Recent sales:\n" + sales.slice(0, 8).map(s => `• ${s.item} — ${aiFmt(s.amount)} (${s.status || "paid"})`).join("\n");
+  }
+
+  if (lower === "show purchases") {
+    const purchases = load("purchases");
+    if (!purchases.length) return "No purchases recorded yet.";
+    return "Recent purchases:\n" + purchases.slice(0, 8).map(p => `• ${p.item} — ${aiFmt(p.amount)}`).join("\n");
+  }
+
+  if (lower === "show costs") {
+    const costs = load("costs");
+    if (!costs.length) return "No costs recorded yet.";
+    return "Recent costs:\n" + costs.slice(0, 8).map(c => `• ${c.desc} — ${aiFmt(c.amount)} (${c.cat})`).join("\n");
+  }
+
+  // "add a sale of 5000 for a yellow diamond ring to James Carter"
+  const saleMatch = lower.match(/add\s+(?:a|the)?\s*sale(?:\s+of)?\s+(?:[$£€])?([\d,.]+)\s+(?:for|of)?\s+(.+?)(?:\s+to\s+(.+))?$/);
+  if (lower.includes("add") && lower.includes("sale")) {
+    const amt = text.match(/(?:of|for)?\s*(?:[$£€])?\s*([\d,]+(?:\.\d+)?)/);
+    if (amt) {
+      let item = (text.match(/for\s+(.+?)(?:\s+to\s+|$)/i) || [])[1] || "";
+      let customer = (text.match(/to\s+(.+)$/i) || [])[1] || "";
+      return aiAddSale(item.trim(), customer.trim(), parseFloat(amt[1].replace(/,/g, "")));
+    }
+    return "I need an amount. Try: \"add a sale of 5000 for a yellow diamond ring to James Carter\"";
+  }
+
+  if (lower.includes("add") && lower.includes("purchase")) {
+    const amt = text.match(/(?:of|for)?\s*(?:[$£€])?\s*([\d,]+(?:\.\d+)?)/);
+    if (amt) {
+      let item = (text.match(/for\s+(.+?)(?:\s+from\s+|$)/i) || [])[1] || "";
+      let supplier = (text.match(/from\s+(.+)$/i) || [])[1] || "";
+      return aiAddPurchase(item.trim(), supplier.trim(), parseFloat(amt[1].replace(/,/g, "")));
+    }
+    return "I need an amount. Try: \"add a purchase of 2000 for a loose blue diamond\"";
+  }
+
+  if (lower.includes("add") && lower.includes("cost")) {
+    const amt = text.match(/(?:of|for)?\s*(?:[$£€])?\s*([\d,]+(?:\.\d+)?)/);
+    if (amt) {
+      let desc = (text.match(/for\s+(.+?)(?:\s+(?:for|$))/i) || [])[1] || "";
+      if (!desc) desc = (text.match(/cost\s+(?:of\s+)?[\d,]+(?:\s+for)?\s+(.+)$/i) || [])[1] || "";
+      return aiAddCost(desc.trim(), parseFloat(amt[1].replace(/,/g, "")));
+    }
+    return "I need an amount. Try: \"add a cost of 150 for shipping\"";
+  }
+
+  return null;
+}
+
+async function aiCallLLM(userText) {
+  const c = aiLoad();
+  const url = (c.base || "").replace(/\/$/, "") + "/chat/completions";
+  const body = {
+    model: c.model || "gpt-4o-mini",
+    messages: [
+      { role: "system", content: AI_SYSTEM },
+      ...aiMsgs().slice(-10)
+    ],
+    temperature: 0.4
+  };
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + c.key },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error("LLM error " + res.status);
+  const data = await res.json();
+  const text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || "";
+  const cmdLine = text.split("\n").find(l => l.startsWith("CMD:"));
+  if (cmdLine) {
+    const parts = cmdLine.slice(4).split("|");
+    const action = parts[0];
+    const kv = {};
+    parts.slice(1).forEach(p => { const i = p.indexOf("="); if (i > 0) kv[p.slice(0, i).trim()] = p.slice(i + 1).trim(); });
+    let result = "";
+    if (action === "addSale") result = aiAddSale(kv.item, kv.customer, kv.amount, kv.status);
+    else if (action === "addPurchase") result = aiAddPurchase(kv.item, kv.supplier, kv.amount);
+    else if (action === "addCost") result = aiAddCost(kv.desc, kv.amount, kv.cat);
+    return text.split("\n").filter(l => !l.startsWith("CMD:")).join("\n").trim() + "\n\n(" + result + ")";
+  }
+  return text;
+}
+
+async function aiSend() {
+  const input = document.getElementById("ai-input");
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+  aiAppend("user", text);
+
+  const offline = aiHandleCommand(text);
+  if (offline !== null) {
+    aiAppend("assistant", offline);
+    return;
+  }
+
+  const c = aiLoad();
+  if (c.base && c.key) {
+    aiAppend("assistant", "Thinking…");
+    try {
+      const reply = await aiCallLLM(text);
+      const msgs = aiMsgs();
+      if (msgs.length && msgs[msgs.length - 1].text === "Thinking…") msgs.pop();
+      msgs.push({ role: "assistant", text: reply });
+      aiSaveMsgs(msgs);
+      aiRender();
+    } catch (err) {
+      const msgs = aiMsgs();
+      if (msgs.length && msgs[msgs.length - 1].text === "Thinking…") msgs.pop();
+      msgs.push({ role: "assistant", text: "Sorry, I hit an error calling the AI: " + (err.message || err) + ". Check your API Base URL / key in settings." });
+      aiSaveMsgs(msgs);
+      aiRender();
+    }
+  } else {
+    aiAppend("assistant", "To talk to me with AI, add your API base URL and key in the settings above. Meanwhile I can still update your business records with commands (try the buttons above).");
+  }
+}
+
 renderCategories();
 renderDiamonds();
 renderPlatforms();
@@ -1019,6 +1302,7 @@ renderSales();
 renderPurchases();
 renderCosts();
 renderStats();
+aiInit();
 </script>
 </body>
 </html>
