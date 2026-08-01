@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messaging Automation Dashboard</title>
+<style>
+:root {
+  --bg: #0f1115;
+  --card: #1a1d24;
+  --border: #262b36;
+  --text: #e6e9ef;
+  --muted: #8b93a7;
+  --green: #22c55e;
+  --amber: #f59e0b;
+  --red: #ef4444;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 32px;
+}
+.container { max-width: 1200px; margin: 0 auto; }
+header { margin-bottom: 32px; }
+header h1 { font-size: 24px; font-weight: 700; }
+header p { color: var(--muted); margin-top: 6px; font-size: 14px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.stat-card .value { font-size: 28px; font-weight: 700; }
+.stat-card .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; margin-top: 4px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.card-title { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.logo { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #fff; }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; }
+.status-online { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.status-pending { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+.status-offline { background: var(--red); box-shadow: 0 0 8px var(--red); }
+.status-label { font-size: 12px; color: var(--muted); }
+.row { display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--border); font-size: 13px; }
+.row:first-of-type { border-top: none; }
+.row .k { color: var(--muted); }
+.row .v { font-family: "SF Mono", Menlo, monospace; color: var(--text); word-break: break-all; text-align: right; }
+.chip { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.chip-yes { background: rgba(34,197,94,.15); color: var(--green); }
+.chip-no { background: rgba(244,63,94,.15); color: var(--red); }
+footer { margin-top: 32px; color: var(--muted); font-size: 12px; text-align: center; }
+@media (max-width: 600px) { body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Messaging Automation Dashboard</h1>
+    <p>n8n workflows — inbound webhook receive + auto-reply across all platforms</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat-card"><div class="value" id="stat-platforms">7</div><div class="label">Platforms</div></div>
+    <div class="stat-card"><div class="value" id="stat-workflows">7</div><div class="label">Workflows</div></div>
+    <div class="stat-card"><div class="value" id="stat-live">0</div><div class="label">Live</div></div>
+    <div class="stat-card"><div class="value" id="stat-pending">7</div><div class="label">Pending config</div></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>Static dashboard — replace status values below by connecting the n8n API</footer>
+</div>
+
+<script>
+const platforms = [
+  {
+    name: "WhatsApp",
+    logo: "W", color: "#25d366",
+    path: "/webhook/whatsapp-hook", workflow: "whatsapp-webhook-reply.json",
+    reply: true, status: "pending", label: "Configured",
+    rows: [["Cloud API", "messaging_product"], ["Broadcast", "whatsapp-broadcast.json"]]
+  },
+  {
+    name: "Instagram",
+    logo: "IG", color: "#e4405f",
+    path: "/webhook/instagram-hook", workflow: "instagram-webhook-reply.json",
+    reply: true, status: "pending", label: "Configured",
+    rows: [["Graph API", "graph.facebook.com/v19.0"], ["Scopes", "instagram_manage_messages"]]
+  },
+  {
+    name: "Facebook Messenger",
+    logo: "F", color: "#0866ff",
+    path: "/webhook/facebook-hook", workflow: "facebook-webhook-reply.json",
+    reply: true, status: "pending", label: "Configured",
+    rows: [["Graph API", "me/messages"], ["Scopes", "pages_messaging"]]
+  },
+  {
+    name: "TikTok",
+    logo: "TT", color: "#000000",
+    path: "/webhook/tiktok-hook", workflow: "tiktok-webhook-reply.json",
+    reply: true, status: "pending", label: "Configured",
+    rows: [["API", "open.tiktokapis.com/v2"], ["Scope", "tiktok.business.messaging.write"]]
+  },
+  {
+    name: "LINE",
+    logo: "L", color: "#06c755",
+    path: "/webhook/line-hook", workflow: "line-webhook-reply.json",
+    reply: true, status: "pending", label: "Configured",
+    rows: [["API", "api.line.me/v2/bot"], ["Token", "Channel Access Token"]]
+  },
+  {
+    name: "WeChat",
+    logo: "微", color: "#07c160",
+    path: "/webhook/wechat-hook", workflow: "wechat-webhook-reply.json",
+    reply: true, status: "pending", label: "Configured",
+    rows: [["Reply", "Passive XML"], ["Verify", "SHA1 echostr"]]
+  },
+  {
+    name: "WhatsApp Broadcast",
+    logo: "B", color: "#3b82f6",
+    path: "manual trigger", workflow: "whatsapp-broadcast.json",
+    reply: false, status: "pending", label: "Configured",
+    rows: [["Trigger", "Manual"], ["Use", "Bulk send"]]
+  }
+];
+
+const statusMap = {
+  online: { cls: "status-online", label: "Live" },
+  pending: { cls: "status-pending", label: "Pending" },
+  offline: { cls: "status-offline", label: "Offline" }
+};
+
+function render() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = platforms.map(p => {
+    const st = statusMap[p.status];
+    const border = p.logo === "TT" ? "1px solid #555" : "";
+    return `
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <div class="logo" style="background:${p.color};${border}">${p.logo}</div>
+          <span>${p.name}</span>
+        </div>
+        <div style="text-align:right">
+          <div class="status-dot ${st.cls}"></div>
+          <div class="status-label">${st.label}</div>
+        </div>
+      </div>
+      ${p.rows.map(r => `<div class="row"><span class="k">${r[0]}</span><span class="v">${r[1]}</span></div>`).join("")}
+      <div class="row"><span class="k">Webhook</span><span class="v">${p.path}</span></div>
+      <div class="row"><span class="k">Workflow</span><span class="v">${p.workflow}</span></div>
+      <div class="row"><span class="k">Auto-reply</span><span class="chip ${p.reply ? 'chip-yes' : 'chip-no'}">${p.reply ? "Enabled" : "n/a"}</span></div>
+    </div>`;
+  }).join("");
+  document.getElementById("stat-pending").textContent = platforms.filter(p => p.status === "pending").length;
+}
+
+render();
+</script>
+</body>
+</html>
