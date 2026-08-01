@@ -1,0 +1,274 @@
+{
+  "name": "WeChat Official Account - Receive and Auto-Reply",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "wechat-hook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "00000000-0000-4000-8000-000000000601",
+      "name": "Verify WeChat Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.2,
+      "position": [0, -160]
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\nconst q = $input.first().json.query;\nconst token = 'change_me_wechat_token';\nconst arr = [token, q.timestamp, q.nonce].sort();\nconst sig = crypto.createHash('sha1').update(arr.join('')).digest('hex');\nreturn [{ valid: sig === q.signature, echostr: q.echostr }];"
+      },
+      "id": "00000000-0000-4000-8000-000000000602",
+      "name": "Compute signature",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, -160]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-4000-8000-000000000701",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "00000000-0000-4000-8000-000000000603",
+      "name": "Signature valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, -160]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.echostr }}",
+        "options": {}
+      },
+      "id": "00000000-0000-4000-8000-000000000604",
+      "name": "Return echostr",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [660, -240]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "verification failed",
+        "options": {}
+      },
+      "id": "00000000-0000-4000-8000-000000000605",
+      "name": "Reject",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [660, -80]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "wechat-hook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "00000000-0000-4000-8000-000000000606",
+      "name": "WeChat Events",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.2,
+      "position": [0, 120]
+    },
+    {
+      "parameters": {
+        "jsCode": "const xml = $input.first().json.body;\nfunction get(tag) {\n  const m = xml.match(new RegExp('<' + tag + '><!\\\\[CDATA\\\\[([\\\\s\\\\S]*?)\\\\]\\\\]></' + tag + '>'));\n  if (m) return m[1];\n  const m2 = xml.match(new RegExp('<' + tag + '>([\\\\s\\\\S]*?)</' + tag + '>'));\n  return m2 ? m2[1] : '';\n}\nreturn [{ to: get('ToUserName'), from: get('FromUserName'), msgType: get('MsgType'), content: get('Content') }];"
+      },
+      "id": "00000000-0000-4000-8000-000000000607",
+      "name": "Parse WeChat XML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 120]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-4000-8000-000000000702",
+              "leftValue": "={{ $json.msgType }}",
+              "rightValue": "text",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "00000000-0000-4000-8000-000000000608",
+      "name": "Is text message",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 120]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst xml =\n  '<xml>' +\n  '<ToUserName><![CDATA[' + item.from + ']]></ToUserName>' +\n  '<FromUserName><![CDATA[' + item.to + ']]></FromUserName>' +\n  '<CreateTime>' + Math.floor(Date.now() / 1000) + '</CreateTime>' +\n  '<MsgType><![CDATA[text]]></MsgType>' +\n  '<Content><![CDATA[Thanks for your WeChat message!]]></Content>' +\n  '</xml>';\nreturn [{ body: xml }];"
+      },
+      "id": "00000000-0000-4000-8000-000000000609",
+      "name": "Build reply XML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 40]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.body }}",
+        "options": {}
+      },
+      "id": "00000000-0000-4000-8000-000000000610",
+      "name": "Return reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [880, 40]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "success",
+        "options": {}
+      },
+      "id": "00000000-0000-4000-8000-000000000611",
+      "name": "Acknowledge",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [660, 200]
+    }
+  ],
+  "connections": {
+    "Verify WeChat Webhook": {
+      "Compute signature": {
+        "main": [
+          [
+            {
+              "node": "Compute signature",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "Compute signature": {
+      "Signature valid?": {
+        "main": [
+          [
+            {
+              "node": "Signature valid?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "Signature valid?": {
+      "Return echostr": {
+        "main": [
+          [
+            {
+              "node": "Return echostr",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Reject",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "WeChat Events": {
+      "Parse WeChat XML": {
+        "main": [
+          [
+            {
+              "node": "Parse WeChat XML",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "Parse WeChat XML": {
+      "Is text message": {
+        "main": [
+          [
+            {
+              "node": "Is text message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "Is text message": {
+      "Build reply XML": {
+        "main": [
+          [
+            {
+              "node": "Build reply XML",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Acknowledge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "Build reply XML": {
+      "Return reply": {
+        "main": [
+          [
+            {
+              "node": "Return reply",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

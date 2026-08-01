@@ -1,0 +1,111 @@
+{
+  "name": "LINE Official - Receive and Auto-Reply",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "line-hook",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "00000000-0000-4000-8000-000000000501",
+      "name": "LINE Events",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "00000000-0000-4000-8000-000000000601",
+              "leftValue": "={{ $json.body.events[0].type }}",
+              "rightValue": "message",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "00000000-0000-4000-8000-000000000602",
+              "leftValue": "={{ $json.body.events[0].message.type }}",
+              "rightValue": "text",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "00000000-0000-4000-8000-000000000502",
+      "name": "Is inbound text message",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer change_me_line_token"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"replyToken\":\"{{ $json.body.events[0].replyToken }}\",\"messages\":[{\"type\":\"text\",\"text\":\"Thanks for your LINE message!\"}]}",
+        "options": {}
+      },
+      "id": "00000000-0000-4000-8000-000000000503",
+      "name": "Send LINE Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 0]
+    }
+  ],
+  "connections": {
+    "LINE Events": {
+      "Is inbound text message": {
+        "main": [
+          [
+            {
+              "node": "Is inbound text message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "Is inbound text message": {
+      "Send LINE Reply": {
+        "main": [
+          [
+            {
+              "node": "Send LINE Reply",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      }
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}
