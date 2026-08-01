@@ -216,10 +216,14 @@ label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px
       <div class="filter-chips" id="f-metal"></div>
       <div class="tab-sub" style="margin-bottom:8px">Purity</div>
       <div class="filter-chips" id="f-purity"></div>
+      <div class="tab-sub" style="margin-bottom:8px">Price</div>
+      <div class="filter-chips" id="f-price"></div>
       <div class="tab-sub" style="margin-bottom:8px">Shape</div>
       <div class="filter-chips" id="f-shape"></div>
       <div class="tab-sub" style="margin-bottom:8px">Color</div>
       <div class="filter-chips" id="f-color"></div>
+      <div class="tab-sub" style="margin-bottom:8px">Lab</div>
+      <div class="filter-chips" id="f-lab"></div>
       <div class="tab-sub" style="margin-bottom:8px">Carat</div>
       <div class="filter-chips" id="f-carat"></div>
       <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="openFilteredShop()">View Matching Items on Website</button>
@@ -396,12 +400,14 @@ const diamonds = [
 const filters = {
   metal: ["Gold", "White Gold"],
   purity: ["18K", "9K", "Silver"],
-  shape: ["Round", "Pear", "Oval", "Emerald", "Heart", "Cushion", "Radiant", "Princess", "Marquise", "Baguettes", "Trillion", "Half Moon", "Other"],
+  price: ["Up to $5000", "$5000-$10000", "$10000-$20000", "$20000-$30000", "$30000-$40000", "$40000-$50000", "$50000+"],
+  shape: ["Baguettes", "Cadillac", "Cushion", "Emerald", "Half Moon", "Heart", "Marquise", "MIX FANCY", "Octagon", "Other", "Oval", "Pear", "Princess", "Radiant", "Round", "Star", "Trillion"],
   color: ["D-Z", "Blue", "Brown", "Gray", "Green", "Orange", "Pink", "White", "Yellow"],
+  lab: ["AGL", "CGL", "GIA", "GII", "HRD", "IGI", "NC"],
   carat: ["0.01-0.50 Ct.", "0.50-1.00 Ct.", "1.00-2.00 Ct.", "2.00-5.00 Ct.", "5.00+ Ct."]
 };
 
-const selectedFilters = { metal: "", purity: "", shape: "", color: "", carat: "" };
+const selectedFilters = { metal: "", purity: "", price: "", shape: "", color: "", lab: "", carat: "" };
 
 function buildFilterChips(id, key) {
   const el = document.getElementById(id);
