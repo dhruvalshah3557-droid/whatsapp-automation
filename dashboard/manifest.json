@@ -1,7 +1,7 @@
 {
-  "name": "Messaging Automation Dashboard",
-  "short_name": "MsgAuto",
-  "description": "Monitor WhatsApp, Instagram, Facebook, TikTok, LINE and WeChat automation workflows",
+  "name": "Colourdiam",
+  "short_name": "Colourdiam",
+  "description": "Colourdiam - messaging automation for WhatsApp, Instagram, Facebook, TikTok, LINE and WeChat",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f1115",
