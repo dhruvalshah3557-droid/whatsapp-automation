@@ -1,0 +1,30 @@
+{
+  "name": "Colourdiam Messaging",
+  "short_name": "CD Messaging",
+  "description": "Colourdiam WhatsApp-style messaging app and n8n connector for WhatsApp, Instagram, Facebook, TikTok, LINE and WeChat",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b0d12",
+  "theme_color": "#1f2c33",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
