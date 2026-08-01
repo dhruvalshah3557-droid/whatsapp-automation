@@ -504,9 +504,16 @@ function renderInfoLinks() {
 function store(key, data) { localStorage.setItem("cd_" + key, JSON.stringify(data)); }
 function load(key) { try { return JSON.parse(localStorage.getItem("cd_" + key)) || []; } catch (e) { return []; } }
 
+function esc(v) {
+  return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
 function today() {
   const d = new Date();
-  return d.toISOString().slice(0, 10);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 function fmt(n) {
@@ -573,8 +580,8 @@ function renderSales() {
   el.innerHTML = sales.map((s, i) => `
     <div class="list-item">
       <div>
-        <div class="li-main">${s.item}</div>
-        <div class="li-sub">${s.customer || "—"} · ${s.date} · ${s.status}</div>
+        <div class="li-main">${esc(s.item)}</div>
+        <div class="li-sub">${esc(s.customer || "—")} · ${esc(s.date)} · ${esc(s.status)}</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="li-amt amt-pos">${fmt(s.amount)}</span>
@@ -590,8 +597,8 @@ function renderPurchases() {
   el.innerHTML = purchases.map((p, i) => `
     <div class="list-item">
       <div>
-        <div class="li-main">${p.item}</div>
-        <div class="li-sub">${p.supplier || "—"} · ${p.date}</div>
+        <div class="li-main">${esc(p.item)}</div>
+        <div class="li-sub">${esc(p.supplier || "—")} · ${esc(p.date)}</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="li-amt amt-neg">${fmt(p.amount)}</span>
@@ -607,8 +614,8 @@ function renderCosts() {
   el.innerHTML = costs.map((c, i) => `
     <div class="list-item">
       <div>
-        <div class="li-main">${c.desc}</div>
-        <div class="li-sub">${c.cat} · ${c.date}</div>
+        <div class="li-main">${esc(c.desc)}</div>
+        <div class="li-sub">${esc(c.cat)} · ${esc(c.date)}</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="li-amt amt-neg">${fmt(c.amount)}</span>
@@ -663,8 +670,10 @@ function subscribeNews() {
 Object.keys(filters).forEach(k => {
   buildFilterChips("f-" + k, k);
 });
-document.querySelectorAll(".filter-chips button").forEach(btn => {
-  btn.addEventListener("click", () => {
+document.querySelectorAll(".filter-chips").forEach(container => {
+  container.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-k]");
+    if (!btn) return;
     const key = btn.dataset.k;
     selectedFilters[key] = selectedFilters[key] === btn.dataset.v ? "" : btn.dataset.v;
     buildFilterChips("f-" + key, key);
