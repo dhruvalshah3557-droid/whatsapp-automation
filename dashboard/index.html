@@ -11,6 +11,9 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
 <link rel="icon" href="./icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #0f1115;
@@ -250,6 +253,185 @@ header h1 { letter-spacing: .02em; background: linear-gradient(90deg, var(--gold
   .grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
   .hero h2 { font-size: 22px; }
+}
+
+/* ===================== PREMIUM REDESIGN ===================== */
+:root {
+  --gold-1: #f7e08a;
+  --gold-2: #d4af37;
+  --gold-3: #9a7a1e;
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+body {
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(1100px 600px at 85% -10%, rgba(212,175,55,.08), transparent 60%),
+    radial-gradient(900px 500px at -10% 25%, rgba(212,175,55,.05), transparent 55%),
+    radial-gradient(900px 500px at 50% 120%, rgba(70,95,150,.08), transparent 60%),
+    #07080c;
+  background-attachment: fixed;
+}
+
+header h1 {
+  font-family: var(--font-serif); font-size: 27px; font-weight: 700; letter-spacing: .04em;
+  background: linear-gradient(120deg, #f7e08a, #d4af37 45%, #b8860b);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+header p { letter-spacing: .14em; text-transform: uppercase; font-size: 11px; font-weight: 500; }
+header .website-btn {
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(247,224,138,.14), rgba(212,175,55,.05));
+  border-color: rgba(212,175,55,.45);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 24px rgba(212,175,55,.1);
+}
+header .website-btn:hover { box-shadow: 0 0 34px rgba(212,175,55,.28); border-color: var(--gold-2); }
+
+.hero {
+  border-radius: 26px; border: 1px solid rgba(212,175,55,.25);
+  background:
+    radial-gradient(800px 320px at 18% -30%, rgba(212,175,55,.22), transparent 60%),
+    radial-gradient(600px 300px at 92% 130%, rgba(212,175,55,.13), transparent 60%),
+    linear-gradient(160deg, #191c22, #241b0e 55%, #14161b);
+  box-shadow: 0 24px 70px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.07);
+  padding: 40px 32px;
+}
+.hero::before {
+  content: ""; position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(212,175,55,.22) 1px, transparent 1.5px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(420px 210px at 50% 0%, #000, transparent 78%);
+  mask-image: radial-gradient(420px 210px at 50% 0%, #000, transparent 78%);
+  opacity: .5; pointer-events: none;
+}
+.hero h2 {
+  font-family: var(--font-serif); font-size: 42px; font-weight: 700; position: relative;
+  background: linear-gradient(110deg, #fff 0%, #f7e08a 28%, #d4af37 50%, #f7e08a 72%, #fff 100%);
+  background-size: 220% auto;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  animation: cdShimmer 7s linear infinite;
+}
+@keyframes cdShimmer { to { background-position: -220% center; } }
+.hero p { font-size: 14px; letter-spacing: .02em; position: relative; }
+.hero-tags .chip {
+  background: rgba(212,175,55,.1); color: var(--gold-1);
+  border: 1px solid rgba(212,175,55,.3); padding: 6px 16px; letter-spacing: .05em;
+  backdrop-filter: blur(6px);
+}
+
+.tab-title { font-family: var(--font-serif); font-size: 22px; font-weight: 700; letter-spacing: .01em; }
+.tab-sub { letter-spacing: .02em; }
+
+.card, .stat-card, .tile, .color-tile, .link-list a {
+  background: linear-gradient(180deg, rgba(26,29,38,.72), rgba(16,18,25,.82));
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 16px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.card:hover, .stat-card:hover, .tile:hover, .color-tile:hover, .link-list a:hover { border-color: rgba(212,175,55,.4); }
+
+.stat-card { overflow: hidden; position: relative; }
+.stat-card::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,.55), transparent);
+}
+.stat-card .value {
+  font-family: var(--font-serif); font-size: 32px; font-weight: 700;
+  background: linear-gradient(120deg, #fff, #e8dec0);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.stat-card .label { letter-spacing: .12em; font-weight: 600; }
+
+.tile { border-radius: 20px; padding: 26px 20px; }
+.tile .t-icon {
+  border: 1px solid rgba(255,255,255,.22);
+  box-shadow: 0 10px 26px rgba(0,0,0,.35), 0 0 0 6px rgba(212,175,55,.06);
+  width: 60px; height: 60px; font-family: var(--font-serif); font-size: 24px;
+}
+.tile .t-name { font-size: 15px; font-weight: 600; }
+.tile .t-cta, .color-tile .c-cta { letter-spacing: .1em; text-transform: uppercase; font-size: 11px; }
+.tile:hover .t-cta, .color-tile:hover .c-cta { letter-spacing: .16em; }
+
+.color-tile .swatch { box-shadow: 0 6px 16px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.12); }
+
+.btn {
+  background: linear-gradient(135deg, #f7e08a, #d4af37 55%, #b08a1f);
+  color: #1a1404; border-radius: 12px; letter-spacing: .02em;
+  box-shadow: 0 6px 22px rgba(212,175,55,.32), inset 0 1px 0 rgba(255,255,255,.55);
+}
+.btn:hover { box-shadow: 0 10px 30px rgba(212,175,55,.45), inset 0 1px 0 rgba(255,255,255,.55); transform: translateY(-1px); }
+.btn-danger { background: rgba(244,63,94,.14); color: var(--red); box-shadow: none; }
+.btn-ghost { background: rgba(255,255,255,.04); color: var(--text); border: 1px solid rgba(255,255,255,.1); box-shadow: none; }
+.btn-ghost:hover { border-color: rgba(212,175,55,.45); box-shadow: none; }
+
+input, select, textarea {
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 12px;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(212,175,55,.6);
+  box-shadow: 0 0 0 3px rgba(212,175,55,.13);
+  background: rgba(255,255,255,.05);
+}
+
+.filter-chips button {
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 999px;
+}
+.filter-chips button.active {
+  background: linear-gradient(135deg, rgba(247,224,138,.22), rgba(212,175,55,.08));
+  border-color: rgba(212,175,55,.6); color: var(--gold-1);
+  box-shadow: 0 0 16px rgba(212,175,55,.15);
+}
+.filter-chips button:hover { border-color: rgba(212,175,55,.5); color: var(--text); }
+
+.logo { box-shadow: 0 6px 16px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.2); border-radius: 12px; }
+.logo svg { display: block; }
+.card-title { font-weight: 600; }
+.card-title .logo + span { font-weight: 600; letter-spacing: .01em; }
+
+.link-list a { border-radius: 12px; }
+.link-list a:hover { transform: translateX(5px); }
+.link-list .arrow { color: var(--gold-2); }
+
+.list-item { background: rgba(255,255,255,.03); border-color: rgba(255,255,255,.07); border-radius: 12px; }
+
+.ai-chat { border-color: rgba(255,255,255,.07); background: rgba(255,255,255,.02); }
+.ai-bubble.out { background: linear-gradient(135deg, #0f6b53, #0b4d3c); }
+
+.an-trend-col { background: linear-gradient(180deg, #f7e08a, #d4af37 60%, #9a7a1e); }
+.an-bar-fill { background: linear-gradient(90deg, #f7e08a, #d4af37 70%, #b08a1f); }
+
+.tabbar {
+  left: 50%; right: auto; transform: translateX(-50%);
+  bottom: 14px; width: min(96%, 560px); height: 66px;
+  padding: 6px; border-radius: 22px;
+  border: 1px solid rgba(212,175,55,.22);
+  background: rgba(14,16,22,.86);
+  backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+  box-shadow: 0 16px 48px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.tab-item { border-radius: 16px; margin: 0 2px; gap: 3px; }
+.tab-item .ico svg { margin: 0 auto; }
+.tab-item.active {
+  background: linear-gradient(135deg, rgba(247,224,138,.22), rgba(212,175,55,.07));
+  box-shadow: inset 0 0 0 1px rgba(212,175,55,.4), 0 4px 16px rgba(212,175,55,.12);
+  color: var(--gold-1);
+}
+.tabbar + * , body { padding-bottom: calc(var(--tabbar) + 26px); }
+
+#install { background: linear-gradient(135deg, #f7e08a, #d4af37); color: #1a1404; }
+
+footer { letter-spacing: .05em; }
+
+@media (max-width: 600px) {
+  .hero { padding: 32px 22px; border-radius: 20px; }
+  .hero h2 { font-size: 27px; }
+  .stat-card .value { font-size: 27px; }
+  header h1 { font-size: 22px; }
 }
 </style>
 </head>
@@ -628,14 +810,21 @@ function renderDiamonds() {
      </a>`).join("");
 }
 
+const WA_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
+const IG_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.012 4.85.07 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.42.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.68a6.162 6.162 0 100 12.324A6.162 6.162 0 0012 5.84zm0 2.16a4 4 0 110 8 4 4 0 010-8zm7.85-2.05a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z"/></svg>';
+const FB_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>';
+const TT_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>';
+const LINE_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M5.372 13.201c-.003-.573-.002-1.145 0-1.718l3.962-4.717c.13-.152.106-.333-.066-.398-.172-.065-.35.01-.43.168-.08.157-.018.321.053.462l-.014.01c-3.048 3.14-2.486 2.61-5.574 5.76-1.053 1.076-.74 2.032.526 2.432 1.354.428 2.401-.16 2.983-1.273.226-.435.388-1.145.56-1.726zM22.875 3.385c-.436.064-2.31.416-3.64 1.237-.54.334-.922 1.622-1.348 2.31-.527.855-.874 1.626-1.606 2.363-1.63 1.64-2.6 1.84-3.14.896-.884-1.54.6-2.77 1.066-3.92.225-.556.154-1.042-.105-1.248-.197-.156-.5-.082-.828.083-.58.293-1.164.74-1.66 1.2-.82.76-1.612 1.64-2.42 2.405.31-1.05.634-2.093 1.036-3.108.234-.594-.034-.94-.746-.8-.447.09-2.11 1.337-2.48 2.25-.372.92-1.163 2.52-1.55 3.303-.122.248-.25.498-.374.746.063-.907-.072-1.902-.24-2.8-.12-.64-.528-.79-1.117-.593-.538.18-1.123.62-1.556 1.008-.575.517-1.13 1.055-1.66 1.616-.234.248-.233.582-.008.73.157.103.34.084.517.048.553-.113.93-.46 1.357-.665l.068-.066c-.087.677-.152 1.358-.235 2.036-.087.714.226 1.166.925 1.255.48.06 1.024-.08 1.47-.258.364-.145.88-.236 1.2-.258.41-.03.692-.174.817-.45.12-.262.006-.57-.32-.835-.29-.234-.756-.49-1.153-.6.55-.938 1.1-1.874 1.65-2.81.397-.676.803-1.344 1.2-2.026-.02 1.283.047 2.57.4 3.816.242.856.818 1.063 1.556.848.504-.146 1.383-.696 2.025-1.13.506-.342 1.92-1.512 2.306-1.866.62-.568 1.173-1.203 1.75-1.81.288-.304.31-.715.08-.87-.223-.15-.528-.054-.79.06-.84.364-1.62.86-2.435 1.268.542-.876.962-1.81 1.318-2.758.256-.68.07-1.166-.585-1.153z"/></svg>';
+const WC_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 00.167-.054l1.903-1.114a.863.863 0 01.717-.098 10.16 10.16 0 002.837.403c.276 0 .543-.027.811-.05-.857-1.05-1.354-2.37-1.354-3.783 0-3.372 3.287-6.093 7.35-6.093.232 0 .46.018.689.03C15.454 4.58 12.47 2.188 8.69 2.188zm9.168 4.73c-3.447 0-6.279 2.446-6.279 5.445 0 3.014 2.832 5.445 6.279 5.445a7.13 7.13 0 002.11-.316.581.581 0 01.486.067l1.296.756a.283.283 0 00.403-.246c0-.055-.023-.107-.034-.16l-.265-1.006a.591.591 0 01.215-.665C21.91 15.557 23 13.84 23 11.888c0-2.999-2.838-5.445-6.285-5.445zm-3.568 3.137a.936.936 0 11-1.872 0 .936.936 0 011.872 0zm7.132 0a.936.936 0 11-1.872 0 .936.936 0 011.872 0z"/></svg>';
+
 const platforms = [
-  { name: "WhatsApp", logo: "W", color: "#25d366", path: "/webhook/whatsapp-hook", workflow: "whatsapp-webhook-reply.json", reply: true, status: "pending", label: "Configured", rows: [["Cloud API", "messaging_product"], ["Broadcast", "whatsapp-broadcast.json"]] },
-  { name: "Instagram", logo: "IG", color: "#e4405f", path: "/webhook/instagram-hook", workflow: "instagram-webhook-reply.json", reply: true, status: "pending", label: "Configured", rows: [["Graph API", "graph.facebook.com/v19.0"], ["Scopes", "instagram_manage_messages"]] },
-  { name: "Facebook Messenger", logo: "F", color: "#0866ff", path: "/webhook/facebook-hook", workflow: "facebook-webhook-reply.json", reply: true, status: "pending", label: "Configured", rows: [["Graph API", "me/messages"], ["Scopes", "pages_messaging"]] },
-  { name: "TikTok", logo: "TT", color: "#000000", path: "/webhook/tiktok-hook", workflow: "tiktok-webhook-reply.json", reply: true, status: "pending", label: "Configured", rows: [["API", "open.tiktokapis.com/v2"], ["Scope", "tiktok.business.messaging.write"]] },
-  { name: "LINE", logo: "L", color: "#06c755", path: "/webhook/line-hook", workflow: "line-webhook-reply.json", reply: true, status: "pending", label: "Configured", rows: [["API", "api.line.me/v2/bot"], ["Token", "Channel Access Token"]] },
-  { name: "WeChat", logo: "微", color: "#07c160", path: "/webhook/wechat-hook", workflow: "wechat-webhook-reply.json", reply: true, status: "pending", label: "Configured", rows: [["Reply", "Passive XML"], ["Verify", "SHA1 echostr"]] },
-  { name: "WhatsApp Broadcast", logo: "B", color: "#3b82f6", path: "manual trigger", workflow: "whatsapp-broadcast.json", reply: false, status: "pending", label: "Configured", rows: [["Trigger", "Manual"], ["Use", "Bulk send"]] }
+  { name: "WhatsApp", logo: WA_SVG, color: "#25d366", path: "/webhook/whatsapp-hook", workflow: "whatsapp-webhook-reply.json", reply: true, status: "pending", label: "Configured", rows: [["Cloud API", "messaging_product"], ["Broadcast", "whatsapp-broadcast.json"]] },
+  { name: "Instagram", logo: IG_SVG, color: "linear-gradient(135deg,#f09433,#e4405f 55%,#bd3381)", path: "/webhook/instagram-hook", workflow: "instagram-webhook-reply.json", reply: true, status: "pending", label: "Configured", rows: [["Graph API", "graph.facebook.com/v19.0"], ["Scopes", "instagram_manage_messages"]] },
+  { name: "Facebook Messenger", logo: FB_SVG, color: "#0866ff", path: "/webhook/facebook-hook", workflow: "facebook-webhook-reply.json", reply: true, status: "pending", label: "Configured", rows: [["Graph API", "me/messages"], ["Scopes", "pages_messaging"]] },
+  { name: "TikTok", logo: TT_SVG, color: "#000000", path: "/webhook/tiktok-hook", workflow: "tiktok-webhook-reply.json", reply: true, status: "pending", label: "Configured", rows: [["API", "open.tiktokapis.com/v2"], ["Scope", "tiktok.business.messaging.write"]] },
+  { name: "LINE", logo: LINE_SVG, color: "#06c755", path: "/webhook/line-hook", workflow: "line-webhook-reply.json", reply: true, status: "pending", label: "Configured", rows: [["API", "api.line.me/v2/bot"], ["Token", "Channel Access Token"]] },
+  { name: "WeChat", logo: WC_SVG, color: "#07c160", path: "/webhook/wechat-hook", workflow: "wechat-webhook-reply.json", reply: true, status: "pending", label: "Configured", rows: [["Reply", "Passive XML"], ["Verify", "SHA1 echostr"]] },
+  { name: "WhatsApp Broadcast", logo: WA_SVG, color: "#3b82f6", path: "manual trigger", workflow: "whatsapp-broadcast.json", reply: false, status: "pending", label: "Configured", rows: [["Trigger", "Manual"], ["Use", "Bulk send"]] }
 ];
 
 const statusMap = {
@@ -646,12 +835,13 @@ const statusMap = {
 
 function platformCard(p) {
   const st = statusMap[p.status];
-  const border = p.logo === "TT" ? "1px solid #555" : "";
+  const isSvg = p.logo && p.logo.indexOf("<svg") === 0;
+  const border = p.name === "TikTok" ? "1px solid #444" : "";
   return `
   <div class="card">
     <div class="card-head">
       <div class="card-title">
-        <div class="logo" style="background:${p.color};${border}">${p.logo}</div>
+        <div class="logo" style="background:${p.color};${border}">${isSvg ? p.logo : p.logo}</div>
         <span>${p.name}</span>
       </div>
       <div style="text-align:right">

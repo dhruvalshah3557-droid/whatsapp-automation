@@ -11,6 +11,9 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
 <link rel="icon" href="./icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #0b0d12;
@@ -269,6 +272,123 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
   #chat-panel.show-mobile { display: flex; position: fixed; inset: 0; z-index: 20; }
   .sidebar.hide-mobile { display: none; }
 }
+
+/* ===================== PREMIUM REDESIGN ===================== */
+:root {
+  --gold-1: #f7e08a;
+  --gold-2: #d4af37;
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+body { font-family: var(--font-sans); }
+
+.topbar {
+  height: 58px;
+  background:
+    radial-gradient(700px 120px at 12% -60%, rgba(212,175,55,.16), transparent 60%),
+    linear-gradient(180deg, rgba(38,50,58,.96), rgba(22,28,34,.94));
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  box-shadow: 0 8px 30px rgba(0,0,0,.35);
+}
+.brand .logo {
+  background: linear-gradient(135deg, #f7e08a, #d4af37 55%, #9a7a1e);
+  color: #1a1404; box-shadow: 0 4px 16px rgba(212,175,55,.4);
+  border-radius: 10px; font-family: var(--font-serif);
+}
+.brand h1 { font-family: var(--font-serif); font-size: 18px; letter-spacing: .02em; }
+.brand h1 span {
+  background: linear-gradient(120deg, #f7e08a, #d4af37);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.nav-tabs { background: rgba(0,0,0,.22); padding: 4px; border-radius: 12px; }
+.nav-tabs button { border-radius: 9px; padding: 7px 16px; }
+.nav-tabs button.active {
+  background: linear-gradient(135deg, #0f6b53, #0b4d3c);
+  box-shadow: 0 3px 12px rgba(14,90,70,.5), inset 0 1px 0 rgba(255,255,255,.1);
+}
+
+.sidebar { background: linear-gradient(180deg, #101318, #0d0f13); }
+.sidebar-search { padding: 12px 14px; }
+.sidebar-search input {
+  background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.07);
+  padding: 11px 16px 11px 38px; border-radius: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238b93a7' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: 13px center;
+}
+.contact-item { position: relative; }
+.contact-item.active {
+  background: linear-gradient(90deg, rgba(14,90,70,.55), rgba(14,90,70,.18));
+  box-shadow: inset 3px 0 0 var(--green);
+}
+.contact-item .avatar { box-shadow: 0 3px 10px rgba(0,0,0,.35); }
+.platform-tag { border-color: rgba(212,175,55,.5); color: var(--gold-1); }
+
+.chat-panel {
+  background:
+    radial-gradient(700px 380px at 88% -12%, rgba(34,197,94,.07), transparent 60%),
+    radial-gradient(500px 300px at -5% 110%, rgba(212,175,55,.05), transparent 55%),
+    var(--bg-chat);
+}
+.chat-header {
+  background: linear-gradient(180deg, rgba(31,44,51,.96), rgba(26,36,42,.92));
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  box-shadow: 0 4px 18px rgba(0,0,0,.25);
+}
+.chat-empty .big { filter: drop-shadow(0 0 24px rgba(212,175,55,.35)); }
+
+.day-divider span { background: rgba(20,24,31,.85); border-color: rgba(255,255,255,.08); backdrop-filter: blur(6px); letter-spacing: .08em; text-transform: uppercase; }
+.msg-row.out .bubble {
+  background: linear-gradient(135deg, #0f6b53, #0a4636);
+  box-shadow: 0 4px 14px rgba(14,90,70,.35), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.msg-row.in .bubble { box-shadow: 0 2px 8px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.04); }
+.bubble .time { letter-spacing: .04em; }
+
+.input-bar { background: linear-gradient(180deg, rgba(31,44,51,.96), rgba(24,32,38,.96)); border-top: 1px solid rgba(255,255,255,.06); }
+.input-bar textarea { background: rgba(255,255,255,.05); border-radius: 24px; border-color: rgba(255,255,255,.07); padding: 11px 18px; }
+.input-bar textarea:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(34,197,94,.14); }
+.send-btn { background: linear-gradient(135deg, #2dd36b, #1ea956); }
+
+.card {
+  background: linear-gradient(180deg, rgba(26,29,38,.78), rgba(16,18,25,.86));
+  border-color: rgba(255,255,255,.07);
+  border-radius: 18px;
+  box-shadow: 0 10px 34px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.card:hover { border-color: rgba(212,175,55,.35); box-shadow: 0 12px 38px rgba(0,0,0,.35); }
+.card-head { padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.06); margin-bottom: 16px; }
+.card-title { font-family: var(--font-serif); font-size: 17px; letter-spacing: .01em; }
+.logo-lg {
+  border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.18);
+}
+.logo-lg svg { display: block; width: 20px; height: 20px; margin: auto; color: #fff; }
+.step {
+  background: linear-gradient(135deg, rgba(247,224,138,.16), rgba(212,175,55,.06));
+  border: 1px solid rgba(212,175,55,.35); color: var(--gold-1);
+  padding: 4px 10px; border-radius: 999px; letter-spacing: .1em; font-size: 11px;
+}
+
+input, textarea { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.09); border-radius: 12px; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+input:focus, textarea:focus { border-color: rgba(212,175,55,.6); box-shadow: 0 0 0 3px rgba(212,175,55,.13); background: rgba(255,255,255,.05); }
+
+.webhook-box, .cmd, .env-out { background: rgba(0,0,0,.3); border-color: rgba(255,255,255,.08); }
+
+.btn { background: linear-gradient(135deg, #f7e08a, #d4af37 55%, #b08a1f); color: #1a1404; box-shadow: 0 6px 22px rgba(212,175,55,.3), inset 0 1px 0 rgba(255,255,255,.5); border-radius: 12px; }
+.btn:hover { box-shadow: 0 10px 30px rgba(212,175,55,.4), inset 0 1px 0 rgba(255,255,255,.5); transform: translateY(-1px); }
+.btn-ghost { background: rgba(255,255,255,.04); color: var(--text); border: 1px solid rgba(255,255,255,.1); box-shadow: none; }
+.btn-ghost:hover { border-color: rgba(212,175,55,.4); box-shadow: none; }
+
+.copy-btn { border-radius: 10px; }
+.copy-btn:hover { border-color: var(--green); }
+.details summary { color: var(--gold-1); }
+
+.ai-panel .avatar { box-shadow: 0 4px 16px rgba(212,175,55,.4); }
+#ai-settings { background: rgba(24,32,38,.95); }
+
+@media (max-width: 760px) {
+  .brand h1 { font-size: 16px; }
+  .nav-tabs button { padding: 7px 10px; font-size: 12px; }
+}
 </style>
 </head>
 <body>
@@ -443,9 +563,16 @@ function switchView(v) {
 
 /* ---------------- Connector ---------------- */
 
+const WA_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
+const IG_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.012 4.85.07 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.42.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.68a6.162 6.162 0 100 12.324A6.162 6.162 0 0012 5.84zm0 2.16a4 4 0 110 8 4 4 0 010-8zm7.85-2.05a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z"/></svg>';
+const FB_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>';
+const TT_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>';
+const LINE_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M5.372 13.201c-.003-.573-.002-1.145 0-1.718l3.962-4.717c.13-.152.106-.333-.066-.398-.172-.065-.35.01-.43.168-.08.157-.018.321.053.462l-.014.01c-3.048 3.14-2.486 2.61-5.574 5.76-1.053 1.076-.74 2.032.526 2.432 1.354.428 2.401-.16 2.983-1.273.226-.435.388-1.145.56-1.726zM22.875 3.385c-.436.064-2.31.416-3.64 1.237-.54.334-.922 1.622-1.348 2.31-.527.855-.874 1.626-1.606 2.363-1.63 1.64-2.6 1.84-3.14.896-.884-1.54.6-2.77 1.066-3.92.225-.556.154-1.042-.105-1.248-.197-.156-.5-.082-.828.083-.58.293-1.164.74-1.66 1.2-.82.76-1.612 1.64-2.42 2.405.31-1.05.634-2.093 1.036-3.108.234-.594-.034-.94-.746-.8-.447.09-2.11 1.337-2.48 2.25-.372.92-1.163 2.52-1.55 3.303-.122.248-.25.498-.374.746.063-.907-.072-1.902-.24-2.8-.12-.64-.528-.79-1.117-.593-.538.18-1.123.62-1.556 1.008-.575.517-1.13 1.055-1.66 1.616-.234.248-.233.582-.008.73.157.103.34.084.517.048.553-.113.93-.46 1.357-.665l.068-.066c-.087.677-.152 1.358-.235 2.036-.087.714.226 1.166.925 1.255.48.06 1.024-.08 1.47-.258.364-.145.88-.236 1.2-.258.41-.03.692-.174.817-.45.12-.262.006-.57-.32-.835-.29-.234-.756-.49-1.153-.6.55-.938 1.1-1.874 1.65-2.81.397-.676.803-1.344 1.2-2.026-.02 1.283.047 2.57.4 3.816.242.856.818 1.063 1.556.848.504-.146 1.383-.696 2.025-1.13.506-.342 1.92-1.512 2.306-1.866.62-.568 1.173-1.203 1.75-1.81.288-.304.31-.715.08-.87-.223-.15-.528-.054-.79.06-.84.364-1.62.86-2.435 1.268.542-.876.962-1.81 1.318-2.758.256-.68.07-1.166-.585-1.153z"/></svg>';
+const WC_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 00.167-.054l1.903-1.114a.863.863 0 01.717-.098 10.16 10.16 0 002.837.403c.276 0 .543-.027.811-.05-.857-1.05-1.354-2.37-1.354-3.783 0-3.372 3.287-6.093 7.35-6.093.232 0 .46.018.689.03C15.454 4.58 12.47 2.188 8.69 2.188zm9.168 4.73c-3.447 0-6.279 2.446-6.279 5.445 0 3.014 2.832 5.445 6.279 5.445a7.13 7.13 0 002.11-.316.581.581 0 01.486.067l1.296.756a.283.283 0 00.403-.246c0-.055-.023-.107-.034-.16l-.265-1.006a.591.591 0 01.215-.665C21.91 15.557 23 13.84 23 11.888c0-2.999-2.838-5.445-6.285-5.445zm-3.568 3.137a.936.936 0 11-1.872 0 .936.936 0 011.872 0zm7.132 0a.936.936 0 11-1.872 0 .936.936 0 011.872 0z"/></svg>';
+
 const PLATFORMS = [
   {
-    id: "whatsapp", name: "WhatsApp Cloud API", icon: "W", color: "#25d366",
+    id: "whatsapp", name: "WhatsApp Cloud API", icon: "W", svg: WA_SVG, color: "#25d366",
     path: "/webhook/whatsapp-hook",
     fields: [
       { key: "whatsapp_access_token", label: "Access Token", type: "password", ph: "Paste WhatsApp access token" },
@@ -459,7 +586,7 @@ const PLATFORMS = [
     ]
   },
   {
-    id: "instagram", name: "Instagram Messenger", icon: "IG", color: "#e4405f",
+    id: "instagram", name: "Instagram Messenger", icon: "IG", svg: IG_SVG, color: "linear-gradient(135deg,#f09433,#e4405f 55%,#bd3381)",
     path: "/webhook/instagram-hook",
     fields: [
       { key: "instagram_access_token", label: "Instagram Token", type: "password", ph: "Token with instagram_manage_messages" }
@@ -473,7 +600,7 @@ const PLATFORMS = [
     ]
   },
   {
-    id: "facebook", name: "Facebook Messenger", icon: "F", color: "#0866ff",
+    id: "facebook", name: "Facebook Messenger", icon: "F", svg: FB_SVG, color: "#0866ff",
     path: "/webhook/facebook-hook",
     fields: [
       { key: "facebook_page_access_token", label: "Page Access Token", type: "password", ph: "Token with pages_messaging" }
@@ -487,7 +614,7 @@ const PLATFORMS = [
     ]
   },
   {
-    id: "tiktok", name: "TikTok Messenger", icon: "TT", color: "#000000", border: "1px solid #555",
+    id: "tiktok", name: "TikTok Messenger", icon: "TT", svg: TT_SVG, color: "#000000", border: "1px solid #555",
     path: "/webhook/tiktok-hook",
     fields: [
       { key: "tiktok_access_token", label: "Messaging API Token", type: "password", ph: "tiktok.business.messaging.write token" }
@@ -501,7 +628,7 @@ const PLATFORMS = [
     ]
   },
   {
-    id: "line", name: "LINE Official", icon: "L", color: "#06c755",
+    id: "line", name: "LINE Official", icon: "L", svg: LINE_SVG, color: "#06c755",
     path: "/webhook/line-hook",
     fields: [
       { key: "line_channel_access_token", label: "Channel Access Token", type: "password", ph: "Messaging API channel token" }
@@ -515,7 +642,7 @@ const PLATFORMS = [
     ]
   },
   {
-    id: "wechat", name: "WeChat Official Account", icon: "微", color: "#07c160",
+    id: "wechat", name: "WeChat Official Account", icon: "微", svg: WC_SVG, color: "#07c160",
     path: "/webhook/wechat-hook",
     fields: [
       { key: "wechat_token", label: "Server Token", type: "password", ph: "WeChat server Token" },
@@ -545,7 +672,7 @@ function render() {
     return `
     <div class="card">
       <div class="card-head">
-        <div class="card-title"><div class="logo-lg" style="background:${p.color};${border}">${p.icon}</div><span>${p.name}</span></div>
+        <div class="card-title"><div class="logo-lg" style="background:${p.color};${border}">${p.svg || p.icon}</div><span>${p.name}</span></div>
         <div style="text-align:right">
           <div class="status-dot ${st}"></div>
           <div class="status-label">${lbl}</div>
