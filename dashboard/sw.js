@@ -1,4 +1,4 @@
-const CACHE = "colourdiam-v2";
+const CACHE = "colourdiam-v3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -26,6 +26,20 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  const isNav = event.request.mode === "navigate" || event.request.destination === "document";
+
+  if (isNav) {
+    // Network-first for the page so updates are never stale.
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+        return response;
+      }).catch(() => caches.match("./index.html"))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cached) => {
       return cached || fetch(event.request).then((response) => {
