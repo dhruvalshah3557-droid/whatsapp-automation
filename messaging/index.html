@@ -389,6 +389,48 @@ input:focus, textarea:focus { border-color: rgba(212,175,55,.6); box-shadow: 0 0
   .brand h1 { font-size: 16px; }
   .nav-tabs button { padding: 7px 10px; font-size: 12px; }
 }
+
+/* ===================== DYNAMIC / RESPONSIVE FIXES ===================== */
+/* Fluid topbar + brand */
+.topbar { padding: 0 clamp(10px, 2.5vw, 18px); height: clamp(52px, 8vh, 60px); }
+.brand .logo { width: clamp(28px, 4vw, 34px); height: clamp(28px, 4vw, 34px); }
+.brand h1 { font-size: clamp(15px, 2.4vw, 18px); }
+
+/* Sidebar adapts to screen width */
+.sidebar { width: clamp(260px, 30vw, 340px); min-width: clamp(260px, 30vw, 340px); }
+.contact-item { padding: clamp(10px, 1.6vw, 14px); }
+.ci-msg { max-width: clamp(120px, 16vw, 210px); }
+
+/* Chat bubbles + input adapt */
+.messages { padding: clamp(12px, 2.4vw, 20px); }
+.bubble { max-width: min(78%, 520px); font-size: clamp(13px, 1.6vw, 15px); }
+.input-bar { padding: clamp(8px, 1.4vw, 12px) clamp(10px, 1.8vw, 14px); }
+.input-bar textarea { font-size: clamp(13px, 1.6vw, 15px); }
+
+/* Connector cards breathe */
+.connector-view { padding: clamp(12px, 2.5vw, 24px); }
+.connector-inner { max-width: min(920px, 94%); }
+.card { padding: clamp(16px, 2.4vw, 24px); border-radius: clamp(14px, 2vw, 18px); }
+.form-row { gap: clamp(10px, 1.6vw, 14px); }
+
+/* Fluid logo mark inside connector cards */
+.logo-lg { width: clamp(34px, 5vw, 42px); height: clamp(34px, 5vw, 42px); }
+.logo-lg svg { width: clamp(18px, 2.6vw, 22px); height: clamp(18px, 2.6vw, 22px); }
+
+/* Large screens: more generous chat area */
+@media (min-width: 1400px) {
+  .sidebar { width: 380px; min-width: 380px; }
+  .connector-inner { max-width: 1000px; }
+}
+
+/* Very small phones: tuck nav tabs, keep everything touch-friendly */
+@media (max-width: 420px) {
+  .nav-tabs button { padding: 6px 8px; font-size: 11px; }
+  .brand h1 span { display: none; }
+  .brand h1 { font-size: 15px; }
+  .chat-header .ch-name { font-size: 14px; }
+  .send-btn { width: 40px; height: 40px; }
+}
 </style>
 </head>
 <body>

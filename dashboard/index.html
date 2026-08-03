@@ -421,17 +421,55 @@ input:focus, select:focus, textarea:focus {
   box-shadow: inset 0 0 0 1px rgba(212,175,55,.4), 0 4px 16px rgba(212,175,55,.12);
   color: var(--gold-1);
 }
-.tabbar + * , body { padding-bottom: calc(var(--tabbar) + 26px); }
-
-#install { background: linear-gradient(135deg, #f7e08a, #d4af37); color: #1a1404; }
-
-footer { letter-spacing: .05em; }
-
 @media (max-width: 600px) {
   .hero { padding: 32px 22px; border-radius: 20px; }
   .hero h2 { font-size: 27px; }
   .stat-card .value { font-size: 27px; }
   header h1 { font-size: 22px; }
+}
+
+/* ===================== DYNAMIC / RESPONSIVE FIXES ===================== */
+/* Fix brand logos rendering oversized (SVG needs explicit dimensions) */
+.logo svg { width: 22px; height: 22px; flex-shrink: 0; }
+.logo { overflow: hidden; }
+
+/* Fluid layout: adapt spacing + type to any screen width */
+body { padding: clamp(12px, 3vw, 28px); padding-bottom: calc(var(--tabbar) + 28px); }
+header h1 { font-size: clamp(20px, 4.4vw, 28px); }
+header p { font-size: clamp(10px, 1.4vw, 12px); }
+header { margin-bottom: clamp(14px, 2.5vw, 24px); gap: clamp(10px, 2vw, 16px); }
+.hero { padding: clamp(26px, 5vw, 44px) clamp(20px, 4vw, 36px); }
+.hero h2 { font-size: clamp(26px, 6.2vw, 44px); }
+.hero p { font-size: clamp(13px, 1.8vw, 15px); }
+.tab-title { font-size: clamp(17px, 3vw, 23px); }
+
+/* Fluid grids that never overflow small screens */
+.stats { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: clamp(12px, 2vw, 18px); }
+.grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: clamp(12px, 2vw, 18px); }
+.grid-sm { grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: clamp(10px, 1.6vw, 14px); }
+.card { padding: clamp(16px, 2.4vw, 24px); border-radius: clamp(14px, 2vw, 18px); }
+.form-row { gap: clamp(10px, 1.6vw, 14px); }
+
+/* Adaptive bottom tab bar */
+.tabbar { width: min(94%, 620px); gap: 2px; }
+.tab-item { gap: 2px; }
+.tab-item .ico svg { width: 21px; height: 21px; }
+.tab-item { font-size: clamp(9px, 1.5vw, 11px); }
+
+/* Breathing room on large screens */
+@media (min-width: 1400px) {
+  .container { max-width: 1280px; }
+  .grid { gap: 24px; }
+  .stats { gap: 22px; }
+}
+
+/* Phones: compact yet roomy */
+@media (max-width: 480px) {
+  header .website-btn { padding: 8px 12px; font-size: 12px; }
+  .tab-item .ico svg { width: 19px; height: 19px; }
+  .tile { padding: 20px 14px; }
+  .stat-card .value { font-size: clamp(22px, 7vw, 28px); }
+  .filter-chips button { padding: 7px 12px; font-size: 12px; }
 }
 </style>
 </head>
