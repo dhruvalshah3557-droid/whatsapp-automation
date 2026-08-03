@@ -7,8 +7,8 @@
   "scope": "./",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui", "browser"],
-  "background_color": "#ffffff",
-  "theme_color": "#1877F2",
+  "background_color": "#0b0d12",
+  "theme_color": "#1f2c33",
   "orientation": "any",
   "categories": ["social", "business", "communication"],
   "icons": [
