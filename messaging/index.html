@@ -198,6 +198,71 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
 #ai-settings input { font-size: 13px; }
 #ai-quick .copy-btn { font-size: 11px; padding: 6px 10px; border-radius: 999px; }
 
+/* ---------------- UI polish ---------------- */
+:root {
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
+  --shadow-md: 0 10px 28px rgba(0,0,0,.4);
+  --ease: .22s cubic-bezier(.4,0,.2,1);
+}
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background-color: #3a4152; }
+
+.topbar {
+  background: linear-gradient(180deg, rgba(38,50,58,.95), rgba(31,44,51,.92));
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 var(--border);
+}
+.brand .logo { box-shadow: 0 2px 10px rgba(212,175,55,.35); }
+.nav-tabs button { transition: color var(--ease), background var(--ease); }
+.nav-tabs button:hover { color: var(--text); }
+.nav-tabs button.active { background: var(--out-bubble); color: #7ef2c0; box-shadow: 0 2px 8px rgba(14,90,70,.4); }
+
+.sidebar-search input { transition: border-color var(--ease), box-shadow var(--ease); }
+.sidebar-search input:focus { box-shadow: 0 0 0 3px rgba(34,197,94,.15); }
+
+.contact-item { transition: background var(--ease); }
+.contact-item:hover { background: rgba(255,255,255,.045); }
+.contact-item.active { background: linear-gradient(90deg, rgba(14,90,70,.55), rgba(14,90,70,.25)); }
+.avatar { box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+.unread { box-shadow: 0 0 0 2px var(--sidebar); }
+
+.chat-panel { background:
+  radial-gradient(600px 300px at 90% -10%, rgba(34,197,94,.05), transparent 60%),
+  var(--bg-chat); }
+
+.chat-header { box-shadow: 0 1px 0 var(--border); }
+.ch-header-btn { border-radius: 8px; transition: background var(--ease), color var(--ease); }
+.ch-header-btn:hover { background: rgba(255,255,255,.08); color: var(--text); }
+
+.msg-row { animation: msgIn .22s ease both; }
+@keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.bubble { box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.send-btn { transition: background var(--ease), transform var(--ease), box-shadow var(--ease); box-shadow: 0 2px 8px rgba(34,197,94,.35); }
+.send-btn:hover { background: #2dd36b; transform: scale(1.05); }
+.send-btn:active { transform: scale(.94); }
+.send-btn svg { display: block; margin: auto; }
+.send-btn.busy { pointer-events: none; opacity: .7; }
+.send-btn.busy svg { animation: spin .9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.copy-btn, .btn { transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease), color var(--ease); }
+.copy-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.btn:active { transform: scale(.98); }
+
+.card { transition: border-color var(--ease), box-shadow var(--ease); }
+.card:hover { border-color: #333a4a; box-shadow: var(--shadow-sm); }
+.logo-lg { box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+
+@media (prefers-reduced-motion: reduce) {
+  .msg-row { animation: none; }
+  .contact-item, .nav-tabs button, .copy-btn, .btn, .send-btn { transition: none; }
+}
+
 @media (max-width: 760px) {
   .sidebar { width: 100%; min-width: 100%; }
   #chat-panel { display: none; }
@@ -246,7 +311,7 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
             <div class="messages" id="messages"></div>
             <div class="input-bar">
               <textarea id="msg-input" rows="1" placeholder="Type a message" onkeydown="onKey(event)"></textarea>
-              <button class="send-btn" id="send-btn" onclick="sendMsg()">➤</button>
+              <button class="send-btn" id="send-btn" onclick="sendMsg()" aria-label="Send message"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg></button>
             </div>
           </div>
         </section>
@@ -290,7 +355,7 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
 
           <div class="input-bar">
             <textarea id="ai-input" rows="1" placeholder="Ask the AI to configure something... e.g. set instagram token to X" onkeydown="aiKey(event)"></textarea>
-            <button class="send-btn" id="ai-send-btn" onclick="aiSend()">➤</button>
+            <button class="send-btn" id="ai-send-btn" onclick="aiSend()" aria-label="Send message"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg></button>
           </div>
         </div>
       </div>
@@ -992,7 +1057,7 @@ async function aiSend() {
   const c = aiLoad();
   if (c.base && c.key) {
     btn.disabled = true;
-    btn.textContent = "…";
+    btn.classList.add("busy");
     aiAppend("assistant", "Thinking…");
     try {
       const reply = await aiCallLLM(text);
@@ -1009,7 +1074,7 @@ async function aiSend() {
       aiRender();
     }
     btn.disabled = false;
-    btn.textContent = "➤";
+    btn.classList.remove("busy");
   } else {
     aiAppend("assistant", "To talk to me with AI, open the ⚙ settings and add your API base URL and key. Meanwhile I can still update your connector with commands (try the buttons above, or \"set whatsapp token to X\").");
   }

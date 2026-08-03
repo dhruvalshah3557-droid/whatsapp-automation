@@ -177,6 +177,73 @@ label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px
 .tab-item .ico { font-size: 16px; line-height: 1; font-weight: 800; }
 .tab-item.active { color: var(--gold); }
 
+/* ---------------- UI polish ---------------- */
+:root {
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
+  --shadow-md: 0 10px 28px rgba(0,0,0,.4);
+  --shadow-gold: 0 6px 22px rgba(212,175,55,.28);
+  --ease: .22s cubic-bezier(.4,0,.2,1);
+}
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; border: 2px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: #3a4152; }
+
+header h1 { letter-spacing: .02em; background: linear-gradient(90deg, var(--gold), #e6c200); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+.website-btn, .btn, .filter-chips button, .tab-item { transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease), color var(--ease), background var(--ease), opacity var(--ease); }
+.website-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+
+.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-gold); }
+.btn:active { transform: translateY(0) scale(.98); }
+.btn-ghost:hover { box-shadow: var(--shadow-sm); border-color: #333a4a; }
+
+.card, .stat-card, .tile, .color-tile, .link-list a { transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease); }
+.stat-card { position: relative; overflow: hidden; }
+.stat-card::after { content: ""; position: absolute; inset: auto 0 0 0; height: 3px; background: linear-gradient(90deg, var(--gold), transparent 70%); opacity: 0; transition: opacity var(--ease); }
+.stat-card:hover { border-color: rgba(212,175,55,.45); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.stat-card:hover::after { opacity: 1; }
+
+@media (hover: hover) {
+  .card:hover { border-color: #333a4a; box-shadow: var(--shadow-sm); }
+  .tile:hover, .color-tile:hover, .link-list a:hover {
+    transform: translateY(-2px); box-shadow: var(--shadow-md);
+    border-color: rgba(212,175,55,.5);
+  }
+  .tile:hover .t-cta, .color-tile:hover .c-cta { letter-spacing: .04em; }
+}
+.tile .t-cta, .color-tile .c-cta { transition: letter-spacing var(--ease); }
+
+.filter-chips button:hover { border-color: var(--gold); color: var(--text); }
+.filter-chips button.active { transform: translateY(-1px); box-shadow: var(--shadow-gold); }
+
+.hero {
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(700px 300px at 15% -20%, rgba(212,175,55,.16), transparent 60%),
+    radial-gradient(500px 260px at 90% 120%, rgba(212,175,55,.1), transparent 60%),
+    linear-gradient(135deg, #1a1d24, #2a2112);
+}
+.hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
+.hero h2 { letter-spacing: .01em; }
+
+.tab-content.active { animation: fadeUp .28s ease both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.tabbar { padding-top: 6px; background: rgba(26,29,36,.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.tab-item { gap: 3px; border-radius: 10px; margin: 0 3px 6px; }
+.tab-item.active { background: rgba(212,175,55,.12); }
+
+#install { animation: pulseGlow 2.4s ease-in-out infinite; }
+@keyframes pulseGlow { 0%,100% { box-shadow: 0 4px 20px rgba(212,175,55,.4); } 50% { box-shadow: 0 4px 30px rgba(212,175,55,.65); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-content.active { animation: none; }
+  .card, .stat-card, .tile, .color-tile, .link-list a, .btn, .filter-chips button { transition: none; }
+}
+
 @media (max-width: 600px) {
   body { padding: 12px; padding-bottom: calc(var(--tabbar) + 12px); }
   header h1 { font-size: 19px; }
@@ -449,13 +516,13 @@ label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px
 </div>
 
 <nav class="tabbar">
-  <button class="tab-item active" data-tab="home"><span class="ico">H</span>Home</button>
-  <button class="tab-item" data-tab="shop"><span class="ico">S</span>Shop</button>
-  <button class="tab-item" data-tab="diamonds"><span class="ico">D</span>Diamonds</button>
-  <button class="tab-item" data-tab="design"><span class="ico">C</span>Design</button>
-  <button class="tab-item" data-tab="analytics"><span class="ico">A</span>Analytics</button>
-  <button class="tab-item" data-tab="ai"><span class="ico">AI</span>AI</button>
-  <button class="tab-item" data-tab="business"><span class="ico">B</span>Business</button>
+  <button class="tab-item active" data-tab="home"><span class="ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg></span>Home</button>
+  <button class="tab-item" data-tab="shop"><span class="ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.2 13H4.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg></span>Shop</button>
+  <button class="tab-item" data-tab="diamonds"><span class="ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9l4-6Z"/><path d="M2 9h20"/><path d="M12 21 8 9l4-6 4 6-4 12"/></svg></span>Diamonds</button>
+  <button class="tab-item" data-tab="design"><span class="ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3Z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5Z"/><circle cx="11" cy="11" r="2"/></svg></span>Design</button>
+  <button class="tab-item" data-tab="analytics"><span class="ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M3 20h18"/></svg></span>Analytics</button>
+  <button class="tab-item" data-tab="ai"><span class="ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4L12 3Z"/><path d="M19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9L19 14Z"/></svg></span>AI</button>
+  <button class="tab-item" data-tab="business"><span class="ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg></span>Business</button>
 </nav>
 
 <script>
