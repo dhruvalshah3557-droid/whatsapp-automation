@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Colour Diam — Rare Natural Fancy Color Diamonds</title>
+<meta name="theme-color" content="#1c1a17">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Colour Diam">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="Since 1994, Colour Diam has specialized in sourcing exceptional natural fancy color diamonds and creating bespoke jewelry for collectors and discerning clients worldwide.">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="icon" href="./icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ivory: #FAF7F2;
+  --ivory-2: #F3EEE4;
+  --surface: #FFFFFF;
+  --ink: #1c1a17;
+  --ink-2: #4a463f;
+  --muted: #8a857b;
+  --gold: #b68a3e;
+  --gold-deep: #96691f;
+  --gold-soft: rgba(182, 138, 62, .12);
+  --rose: #c9a68f;
+  --line: rgba(28, 26, 23, .08);
+  --line-strong: rgba(28, 26, 23, .14);
+  --shadow: 0 18px 44px rgba(28, 26, 23, .09);
+  --shadow-sm: 0 6px 18px rgba(28, 26, 23, .06);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --ease: .28s cubic-bezier(.4, 0, .2, 1);
+  --serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --topbar-h: 64px;
+  --nav-w: 76px;
+  --nav-open: 268px;
+  --rail-w: 300px;
+  --bottomnav-h: 62px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--sans);
+  background: var(--ivory);
+  color: var(--ink);
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+img, svg { display: block; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(28,26,23,.14); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(28,26,23,.28); background-clip: content-box; border: 2px solid transparent; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* ---------- Layout shell ---------- */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h);
+  background: rgba(255,255,255,.86);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 18px;
+  z-index: 80;
+}
+.logo { display: flex; align-items: center; gap: 10px; font-family: var(--serif); font-weight: 600; font-size: 21px; letter-spacing: .02em; white-space: nowrap; }
+.logo .mark {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, #e8cd8a, var(--gold) 60%, var(--gold-deep));
+  color: #fff; display: grid; place-items: center; font-size: 15px;
+  box-shadow: 0 4px 14px rgba(182,138,62,.35);
+}
+.logo small { display: block; font-family: var(--sans); font-size: 8.5px; letter-spacing: .34em; color: var(--gold-deep); font-weight: 700; margin-top: 2px; }
+.logo .word { line-height: 1; }
+.icon-btn {
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 1px solid transparent; background: transparent; color: var(--ink-2);
+  display: grid; place-items: center; flex-shrink: 0;
+  transition: background var(--ease), color var(--ease), border-color var(--ease);
+}
+.icon-btn:hover { background: var(--ivory-2); color: var(--ink); }
+.icon-btn .badge {
+  position: absolute; top: 4px; right: 4px; min-width: 16px; height: 16px; padding: 0 4px;
+  background: var(--gold); color: #fff; font-size: 9.5px; font-weight: 700;
+  border-radius: 999px; display: grid; place-items: center;
+}
+.icon-btn.has-badge { position: relative; }
+.search-wrap { flex: 1; max-width: 560px; margin: 0 auto; position: relative; }
+.search-wrap input {
+  width: 100%; height: 42px; border: 1px solid var(--line-strong); border-radius: 999px;
+  background: var(--ivory); color: var(--ink); padding: 0 20px 0 44px;
+  font-size: 14px; font-family: inherit; outline: none;
+  transition: border-color var(--ease), box-shadow var(--ease), background var(--ease);
+}
+.search-wrap input::placeholder { color: var(--muted); }
+.search-wrap input:focus { border-color: var(--gold); background: #fff; box-shadow: 0 0 0 3px var(--gold-soft); }
+.search-wrap .s-ico { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.search-results {
+  position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+  background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden; z-index: 90;
+}
+.search-results a { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.search-results a:hover { background: var(--ivory); }
+.search-results .th { width: 44px; height: 44px; border-radius: 10px; overflow: hidden; flex-shrink: 0; background: var(--ivory-2); }
+.search-results .th img { width: 100%; height: 100%; object-fit: cover; }
+.search-results .nm { font-size: 13.5px; font-weight: 600; }
+.search-results .id { font-size: 11.5px; color: var(--muted); }
+.top-actions { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.select-mini {
+  height: 38px; border: 1px solid var(--line-strong); border-radius: 999px;
+  background: var(--ivory); color: var(--ink-2); font-size: 13px; font-family: inherit;
+  padding: 0 10px; outline: none;
+}
+.select-mini:focus { border-color: var(--gold); }
+.menu-btn { display: none; }
+
+.shell { display: flex; height: 100vh; height: 100dvh; padding-top: var(--topbar-h); }
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  position: fixed; top: var(--topbar-h); bottom: 0; left: 0;
+  width: var(--nav-w);
+  background: rgba(255,255,255,.94);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-right: 1px solid var(--line);
+  overflow: hidden;
+  transition: width var(--ease);
+  z-index: 60;
+  display: flex; flex-direction: column;
+}
+.sidebar:hover, body.nav-open .sidebar { width: var(--nav-open); box-shadow: var(--shadow-sm); }
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar-inner { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px 12px 20px; }
+.side-group { margin-bottom: 22px; }
+.side-group-title {
+  font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--gold-deep); padding: 0 10px 8px; white-space: nowrap; opacity: 0; transition: opacity .15s .05s;
+}
+.sidebar:hover .side-group-title, body.nav-open .side-group-title { opacity: 1; }
+.side-item {
+  display: flex; align-items: center; gap: 14px; width: 100%;
+  border: none; background: transparent; color: var(--ink-2);
+  padding: 10px 12px; border-radius: 12px; margin-bottom: 2px;
+  font-size: 14px; font-weight: 500; font-family: inherit; text-align: left; white-space: nowrap;
+  transition: background var(--ease), color var(--ease);
+}
+.side-item svg { flex-shrink: 0; }
+.side-item:hover { background: var(--ivory-2); color: var(--ink); }
+.side-item.active { background: var(--gold-soft); color: var(--gold-deep); font-weight: 600; }
+.side-collapse {
+  margin-top: auto; padding: 12px; border-top: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: flex-start; gap: 14px;
+}
+.collapse-btn {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  background: var(--ivory); border: 1px solid var(--line); border-radius: 12px;
+  color: var(--ink-2); font-size: 13px; font-weight: 600; font-family: inherit;
+  padding: 10px 12px; transition: background var(--ease), color var(--ease);
+}
+.collapse-btn:hover { background: var(--ivory-2); color: var(--ink); }
+.collapse-btn .lbl { white-space: nowrap; opacity: 0; transition: opacity .15s .05s; }
+.sidebar:hover .collapse-btn .lbl, body.nav-open .collapse-btn .lbl { opacity: 1; }
+
+/* ---------- Main ---------- */
+.main {
+  flex: 1; min-width: 0; margin-left: var(--nav-w);
+  overflow-y: auto; overflow-x: hidden;
+  transition: margin-left var(--ease);
+  padding-bottom: calc(var(--bottomnav-h) + 28px);
+  scroll-behavior: smooth;
+}
+body.nav-open .main { margin-left: var(--nav-open); }
+body.rail-on .main { margin-right: var(--rail-w); }
+.page { max-width: 1360px; margin: 0 auto; padding: 26px 28px 40px; animation: pageIn .35s ease both; }
+@keyframes pageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Rail ---------- */
+.rail {
+  position: fixed; top: var(--topbar-h); bottom: 0; right: 0; width: var(--rail-w);
+  background: rgba(255,255,255,.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-left: 1px solid var(--line); padding: 22px 18px;
+  overflow-y: auto; z-index: 55;
+}
+.rail h4 { font-size: 10.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 12px; }
+.rail-card { background: var(--ivory); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 18px; }
+.rail-item { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.rail-item:last-child { border-bottom: none; }
+.rail-item .th { width: 46px; height: 46px; border-radius: 9px; overflow: hidden; flex-shrink: 0; background: var(--ivory-2); }
+.rail-item .th img { width: 100%; height: 100%; object-fit: cover; }
+.rail-item .nm { font-size: 12.5px; font-weight: 600; }
+.rail-item .pr { font-size: 12px; color: var(--gold-deep); font-weight: 600; margin-top: 2px; }
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative; border-radius: 22px; overflow: hidden;
+  background:
+    radial-gradient(700px 320px at 85% -10%, rgba(182,138,62,.28), transparent 60%),
+    radial-gradient(500px 260px at -5% 110%, rgba(201,166,143,.18), transparent 55%),
+    linear-gradient(135deg, #23211c, #0f0e0c);
+  color: #f6f1e7; padding: 64px 56px; margin-bottom: 40px;
+  display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; align-items: center;
+}
+.hero .kicker { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: #e8cd8a; margin-bottom: 18px; }
+.hero h1 { font-family: var(--serif); font-size: clamp(30px, 4vw, 52px); line-height: 1.12; font-weight: 600; }
+.hero h1 em { font-style: normal; color: #e8cd8a; }
+.hero p { margin-top: 18px; color: rgba(246,241,231,.78); font-size: 15.5px; line-height: 1.7; max-width: 520px; }
+.hero .cta-row { margin-top: 30px; display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-art { display: grid; place-items: center; }
+.hero-art svg { width: 100%; max-width: 320px; filter: drop-shadow(0 24px 50px rgba(0,0,0,.5)); }
+
+/* ---------- Sections & headings ---------- */
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 18px; }
+.sec-head h2 { font-family: var(--serif); font-size: 26px; font-weight: 600; }
+.sec-head .sub { color: var(--muted); font-size: 13.5px; }
+.sec-link { color: var(--gold-deep); font-size: 13.5px; font-weight: 600; border: none; background: none; font-family: inherit; }
+.sec-link:hover { text-decoration: underline; }
+.section { margin-bottom: 46px; }
+
+/* ---------- Cards ---------- */
+.collections { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
+.collection-card {
+  position: relative; border-radius: 18px; overflow: hidden; height: 220px;
+  background: var(--ivory-2); border: 1px solid var(--line);
+  transition: transform var(--ease), box-shadow var(--ease);
+}
+.collection-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.collection-card .bg { position: absolute; inset: 0; display: grid; place-items: center; }
+.collection-card .bg svg { width: 64%; opacity: .85; }
+.collection-card .cap { position: absolute; left: 16px; bottom: 14px; right: 16px; }
+.collection-card .cap h3 { font-family: var(--serif); font-size: 19px; font-weight: 600; color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.35); }
+.collection-card .cap span { font-size: 12px; color: rgba(255,255,255,.85); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+.grid.g2 { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+
+.p-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+  overflow: hidden; position: relative;
+  transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease);
+}
+.p-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: rgba(182,138,62,.35); }
+.p-card .img-wrap { position: relative; aspect-ratio: 1 / 1; background: var(--ivory-2); overflow: hidden; cursor: pointer; }
+.p-card .img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+.p-card:hover .img-wrap img { transform: scale(1.045); }
+.p-card .fave {
+  position: absolute; top: 12px; right: 12px; width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,.9); border: 1px solid var(--line); color: var(--ink-2);
+  display: grid; place-items: center; transition: color var(--ease), transform var(--ease), background var(--ease);
+}
+.p-card .fave:hover { transform: scale(1.08); }
+.p-card .fave.on { color: var(--rose); background: #fff; }
+.p-card .fave.on svg { fill: currentColor; }
+.p-card .qv {
+  position: absolute; left: 12px; right: 12px; bottom: 12px;
+  background: rgba(28,26,23,.82); color: #fff; border: none; border-radius: 999px;
+  padding: 10px; font-size: 13px; font-weight: 600; font-family: inherit;
+  opacity: 0; transform: translateY(8px); transition: opacity var(--ease), transform var(--ease), background var(--ease);
+}
+.p-card:hover .qv, .p-card:focus-within .qv { opacity: 1; transform: none; }
+.p-card .qv:hover { background: var(--gold-deep); }
+.p-card .tag { position: absolute; top: 12px; left: 12px; background: var(--gold-soft); color: var(--gold-deep); font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+.p-card .body { padding: 14px 16px 16px; }
+.p-card .nm { font-weight: 600; font-size: 15px; }
+.p-card .stk { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.p-card .specs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 4px; }
+.p-card .specs span { font-size: 11px; color: var(--ink-2); background: var(--ivory); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; }
+.p-card .row { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.p-card .price { font-family: var(--serif); font-size: 19px; font-weight: 600; color: var(--gold-deep); }
+.p-card .gia { font-size: 10.5px; font-weight: 700; color: var(--gold-deep); background: var(--gold-soft); padding: 4px 9px; border-radius: 999px; letter-spacing: .04em; }
+.gia-svg { display: inline-flex; align-items: center; gap: 5px; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  height: 48px; padding: 0 24px; border-radius: 999px;
+  font-size: 14.5px; font-weight: 600; font-family: inherit;
+  border: 1px solid transparent; white-space: nowrap;
+  transition: transform var(--ease), box-shadow var(--ease), background var(--ease), border-color var(--ease), color var(--ease);
+}
+.btn:active { transform: scale(.98); }
+.btn-primary { background: linear-gradient(135deg, #e8cd8a, var(--gold) 55%, var(--gold-deep)); color: #fff; box-shadow: 0 8px 24px rgba(182,138,62,.35); }
+.btn-primary:hover { box-shadow: 0 12px 30px rgba(182,138,62,.45); transform: translateY(-1px); }
+.btn-outline { background: #fff; border-color: var(--line-strong); color: var(--ink); }
+.btn-outline:hover { border-color: var(--gold); color: var(--gold-deep); }
+.btn-ghost { background: transparent; color: var(--ink-2); }
+.btn-ghost:hover { background: var(--ivory-2); color: var(--ink); }
+.btn-dark { background: var(--ink); color: #fff; }
+.btn-dark:hover { background: #000; }
+.btn-sm { height: 38px; padding: 0 16px; font-size: 13px; }
+.btn-block { width: 100%; }
+
+/* ---------- Chips / filters ---------- */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--line-strong); background: #fff; color: var(--ink-2);
+  border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 500; font-family: inherit;
+  transition: border-color var(--ease), color var(--ease), background var(--ease);
+}
+.chip:hover { border-color: var(--gold); }
+.chip.active { background: var(--gold-soft); border-color: var(--gold); color: var(--gold-deep); font-weight: 600; }
+.chip small { color: var(--muted); font-weight: 400; }
+.chip-x {
+  display: inline-flex; align-items: center; gap: 6px; border-radius: 999px;
+  background: var(--gold-soft); color: var(--gold-deep); border: 1px solid rgba(182,138,62,.4);
+  padding: 6px 12px; font-size: 12.5px; font-weight: 600; font-family: inherit;
+}
+.chip-x button { background: none; border: none; color: inherit; font-size: 13px; display: grid; place-items: center; padding: 0; }
+.fbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+.fbar .spacer { flex: 1; }
+.sort-select { height: 40px; border: 1px solid var(--line-strong); border-radius: 999px; background: #fff; color: var(--ink-2); padding: 0 12px; font-size: 13px; font-family: inherit; outline: none; }
+.sort-select:focus { border-color: var(--gold); }
+.f-sheet { padding: 8px 0 0; }
+.f-group { margin-bottom: 18px; }
+.f-group > h5 { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.f-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.f-range { display: flex; align-items: center; gap: 8px; }
+.f-range input { flex: 1; min-width: 0; }
+.range-input { width: 100%; accent-color: var(--gold); }
+.f-foot { display: flex; gap: 10px; padding-top: 14px; border-top: 1px solid var(--line); position: sticky; bottom: 0; background: #fff; }
+
+/* ---------- Filter sheet (mobile) ---------- */
+.sheet-overlay { position: fixed; inset: 0; background: rgba(28,26,23,.4); z-index: 120; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+.sheet-overlay.open { opacity: 1; pointer-events: auto; }
+.f-sheet-panel {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 121;
+  background: #fff; border-radius: 22px 22px 0 0; max-height: 82vh;
+  padding: 20px 22px 26px; overflow-y: auto;
+  transform: translateY(100%); transition: transform .3s cubic-bezier(.4,0,.2,1);
+}
+.f-sheet-panel.open { transform: none; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.sheet-head h3 { font-family: var(--serif); font-size: 21px; }
+
+/* ---------- Modal ---------- */
+.modal-overlay { position: fixed; inset: 0; background: rgba(28,26,23,.5); z-index: 130; display: grid; place-items: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .22s ease; }
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal { background: #fff; border-radius: 20px; max-width: 520px; width: 100%; max-height: 88vh; overflow-y: auto; transform: translateY(12px) scale(.98); transition: transform .22s ease; }
+.modal-overlay.open .modal { transform: none; }
+.modal .m-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: #fff; z-index: 2; }
+.modal .m-head h3 { font-family: var(--serif); font-size: 20px; }
+.modal .m-body { padding: 20px; }
+
+/* ---------- Product detail ---------- */
+.pd { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 44px; }
+.pd-gallery { position: relative; }
+.pd-gallery .main-img { aspect-ratio: 1 / 1; border-radius: 20px; overflow: hidden; background: var(--ivory-2); position: relative; cursor: zoom-in; }
+.pd-gallery .main-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+.pd-gallery .main-img.zoomed img { transform: scale(1.9); cursor: zoom-out; }
+.pd-thumbs { display: flex; gap: 10px; margin-top: 12px; overflow-x: auto; }
+.pd-thumbs button { width: 74px; height: 74px; border-radius: 12px; overflow: hidden; border: 2px solid transparent; background: var(--ivory-2); flex-shrink: 0; padding: 0; transition: border-color var(--ease); }
+.pd-thumbs button.active { border-color: var(--gold); }
+.pd-thumbs img { width: 100%; height: 100%; object-fit: cover; }
+.pd-bread { font-size: 12.5px; color: var(--muted); margin-bottom: 16px; }
+.pd-bread a { color: var(--gold-deep); }
+.pd-info h1 { font-family: var(--serif); font-size: 32px; font-weight: 600; line-height: 1.15; }
+.pd-info .stock { color: var(--muted); font-size: 13px; margin-top: 6px; }
+.pd-price { font-family: var(--serif); font-size: 34px; font-weight: 600; color: var(--gold-deep); margin: 20px 0 4px; }
+.pd-price small { font-size: 14px; color: var(--muted); font-weight: 500; }
+.pd-avail { font-size: 13px; font-weight: 600; }
+.pd-avail.ok { color: #3f8f52; }
+.pd-avail.res { color: var(--gold-deep); }
+.spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 22px 0; }
+.spec { background: var(--ivory); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px 14px; }
+.spec .k { font-size: 11px; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; }
+.spec .v { font-size: 14.5px; font-weight: 600; margin-top: 3px; }
+.pd-actions { display: grid; gap: 10px; margin-top: 22px; }
+.pd-desc { margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--line); }
+.pd-desc h3 { font-family: var(--serif); font-size: 19px; margin-bottom: 10px; }
+.pd-desc p { color: var(--ink-2); line-height: 1.75; font-size: 14.5px; }
+.gia-box { margin-top: 24px; background: var(--gold-soft); border: 1px solid rgba(182,138,62,.3); border-radius: var(--radius); padding: 16px 18px; }
+.gia-box h4 { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 8px; }
+.gia-box p { font-size: 13.5px; color: var(--ink-2); line-height: 1.7; }
+
+/* ---------- Lists (messages, orders, admin) ---------- */
+.list { display: flex; flex-direction: column; gap: 10px; }
+.list-item {
+  display: flex; align-items: center; gap: 14px; background: #fff; border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 14px 16px; cursor: pointer;
+  transition: box-shadow var(--ease), border-color var(--ease), transform var(--ease);
+}
+.list-item:hover { box-shadow: var(--shadow-sm); border-color: rgba(182,138,62,.35); transform: translateY(-1px); }
+.li-av { width: 48px; height: 48px; border-radius: 50%; background: var(--ivory-2); color: var(--gold-deep); display: grid; place-items: center; font-weight: 700; flex-shrink: 0; }
+.li-main { flex: 1; min-width: 0; }
+.li-main .t { font-weight: 600; font-size: 14.5px; display: flex; align-items: center; gap: 8px; }
+.li-main .s { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.li-side { text-align: right; flex-shrink: 0; }
+.li-side .t { font-size: 13.5px; font-weight: 600; }
+.li-side .s { font-size: 11.5px; color: var(--muted); }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); display: inline-block; }
+.dot.gold { background: var(--gold); }
+
+/* ---------- Stat cards (admin) ---------- */
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.stat {
+  background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px; 
+}
+.stat .k { font-size: 11px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.stat .v { font-family: var(--serif); font-size: 26px; font-weight: 600; margin-top: 6px; }
+.stat .d { font-size: 12px; color: var(--gold-deep); margin-top: 4px; font-weight: 600; }
+
+.table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.table th { text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 12px 14px; border-bottom: 1px solid var(--line); background: var(--ivory); }
+.table td { padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 13.5px; vertical-align: middle; }
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: var(--ivory); }
+.table .cell-p { display: flex; align-items: center; gap: 10px; }
+.table .cell-p .th { width: 38px; height: 38px; border-radius: 8px; overflow: hidden; background: var(--ivory-2); flex-shrink: 0; }
+.table .cell-p .th img { width: 100%; height: 100%; object-fit: cover; }
+.tbtn { border: 1px solid var(--line-strong); background: #fff; color: var(--ink-2); border-radius: 8px; padding: 6px 12px; font-size: 12.5px; font-family: inherit; font-weight: 600; transition: border-color var(--ease), color var(--ease), background var(--ease); }
+.tbtn:hover { border-color: var(--gold); color: var(--gold-deep); }
+.tbtn.gold { background: var(--gold-soft); border-color: rgba(182,138,62,.4); color: var(--gold-deep); }
+.tbtn.danger { color: #b3362a; border-color: rgba(179,54,42,.35); }
+.tbtn.danger:hover { background: rgba(179,54,42,.08); }
+
+/* ---------- Forms ---------- */
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 7px; }
+.field input, .field select, .field textarea {
+  width: 100%; border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+  background: #fff; color: var(--ink); padding: 12px 14px; font-size: 14px; font-family: inherit; outline: none;
+  transition: border-color var(--ease), box-shadow var(--ease);
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+.field textarea { resize: vertical; min-height: 90px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+
+/* ---------- Sheets sync ---------- */
+.sync-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-bottom: 18px; }
+.sync-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.sync-head h3 { font-family: var(--serif); font-size: 19px; }
+.sync-status { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: #3f8f52; }
+.sync-status .pulse { width: 9px; height: 9px; border-radius: 50%; background: #3f8f52; box-shadow: 0 0 0 4px rgba(63,143,82,.15); }
+.sync-status.syncing .pulse { background: var(--gold); box-shadow: 0 0 0 4px var(--gold-soft); animation: pulse 1s ease infinite; }
+.sync-status.err { color: #b3362a; }
+.sync-status.err .pulse { background: #b3362a; box-shadow: 0 0 0 4px rgba(179,54,42,.15); }
+@keyframes pulse { 50% { transform: scale(1.5); opacity: .6; } }
+.sync-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0; }
+.sync-meta .m { background: var(--ivory); border-radius: var(--radius-sm); padding: 12px; }
+.sync-meta .m .k { font-size: 11px; color: var(--muted); }
+.sync-meta .m .v { font-size: 16px; font-weight: 700; margin-top: 3px; }
+.sync-log { max-height: 200px; overflow-y: auto; background: var(--ivory); border-radius: var(--radius-sm); padding: 12px; font-size: 12px; line-height: 1.7; color: var(--ink-2); font-family: ui-monospace, Menlo, monospace; }
+.sync-log .ok { color: #3f8f52; }
+.sync-log .err { color: #b3362a; }
+
+/* ---------- Education / about ---------- */
+.edu-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; margin-bottom: 14px; }
+.edu-card h3 { font-family: var(--serif); font-size: 18px; margin-bottom: 8px; }
+.edu-card p { color: var(--ink-2); font-size: 14px; line-height: 1.7; }
+.edu-card .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.pill { background: var(--gold-soft); color: var(--gold-deep); border-radius: 999px; padding: 5px 12px; font-size: 12px; font-weight: 600; }
+
+/* ---------- Messages view ---------- */
+.msg-thread { display: flex; flex-direction: column; gap: 10px; padding: 20px 0; }
+.msg-bubble { max-width: 74%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.55; }
+.msg-bubble.in { background: var(--ivory-2); border: 1px solid var(--line); border-bottom-left-radius: 6px; align-self: flex-start; }
+.msg-bubble.out { background: linear-gradient(135deg, #e8cd8a, var(--gold)); color: #fff; border-bottom-right-radius: 6px; align-self: flex-end; }
+.msg-bubble .t { display: block; font-size: 11px; opacity: .7; margin-top: 5px; text-align: right; }
+.msg-composer { display: flex; gap: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
+.msg-composer input { flex: 1; border: 1px solid var(--line-strong); border-radius: 999px; padding: 12px 18px; font-size: 14px; font-family: inherit; outline: none; }
+.msg-composer input:focus { border-color: var(--gold); }
+
+/* ---------- Empty state ---------- */
+.empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty .big { font-size: 44px; margin-bottom: 14px; opacity: .5; }
+.empty h3 { font-family: var(--serif); color: var(--ink); font-size: 20px; margin-bottom: 6px; }
+.empty p { font-size: 14px; margin-bottom: 18px; }
+
+/* ---------- Toast ---------- */
+.toast {
+  position: fixed; bottom: calc(var(--bottomnav-h) + 18px); left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: #fff; border-radius: 999px; padding: 12px 22px;
+  font-size: 13.5px; font-weight: 600; z-index: 200; opacity: 0; pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+  display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow); max-width: 90vw;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+@media (min-width: 1400px) { .toast { left: 50%; } }
+
+/* ---------- Bottom nav (mobile) ---------- */
+.bottomnav {
+  position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--bottomnav-h) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: rgba(255,255,255,.94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line);
+  display: none; align-items: stretch; justify-content: space-around;
+  z-index: 70;
+}
+.bn-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: none; border: none; color: var(--muted); font-size: 10px; font-weight: 600; font-family: inherit; position: relative; }
+.bn-item .badge { position: absolute; top: 4px; left: 58%; min-width: 16px; height: 16px; padding: 0 4px; background: var(--gold); color: #fff; font-size: 9px; font-weight: 700; border-radius: 999px; display: grid; place-items: center; }
+.bn-item.active { color: var(--gold-deep); }
+.bn-item.active svg { stroke: var(--gold-deep); }
+
+/* ---------- Drawer (mobile menu) ---------- */
+.drawer-overlay { position: fixed; inset: 0; background: rgba(28,26,23,.45); z-index: 150; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+.drawer-overlay.open { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed; top: 0; bottom: 0; left: 0; width: min(320px, 86vw);
+  background: #fff; z-index: 151; padding: 20px 18px 30px; overflow-y: auto;
+  transform: translateX(-102%); transition: transform .3s cubic-bezier(.4,0,.2,1);
+  display: flex; flex-direction: column;
+}
+.drawer.open { transform: none; }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.drawer .d-group { margin-bottom: 18px; }
+.drawer .d-title { font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-deep); padding: 0 8px 8px; }
+.drawer .d-item { display: flex; align-items: center; gap: 12px; padding: 11px 8px; border-radius: 12px; font-size: 14px; font-weight: 500; color: var(--ink-2); background: none; border: none; width: 100%; text-align: left; font-family: inherit; }
+.drawer .d-item:hover { background: var(--ivory-2); }
+.drawer .d-item.active { background: var(--gold-soft); color: var(--gold-deep); font-weight: 600; }
+.drawer .d-foot { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line); display: grid; gap: 8px; }
+.drawer .d-quick { display: flex; align-items: center; gap: 10px; background: var(--ivory); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 13px; font-weight: 600; color: var(--ink-2); font-family: inherit; width: 100%; text-align: left; }
+.drawer .d-quick:hover { border-color: var(--gold); }
+
+/* ---------- Page headers ---------- */
+.page-head { margin-bottom: 26px; }
+.page-head h1 { font-family: var(--serif); font-size: clamp(26px, 3vw, 38px); font-weight: 600; }
+.page-head p { color: var(--muted); font-size: 14px; margin-top: 6px; max-width: 620px; line-height: 1.6; }
+.bread { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; }
+.bread a { color: var(--gold-deep); }
+.bread a:hover { text-decoration: underline; }
+
+/* ---------- Bag / checkout ---------- */
+.bag-item { display: flex; gap: 14px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
+.bag-item .th { width: 88px; height: 88px; border-radius: 12px; overflow: hidden; background: var(--ivory-2); flex-shrink: 0; }
+.bag-item .th img { width: 100%; height: 100%; object-fit: cover; }
+.bag-item .mi { flex: 1; min-width: 0; }
+.bag-item .mi .nm { font-weight: 600; font-size: 14.5px; }
+.bag-item .mi .pr { color: var(--gold-deep); font-weight: 700; font-size: 15px; margin-top: 4px; }
+.bag-item .qty { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.qty button { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line-strong); background: #fff; color: var(--ink-2); display: grid; place-items: center; font-size: 15px; }
+.qty button:hover { border-color: var(--gold); color: var(--gold-deep); }
+.bag-summary { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; position: sticky; top: calc(var(--topbar-h) + 16px); }
+.bag-summary .r { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; color: var(--ink-2); }
+.bag-summary .r.total { border-top: 1px solid var(--line); margin-top: 10px; padding-top: 14px; font-weight: 700; color: var(--ink); font-size: 16px; }
+.two-col { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+
+/* ---------- Profile ---------- */
+.profile-head { display: flex; align-items: center; gap: 18px; background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 22px; margin-bottom: 24px; }
+.profile-av { width: 76px; height: 76px; border-radius: 50%; background: linear-gradient(135deg, #e8cd8a, var(--gold)); color: #fff; display: grid; place-items: center; font-size: 28px; font-weight: 700; font-family: var(--serif); }
+.profile-head h2 { font-family: var(--serif); font-size: 22px; }
+.profile-head p { color: var(--muted); font-size: 13px; margin-top: 3px; }
+.panel { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+.panel h3 { font-family: var(--serif); font-size: 18px; margin-bottom: 12px; }
+
+/* ---------- Tabs (admin) ---------- */
+.tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--line); margin-bottom: 22px; overflow-x: auto; }
+.tab { background: none; border: none; font-family: inherit; font-size: 14px; font-weight: 600; color: var(--muted); padding: 12px 16px; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.tab:hover { color: var(--ink); }
+.tab.active { color: var(--gold-deep); border-bottom-color: var(--gold); }
+
+/* ---------- Skeleton ---------- */
+.skel { position: relative; overflow: hidden; background: var(--ivory-2); border-radius: 18px; }
+.skel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent); animation: shimmer 1.3s infinite; }
+@keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+.skel .img { aspect-ratio: 1/1; }
+.skel .ln { height: 12px; margin: 12px 16px 0; }
+.skel .ln.w60 { width: 60%; } .skel .ln.w40 { width: 40%; }
+.skel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin: 24px 0; }
+
+/* ---------- Empty rail fallback ---------- */
+@media (max-width: 1439px) { .rail { display: none; } body.rail-on .main { margin-right: 0; } }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+  .pd { grid-template-columns: 1fr; gap: 26px; }
+  .hero { grid-template-columns: 1fr; padding: 44px 30px; }
+  .hero-art { display: none; }
+}
+@media (max-width: 900px) {
+  .two-col { grid-template-columns: 1fr; }
+  .bag-summary { position: static; }
+}
+@media (max-width: 820px) {
+  .menu-btn { display: grid; }
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+  body.nav-open .main { margin-left: 0; }
+  .bottomnav { display: flex; }
+  .main { padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom) + 18px); }
+  .search-wrap { flex: 1; max-width: none; }
+  .search-wrap input { background: var(--ivory-2); }
+  .top-actions .hide-mob { display: none; }
+  .page { padding: 18px 16px 30px; }
+  .hero { padding: 36px 24px; border-radius: 18px; margin-bottom: 28px; }
+  .hero h1 { font-size: 30px; }
+  .hero p { font-size: 14px; }
+  .sec-head h2 { font-size: 22px; }
+  .collections { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .collection-card { height: 170px; }
+  .grid, .grid.g2 { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 12px; }
+  .p-card .body { padding: 12px; }
+  .p-card .nm { font-size: 13.5px; }
+  .p-card .specs span { font-size: 10px; }
+  .p-card .price { font-size: 16px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .pd-info h1 { font-size: 26px; }
+  .pd-price { font-size: 28px; }
+  .hero .cta-row .btn { flex: 1; }
+  .logo .word { font-size: 17px; }
+}
+@media (max-width: 420px) {
+  .logo .word small { display: none; }
+  .grid, .grid.g2 { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .icon-btn { width: 38px; height: 38px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" aria-label="Open menu" onclick="openDrawer()">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <a class="logo" href="#" onclick="go('home'); return false;">
+    <span class="mark"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 3l7 6-7 12L5 9l7-6z" opacity=".9"/><path d="M5 9h14M12 9l-1 12M12 9l1 12" stroke="#fff" stroke-width=".6" fill="none"/></svg></span>
+    <span class="word">Colour Diam<small>EST. 1994</small></span>
+  </a>
+  <div class="search-wrap">
+    <span class="s-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span>
+    <input id="search-input" type="text" placeholder="Search stock ID, colour, shape, carat, GIA…" autocomplete="off" oninput="onSearch(this.value)">
+    <div class="search-results" id="search-results" style="display:none"></div>
+  </div>
+  <div class="top-actions">
+    <button class="icon-btn hide-mob" aria-label="Currency" onclick="toast('Currency changed to USD')">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M12 6v12"/></svg>
+    </button>
+    <button class="icon-btn hide-mob" aria-label="Notifications">
+      <span class="badge">3</span>
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+    </button>
+    <button class="icon-btn has-badge" id="bag-btn" aria-label="Shopping bag" onclick="go('bag')">
+      <span class="badge" id="bag-badge">0</span>
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.1 13H4.9L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg>
+    </button>
+    <button class="icon-btn hide-mob" aria-label="Profile" onclick="go('profile')">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
+    </button>
+  </div>
+</header>
+
+<aside class="sidebar" id="sidebar" aria-label="Main navigation">
+  <div class="sidebar-inner" id="side-inner"></div>
+</aside>
+
+<div class="rail" id="rail"></div>
+
+<main class="main" id="main"></main>
+
+<nav class="bottomnav" aria-label="Bottom navigation">
+  <button class="bn-item active" data-view="home" onclick="go('home')">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg>
+    Home
+  </button>
+  <button class="bn-item" data-view="explore" onclick="go('explore')">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15 9-2 4-4 2 2-4 4-2Z"/></svg>
+    Explore
+  </button>
+  <button class="bn-item" data-view="favorites" onclick="go('favorites')">
+    <span class="badge" id="bn-fav">0</span>
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-9.3-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.3 11C19 15.4 12 20 12 20Z"/></svg>
+    Favorites
+  </button>
+  <button class="bn-item" data-view="messages" onclick="go('messages')">
+    <span class="badge" id="bn-msg">1</span>
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 1 1 16.1-3.8z"/><path d="M8 11h8M8 15h4"/></svg>
+    Messages
+  </button>
+  <button class="bn-item" data-view="profile" onclick="go('profile')">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
+    Profile
+  </button>
+</nav>
+
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer" aria-label="Mobile menu">
+  <div class="drawer-head">
+    <span class="logo"><span class="mark"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 3l7 6-7 12L5 9l7-6z"/></svg></span><span class="word">Colour Diam</span></span>
+    <button class="icon-btn" aria-label="Close menu" onclick="closeDrawer()"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+  <div id="drawer-body"></div>
+  <div class="d-foot">
+    <a class="d-quick" href="https://wa.me/441234567890" target="_blank" rel="noopener">WhatsApp consultation</a>
+    <a class="d-quick" href="mailto:concierge@colourdiam.com">Contact Colour Diam</a>
+  </div>
+</aside>
+
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+<div class="f-sheet-panel" id="sheet-panel" role="dialog" aria-label="Filters"></div>
+
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="m-head"><h3 id="modal-title">Quick view</h3><button class="icon-btn" onclick="closeModal()" aria-label="Close"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="m-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => { navigator.serviceWorker.register("./sw.js").catch(() => {}); });
+}
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferredPrompt = e; });
+
+/* ---------------- State ---------------- */
+const LS_KEY = "cd_store_v1";
+let S = loadState();
+function loadState() {
+  try {
+    const d = JSON.parse(localStorage.getItem(LS_KEY)) || {};
+    return {
+      fav: Array.isArray(d.fav) ? d.fav : ["d1", "d7"],
+      bag: Array.isArray(d.bag) ? d.bag : [],
+      filters: d.filters || {},
+      sort: d.sort || "featured",
+      currency: d.currency || "USD",
+      recent: Array.isArray(d.recent) ? d.recent : ["d2", "d3"],
+      orders: Array.isArray(d.orders) ? d.orders : []
+    };
+  } catch (e) { return { fav: ["d1", "d7"], bag: [], filters: {}, sort: "featured", currency: "USD", recent: ["d2", "d3"], orders: [] }; }
+}
+function persist() { localStorage.setItem(LS_KEY, JSON.stringify(S)); }
+const VIEW = { current: "home", param: null };
+
+/* ---------------- Icons ---------------- */
+const IC = {
+  home: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg>',
+  explore: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15 9-2 4-4 2 2-4 4-2Z"/></svg>',
+  diamond: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9l4-6Z"/><path d="M2 9h20"/><path d="M12 21 8 9l4-6 4 6-4 12"/></svg>',
+  ring: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="6"/><path d="m8 14-2-8h4l2 4M16 14l2-8h-4l-2 4"/><path d="M12 8v6"/></svg>',
+  earring: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="6" r="2"/><circle cx="16" cy="6" r="2"/><path d="M8 8v4a4 4 0 0 0 8 0V8"/><path d="M8 8h8"/></svg>',
+  necklace: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1.5 2.5 1.5 4.5 0 6s-1.5 3.5 0 6 1.5 4.5 0 6"/><circle cx="12" cy="21" r="1"/><path d="M5 8c2 1 3 2.5 3 4s-1 3-3 4M19 8c-2 1-3 2.5-3 4s1 3 3 4"/></svg>',
+  bracelet: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><ellipse cx="12" cy="12" rx="7" ry="9"/><path d="M9 3c0 2 6 2 6 0M9 21c0-2 6-2 6 0"/></svg>',
+  fav: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-9.3-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.3 11C19 15.4 12 20 12 20Z"/></svg>',
+  msg: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 1 1 16.1-3.8z"/><path d="M8 11h8M8 15h4"/></svg>',
+  consult: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h5"/><path d="M12 21h.01"/></svg>',
+  orders: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1 13H5L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/><path d="M9 14h6"/></svg>',
+  profile: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>',
+  admin: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v6c0 5 3.8 8.4 9 9 5.2-.6 9-4 9-9V7l-9-5Z"/><path d="m9 12 2 2 4-4"/></svg>',
+  settings: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg>',
+  newarr: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13h6L11 22l8.5-11h-6L13 2Z"/></svg>',
+  bespoke: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3Z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5Z"/><circle cx="11" cy="11" r="2"/></svg>',
+  chev: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 4l-4 8 4 8M10 12h8M14 8l4 4-4 4"/></svg>',
+  collapse: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 4l4 8-4 8M14 12H6M10 8l-4 4 4 4"/></svg>',
+  close: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>'
+};
+
+/* ---------------- Navigation model ---------------- */
+const NAV_GROUPS = [
+  {
+    title: "Discover",
+    items: [
+      { v: "home", label: "Home", icon: IC.home },
+      { v: "explore", label: "Explore Diamonds", icon: IC.explore },
+      { v: "newarrivals", label: "New Arrivals", icon: IC.newarr }
+    ]
+  },
+  {
+    title: "Jewelry",
+    items: [
+      { v: "cat", p: "rings", label: "Rings", icon: IC.ring },
+      { v: "cat", p: "earrings", label: "Earrings", icon: IC.earring },
+      { v: "cat", p: "necklaces", label: "Necklaces", icon: IC.necklace },
+      { v: "cat", p: "bracelets", label: "Bracelets", icon: IC.bracelet },
+      { v: "bespoke", label: "Bespoke Jewelry", icon: IC.bespoke }
+    ]
+  },
+  {
+    title: "My Account",
+    items: [
+      { v: "favorites", label: "Favorites", icon: IC.fav },
+      { v: "messages", label: "Messages", icon: IC.msg },
+      { v: "consultation", label: "Private Consultation", icon: IC.consult },
+      { v: "orders", label: "Orders", icon: IC.orders },
+      { v: "profile", label: "Profile", icon: IC.profile },
+      { v: "admin", label: "Admin", icon: IC.admin },
+      { v: "settings", label: "Settings", icon: IC.settings }
+    ]
+  }
+];
+
+function isActive(v, p) {
+  if (v === "cat" && p) return VIEW.current === "explore" && (S.filters.cat || "all") === p;
+  if (v === "explore") return VIEW.current === "explore" && !S.filters.cat;
+  if (v === "newarrivals") return VIEW.current === "explore" && S.filters.newArr;
+  return VIEW.current === v;
+}
+
+function renderSidebar() {
+  document.getElementById("side-inner").innerHTML = NAV_GROUPS.map(g => `
+    <div class="side-group">
+      <div class="side-group-title">${g.title}</div>
+      ${g.items.map(it => `
+        <button class="side-item ${isActive(it.v, it.p) ? 'active' : ''}" onclick="nav('${it.v}','${it.p || ''}')">
+          ${it.icon}<span>${it.label}</span>
+        </button>`).join("")}
+    </div>`).join("") + `
+    <div class="side-collapse">
+      <button class="collapse-btn" onclick="toggleNav()" aria-label="Collapse menu">
+        <span id="collapse-ico">${IC.collapse}</span><span class="lbl">Collapse menu</span>
+      </button>
+    </div>`;
+}
+
+function renderDrawer() {
+  document.getElementById("drawer-body").innerHTML = NAV_GROUPS.map(g => `
+    <div class="d-group">
+      <div class="d-title">${g.title}</div>
+      ${g.items.map(it => `
+        <button class="d-item ${isActive(it.v, it.p) ? 'active' : ''}" onclick="closeDrawer(); nav('${it.v}','${it.p || ''}')">${it.icon}<span>${it.label}</span></button>`).join("")}
+    </div>`).join("");
+}
+
+function toggleNav() {
+  document.body.classList.toggle("nav-open");
+  document.getElementById("collapse-ico").innerHTML = document.body.classList.contains("nav-open") ? IC.chev : IC.collapse;
+}
+function openDrawer() {
+  document.getElementById("drawer").classList.add("open");
+  document.getElementById("drawer-overlay").classList.add("open");
+  renderDrawer();
+}
+function closeDrawer() {
+  document.getElementById("drawer").classList.remove("open");
+  document.getElementById("drawer-overlay").classList.remove("open");
+}
+function closeSheet() {
+  document.getElementById("sheet-panel").classList.remove("open");
+  document.getElementById("sheet-overlay").classList.remove("open");
+}
+function closeModal() { document.getElementById("modal-overlay").classList.remove("open"); }
+function openSheet(html) {
+  document.getElementById("sheet-panel").innerHTML = html;
+  requestAnimationFrame(() => {
+    document.getElementById("sheet-panel").classList.add("open");
+    document.getElementById("sheet-overlay").classList.add("open");
+  });
+}
+
+/* ---------------- Data ---------------- */
+const PRODUCTS = [
+  { id: "d1", stock: "CD-1024", name: "Fancy Vivid Pink Radiant", type: "diamond", color: "Pink", intensity: "Vivid", shape: "Radiant", carat: 2.04, clarity: "VS1", cut: "Excellent", gia: "GIA 2241558900", price: 385000, avail: "reserve", tag: "Signature", art: { g1: "#f6c6d8", g2: "#e07ba1", motif: "diamond" }, desc: "A rare natural fancy vivid pink diamond, fully certified by GIA. Cut in a radiant shape to maximise its extraordinary saturation, this stone is a cornerstone piece for a discerning collector." },
+  { id: "d2", stock: "CD-2051", name: "Fancy Intense Blue Cushion", type: "diamond", color: "Blue", intensity: "Intense", shape: "Cushion", carat: 1.52, clarity: "VVS2", cut: "Excellent", gia: "GIA 2241124671", price: 240000, avail: "reserve", tag: "Bestseller", art: { g1: "#9fc6e8", g2: "#3f6fb4", motif: "diamond" }, desc: "An intense blue cushion-cut diamond of remarkable purity. Its vivid, uniform colour and VVS2 clarity make it an outstanding investment-grade fancy colour diamond." },
+  { id: "d3", stock: "CD-3067", name: "Fancy Vivid Yellow Emerald", type: "diamond", color: "Yellow", intensity: "Vivid", shape: "Emerald", carat: 3.11, clarity: "VS2", cut: "Very Good", gia: "GIA 2241330012", price: 92000, avail: "now", tag: "New", art: { g1: "#f4e08a", g2: "#d9b23a", motif: "diamond" }, desc: "A vivid yellow emerald-cut diamond with a warm, honeyed glow. Certified by GIA and available immediately, it is ideal for a signature ring or pendant." },
+  { id: "d4", stock: "CD-1180", name: "Fancy Light Pink Pear", type: "diamond", color: "Pink", intensity: "Light", shape: "Pear", carat: 1.08, clarity: "VS2", cut: "Excellent", gia: "GIA 2240988821", price: 48000, avail: "now", tag: "", art: { g1: "#f3cdd9", g2: "#d892a9", motif: "diamond" }, desc: "A delicate light pink pear-shape diamond with a gentle, romantic colour. Certified by GIA and ready for immediate delivery." },
+  { id: "d5", stock: "CD-4402", name: "Fancy Deep Blue Marquise", type: "diamond", color: "Blue", intensity: "Deep", shape: "Marquise", carat: 2.22, clarity: "VVS1", cut: "Very Good", gia: "GIA 2241512034", price: 265000, avail: "reserve", tag: "Collector", art: { g1: "#7fa8d6", g2: "#2c5496", motif: "diamond" }, desc: "A deep blue marquise of collector-grade rarity. Extremely rare saturation paired with VVS1 clarity, accompanied by full GIA documentation." },
+  { id: "d6", stock: "CD-5520", name: "Fancy Vivid Orange Cushion", type: "diamond", color: "Orange", intensity: "Vivid", shape: "Cushion", carat: 1.44, clarity: "VS1", cut: "Excellent", gia: "GIA 2241667790", price: 118000, avail: "reserve", tag: "Rare", art: { g1: "#f6c58a", g2: "#e08a3a", motif: "diamond" }, desc: "Natural fancy vivid orange diamonds are exceptionally scarce. This cushion-cut example displays a rich, saturated orange with excellent clarity." },
+  { id: "d7", stock: "CD-6614", name: "Fancy Intense Purple-Pink Oval", type: "diamond", color: "Purple-Pink", intensity: "Intense", shape: "Oval", carat: 0.92, clarity: "VVS2", cut: "Excellent", gia: "GIA 2241783450", price: 156000, avail: "reserve", tag: "Signature", art: { g1: "#d9c3f0", g2: "#b07bd9", motif: "diamond" }, desc: "A dual-tone intense purple-pink oval diamond of exceptional rarity. The blend of purple and pink saturations makes this a uniquely sought-after stone." },
+  { id: "d8", stock: "CD-7701", name: "Fancy Champagne Round", type: "diamond", color: "Champagne", intensity: "Fancy", shape: "Round", carat: 2.65, clarity: "VS2", cut: "Excellent", gia: "GIA 2241890123", price: 26000, avail: "now", tag: "Bestseller", art: { g1: "#ead2b0", g2: "#c99a5b", motif: "diamond" }, desc: "A warm champagne round brilliant with superb fire. Certified by GIA and immediately available at an accessible entry point into fancy colour." },
+  { id: "d9", stock: "CD-8843", name: "Fancy Light Yellow Asscher", type: "diamond", color: "Yellow", intensity: "Light", shape: "Asscher", carat: 2.31, clarity: "VS1", cut: "Excellent", gia: "GIA 2241900456", price: 41500, avail: "now", tag: "", art: { g1: "#f0e6c0", g2: "#d5b96a", motif: "diamond" }, desc: "An architectural light yellow asscher-cut diamond with elegant step facets and refined presence, fully GIA certified." },
+  { id: "d10", stock: "CD-9992", name: "Fancy Vivid Pink Heart", type: "diamond", color: "Pink", intensity: "Vivid", shape: "Heart", carat: 1.18, clarity: "VS1", cut: "Very Good", gia: "GIA 2241956778", price: 210000, avail: "reserve", tag: "Romantic", art: { g1: "#f8b8cd", g2: "#e05f86", motif: "diamond" }, desc: "A vivid pink heart-shape diamond — the ultimate romantic statement. GIA certified, with exceptional saturation for its size." },
+  { id: "j1", stock: "CD-R001", name: "Aurelia Pink Diamond Ring", type: "jewelry", jewelryType: "Rings", metal: "18k Rose Gold", carat: 0.85, price: 68000, avail: "now", tag: "Bespoke", gia: "GIA 2240988001", art: { g1: "#f3cdd9", g2: "#d892a9", motif: "ring" }, desc: "An 18k rose gold halo ring centred on a natural fancy light pink diamond, surrounded by colourless melee for maximum brilliance." },
+  { id: "j2", stock: "CD-E002", name: "Sapphire Blue Stud Earrings", type: "jewelry", jewelryType: "Earrings", metal: "Platinum", carat: 1.40, price: 96000, avail: "reserve", tag: "Collector", gia: "GIA 2241124002", art: { g1: "#9fc6e8", g2: "#3f6fb4", motif: "earring" }, desc: "Matching platinum studs set with a pair of natural fancy blue diamonds, matched for colour and clarity." },
+  { id: "j3", stock: "CD-N003", name: "Solstice Yellow Diamond Pendant", type: "jewelry", jewelryType: "Necklaces", metal: "18k Yellow Gold", carat: 2.01, price: 72000, avail: "now", tag: "New", gia: "GIA 2241330003", art: { g1: "#f4e08a", g2: "#d9b23a", motif: "pendant" }, desc: "A vivid yellow diamond suspended on a fine 18k yellow gold chain — a sunlit statement of modern elegance." },
+  { id: "j4", stock: "CD-B004", name: "Rose Tones Tennis Bracelet", type: "jewelry", jewelryType: "Bracelets", metal: "18k Rose Gold", carat: 3.12, price: 54000, avail: "reserve", tag: "", gia: "GIA 2240988004", art: { g1: "#f6c6d8", g2: "#e07ba1", motif: "bracelet" }, desc: "A flowing 18k rose gold tennis bracelet set with graduated fancy pink diamonds of exceptional brilliance." }
+];
+
+function p(id) { return PRODUCTS.find(x => x.id === id); }
+
+/* ---------------- Product art (placeholder imagery) ---------------- */
+function diamondPath(motif) {
+  const paths = {
+    diamond: '<path d="M150 60 260 230 150 400 40 230Z" fill="#fff" opacity=".92"/><path d="M150 60 40 230h220z" fill="#fff" opacity=".55"/><path d="M150 60l-60 170 60 170 60-170z" fill="#fff" opacity=".35"/>',
+    ring: '<circle cx="150" cy="230" r="70" fill="none" stroke="#fff" stroke-width="10"/><path d="M150 160V70" stroke="#fff" stroke-width="10"/><path d="M110 70h80l-14 40h-52z" fill="#fff" opacity=".9"/><circle cx="150" cy="70" r="20" fill="#fff" opacity=".95"/>',
+    earring: '<circle cx="105" cy="110" r="22" fill="#fff" opacity=".9"/><circle cx="195" cy="110" r="22" fill="#fff" opacity=".9"/><path d="M105 132v150l-28-40 28 40 28-40z" fill="#fff" opacity=".8"/><path d="M195 132v150l-28-40 28 40 28-40z" fill="#fff" opacity=".8"/>',
+    pendant: '<path d="M150 70v110" stroke="#fff" stroke-width="8" opacity=".7"/><path d="M90 240 150 380l60-140z" fill="#fff" opacity=".9"/><path d="M90 240 150 380l-30-90z" fill="#fff" opacity=".5"/>',
+    bracelet: '<ellipse cx="150" cy="230" rx="120" ry="120" fill="none" stroke="#fff" stroke-width="9" opacity=".95"/><ellipse cx="150" cy="230" rx="88" ry="88" fill="none" stroke="#fff" stroke-width="5" opacity=".5"/><circle cx="150" cy="110" r="10" fill="#fff"/><circle cx="210" cy="250" r="10" fill="#fff"/><circle cx="90" cy="250" r="10" fill="#fff"/>'
+  };
+  return paths[motif] || paths.diamond;
+}
+function productArt(p) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 300 300"><defs><radialGradient id="g" cx="50%" cy="40%" r="75%"><stop offset="0%" stop-color="${p.art.g1}"/><stop offset="100%" stop-color="${p.art.g2}"/></radialGradient></defs><rect width="300" height="300" fill="#F3EEE4"/><circle cx="150" cy="155" r="120" fill="url(#g)" opacity=".85"/><g transform="translate(0 0)">${diamondPath(p.art.motif)}</g></svg>`;
+  return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+}
+function heroArt() {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320"><defs><radialGradient id="g" cx="50%" cy="38%" r="80%"><stop offset="0%" stop-color="#f6c6d8"/><stop offset="45%" stop-color="#e8cd8a"/><stop offset="100%" stop-color="#b68a3e"/></radialGradient></defs><circle cx="160" cy="160" r="120" fill="url(#g)"/><path d="M160 70 260 230 160 390 60 230Z" fill="#fff" opacity=".95" transform="translate(0 -60)"/><path d="M160 70 60 230h200z" fill="#fff" opacity=".6" transform="translate(0 -60)"/></svg>`;
+  return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+}
+
+/* ---------------- Helpers ---------------- */
+function fmt(n) { return new Intl.NumberFormat("en-US", { style: "currency", currency: S.currency, maximumFractionDigits: 0 }).format(n); }
+function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.innerHTML = msg;
+  t.classList.add("show");
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.classList.remove("show"), 2200);
+}
+function updateBadges() {
+  document.getElementById("bag-badge").textContent = S.bag.reduce((a, b) => a + b.qty, 0);
+  document.getElementById("bn-fav").textContent = S.fav.length;
+  document.getElementById("bn-fav").style.display = S.fav.length ? "grid" : "none";
+}
+function isFav(id) { return S.fav.includes(id); }
+function toggleFav(id) {
+  const i = S.fav.indexOf(id);
+  if (i > -1) { S.fav.splice(i, 1); toast("Removed from favorites"); }
+  else { S.fav.push(id); toast("Saved to favorites"); }
+  persist(); updateBadges();
+  renderRail();
+  const cv = VIEW.current;
+  if (cv === "favorites" || cv === "explore") renderCurrent();
+  refreshFaveBtns();
+}
+function refreshFaveBtns() {
+  document.querySelectorAll(".fave[data-id]").forEach(b => {
+    b.classList.toggle("on", isFav(b.dataset.id));
+  });
+}
+function addToBag(id) {
+  const i = S.bag.findIndex(b => b.id === id);
+  if (i > -1) S.bag[i].qty++;
+  else S.bag.push({ id, qty: 1 });
+  persist(); updateBadges(); renderRail();
+  toast("Added to bag");
+}
+function setBagQty(id, qty) {
+  const i = S.bag.findIndex(b => b.id === id);
+  if (i === -1) return;
+  if (qty <= 0) S.bag.splice(i, 1); else S.bag[i].qty = qty;
+  persist(); updateBadges(); renderRail(); renderCurrent();
+}
+function recordRecent(id) {
+  S.recent = [id, ...S.recent.filter(x => x !== id)].slice(0, 6);
+  persist();
+}
+
+/* ---------------- Router ---------------- */
+function nav(v, p) {
+  closeSheet();
+  if (v === "cat") { S.filters.cat = p; persist(); go("explore"); return; }
+  go(v);
+}
+function go(v, param) {
+  VIEW.current = v; VIEW.param = param || null;
+  const m = document.getElementById("main");
+  m.scrollTop = 0;
+  document.body.classList.remove("nav-open");
+  document.querySelectorAll(".bn-item").forEach(b => b.classList.toggle("active", b.dataset.view === v));
+  renderSidebar();
+  const views = {
+    home: renderHome, explore: renderExplore, newarrivals: renderNewArrivals, product: renderProduct,
+    favorites: renderFavorites, messages: renderMessages, profile: renderProfile, bag: renderBag,
+    checkout: renderCheckout, consultation: renderConsultation, orders: renderOrders,
+    admin: renderAdmin, settings: renderSettings, search: renderSearch
+  };
+  (views[v] || renderHome)();
+  updateRail();
+  renderRail();
+  updateBadges();
+}
+function renderCurrent() { go(VIEW.current, VIEW.param); }
+function skeleton() {
+  return `<div class="skel-grid" aria-hidden="true">${Array(6).fill('<div class="skel"><div class="img"></div><div class="ln w60"></div><div class="ln w40"></div></div>').join("")}</div>`;
+}
+
+/* ---------------- Product card ---------------- */
+function card(p, opts) {
+  const spec = p.type === "diamond" ? `${p.shape} · ${p.carat}ct` : `${p.jewelryType || ""} · ${p.carat}ct`;
+  return `
+  <article class="p-card" tabindex="0" onkeydown="if(event.key==='Enter'){go('product','${p.id}')}">
+    <div class="img-wrap" onclick="go('product','${p.id}')">
+      <img src="${productArt(p)}" alt="${esc(p.name)}" loading="lazy">
+      ${p.tag ? `<span class="tag">${esc(p.tag)}</span>` : ""}
+      <button class="fave ${isFav(p.id) ? 'on' : ''}" data-id="${p.id}" aria-label="Save to favorites" onclick="event.stopPropagation(); toggleFav('${p.id}')">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-9.3-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.3 11C19 15.4 12 20 12 20Z"/></svg>
+      </button>
+      <button class="qv" onclick="event.stopPropagation(); quickView('${p.id}')">Quick view</button>
+    </div>
+    <div class="body">
+      <div class="nm">${esc(p.name)}</div>
+      <div class="stk">Stock ${esc(p.stock)}</div>
+      <div class="specs"><span>${esc(p.color)}</span><span>${esc(p.intensity || p.metal)}</span><span>${esc(spec)}</span></div>
+      <div class="row">
+        <span class="price">${fmt(p.price)}</span>
+        ${p.gia ? `<span class="gia">GIA ✓</span>` : ""}
+      </div>
+    </div>
+  </article>`;
+}
+
+/* ---------------- Home ---------------- */
+function renderHome() {
+  const featured = ["d1", "d7", "d2", "d10"].map(p);
+  const newArr = ["d3", "j3", "d8", "j1"].map(p);
+  const colls = [
+    { name: "Rings", icon: IC.ring, bg1: "#f3cdd9", bg2: "#d892a9", cat: "rings" },
+    { name: "Earrings", icon: IC.earring, bg1: "#9fc6e8", bg2: "#3f6fb4", cat: "earrings" },
+    { name: "Necklaces", icon: IC.necklace, bg1: "#f4e08a", bg2: "#d9b23a", cat: "necklaces" },
+    { name: "Bracelets", icon: IC.bracelet, bg1: "#e5d3c2", bg2: "#c9a68f", cat: "bracelets" }
+  ];
+  document.getElementById("main").innerHTML = `
+  <div class="page">
+    <section class="hero">
+      <div>
+        <div class="kicker">Natural fancy color diamonds · Since 1994</div>
+        <h1>Rare diamonds for <em>discerning</em> collectors</h1>
+        <p>For over three decades, Colour Diam has sourced exceptional natural fancy color diamonds and crafted bespoke jewelry for collectors and connoisseurs worldwide.</p>
+        <div class="cta-row">
+          <button class="btn btn-primary" onclick="go('consultation')">Book a Private Consultation</button>
+          <button class="btn btn-outline" onclick="go('explore')">Explore Rare Diamonds</button>
+        </div>
+      </div>
+      <div class="hero-art"><img src="${heroArt()}" alt="Fancy pink diamond"></div>
+    </section>
+
+    <section class="section">
+      <div class="sec-head"><h2>Featured Diamonds</h2><span class="sub">A curated selection of investment-grade stones</span><button class="sec-link" onclick="go('explore')">View all →</button></div>
+      <div class="grid g2">${featured.map(card).join("")}</div>
+    </section>
+
+    <section class="section">
+      <div class="sec-head"><h2>Collections</h2><span class="sub">Explore by jewelry category</span></div>
+      <div class="collections">
+        ${colls.map(c => `
+          <button class="collection-card" onclick="nav('cat','${c.cat}')">
+            <span class="bg" style="background:linear-gradient(150deg, ${c.bg1}, ${c.bg2})">${c.icon.replace('20','64')}</span>
+            <span class="cap"><h3>${c.name}</h3><span>Shop the collection</span></span>
+          </button>`).join("")}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="sec-head"><h2>New Arrivals</h2><span class="sub">Recently certified and crafted</span><button class="sec-link" onclick="go('newarrivals')">View all →</button></div>
+      <div class="grid g2">${newArr.map(card).join("")}</div>
+    </section>
+
+    <section class="section">
+      <div class="sec-head"><h2>Diamond Education</h2><span class="sub">Understanding natural fancy color</span></div>
+      <div class="edu-card">
+        <h3>The 4 Cs of fancy color diamonds</h3>
+        <p>Fancy color diamonds are graded first on <strong>hue</strong>, <strong>tone</strong> and <strong>saturation</strong> rather than the colorless scale. The rarest colours — red, blue and vivid pink — command the highest value per carat of any gemstone on earth.</p>
+        <div class="pill-row"><span class="pill">Hue</span><span class="pill">Tone</span><span class="pill">Saturation</span><span class="pill">GIA Certification</span><span class="pill">Investment</span></div>
+      </div>
+    </section>
+  </div>`;
+}
+
+/* ---------------- Explore / filters ---------------- */
+const COLOR_OPTS = ["Pink", "Blue", "Yellow", "Orange", "Purple-Pink", "Champagne"];
+const SHAPE_OPTS = ["Round", "Oval", "Cushion", "Pear", "Emerald", "Marquise", "Asscher", "Heart", "Radiant"];
+const CATS = [
+  { v: "", label: "All" }, { v: "diamond", label: "Diamonds" },
+  { v: "rings", label: "Rings" }, { v: "earrings", label: "Earrings" },
+  { v: "necklaces", label: "Necklaces" }, { v: "bracelets", label: "Bracelets" }
+];
+
+function applyFilters() {
+  const f = S.filters;
+  let list = PRODUCTS.slice();
+  if (f.cat && f.cat !== "all" && f.cat !== "") {
+    if (f.cat === "diamond") list = list.filter(x => x.type === "diamond");
+    else list = list.filter(x => x.jewelryType === f.cat);
+  }
+  if (f.newArr) list = list.filter(x => x.tag === "New" || ["d3","j3","d8"].includes(x.id));
+  if (f.colors && f.colors.length) list = list.filter(x => f.colors.includes(x.color));
+  if (f.shapes && f.shapes.length) list = list.filter(x => f.shapes.includes(x.shape));
+  if (f.caratMin) list = list.filter(x => x.carat >= f.caratMin);
+  if (f.caratMax) list = list.filter(x => x.carat <= f.caratMax);
+  if (f.priceMin) list = list.filter(x => x.price >= f.priceMin);
+  if (f.priceMax) list = list.filter(x => x.price <= f.priceMax);
+  if (f.gia) list = list.filter(x => x.gia);
+  if (f.avail) list = list.filter(x => x.avail === f.avail);
+  if (f.query) { const q = f.query.toLowerCase(); list = list.filter(x => (x.name + " " + x.stock + " " + x.color + " " + x.shape + " " + x.carat + " " + (x.gia||"")).toLowerCase().includes(q)); }
+  const sort = S.sort;
+  if (sort === "price-asc") list.sort((a, b) => a.price - b.price);
+  if (sort === "price-desc") list.sort((a, b) => b.price - a.price);
+  if (sort === "carat") list.sort((a, b) => b.carat - a.carat);
+  return list;
+}
+
+function activeChips() {
+  const f = S.filters; const chips = [];
+  if (f.cat && f.cat !== "" && f.cat !== "all") chips.push({ k: "cat", label: "Category: " + (CATS.find(c => c.v === f.cat)?.label || f.cat) });
+  if (f.newArr) chips.push({ k: "newArr", label: "New arrivals" });
+  (f.colors || []).forEach(c => chips.push({ k: "colors", val: c, label: c }));
+  (f.shapes || []).forEach(s => chips.push({ k: "shapes", val: s, label: s + " cut" }));
+  if (f.caratMin) chips.push({ k: "caratMin", label: "≥ " + f.caratMin + "ct" });
+  if (f.caratMax) chips.push({ k: "caratMax", label: "≤ " + f.caratMax + "ct" });
+  if (f.priceMin) chips.push({ k: "priceMin", label: "≥ " + fmt(f.priceMin) });
+  if (f.priceMax) chips.push({ k: "priceMax", label: "≤ " + fmt(f.priceMax) });
+  if (f.gia) chips.push({ k: "gia", label: "GIA certified" });
+  if (f.avail) chips.push({ k: "avail", label: f.avail === "now" ? "Available now" : "By reservation" });
+  return chips;
+}
+function removeChip(chip) {
+  const f = S.filters;
+  if (chip.val !== undefined) { f[chip.k] = (f[chip.k] || []).filter(x => x !== chip.val); if (!f[chip.k].length) delete f[chip.k]; }
+  else delete f[chip.k];
+  persist(); renderCurrent();
+}
+
+function filterPanel(compact) {
+  const f = S.filters;
+  const chk = (arr, v) => (arr || []).includes(v);
+  return `
+    <div class="f-sheet">
+      <div class="f-group">
+        <h5>Category</h5>
+        <div class="f-opts">
+          ${CATS.map(c => `<button class="chip ${((f.cat||"") === c.v) ? 'active' : ''}" onclick="setFilter('cat','${c.v}')">${c.label}</button>`).join("")}
+        </div>
+      </div>
+      <div class="f-group">
+        <h5>Colour</h5>
+        <div class="f-opts">${COLOR_OPTS.map(c => `<button class="chip ${chk(f.colors, c) ? 'active' : ''}" onclick="togFilter('colors','${c}')">${c}</button>`).join("")}</div>
+      </div>
+      <div class="f-group">
+        <h5>Shape</h5>
+        <div class="f-opts">${SHAPE_OPTS.map(c => `<button class="chip ${chk(f.shapes, c) ? 'active' : ''}" onclick="togFilter('shapes','${c}')">${c}</button>`).join("")}</div>
+      </div>
+      <div class="f-group">
+        <h5>Carat weight</h5>
+        <div class="f-range">
+          <input type="range" class="range-input" min="0" max="4" step="0.5" value="${f.caratMin || 0}" oninput="setFilter('caratMin', Number(this.value)||0)">
+          <input type="range" class="range-input" min="0.5" max="4" step="0.5" value="${f.caratMax || 4}" oninput="setFilter('caratMax', Number(this.value)||4)">
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:6px">${f.caratMin || 0}ct – ${f.caratMax || 4}ct</p>
+      </div>
+      <div class="f-group">
+        <h5>Price range</h5>
+        <div class="f-range">
+          <input type="range" class="range-input" min="20000" max="400000" step="10000" value="${f.priceMin || 20000}" oninput="setFilter('priceMin', Number(this.value)||20000)">
+          <input type="range" class="range-input" min="20000" max="400000" step="10000" value="${f.priceMax || 400000}" oninput="setFilter('priceMax', Number(this.value)||400000)">
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:6px">${fmt(f.priceMin || 20000)} – ${fmt(f.priceMax || 400000)}</p>
+      </div>
+      <div class="f-group">
+        <h5>Availability</h5>
+        <div class="f-opts">
+          <button class="chip ${f.avail === 'now' ? 'active' : ''}" onclick="setFilter('avail','${f.avail === 'now' ? '' : 'now'}')">Available now</button>
+          <button class="chip ${f.gia ? 'active' : ''}" onclick="setFilter('gia', f => { f.gia = !f.gia; return f; })">GIA certified only</button>
+        </div>
+      </div>
+    </div>`;
+}
+function setFilter(k, v) {
+  S.filters[k] = v;
+  if (!v) delete S.filters[k];
+  persist();
+  if (k === "gia") return;
+  renderCurrent(); openSheet(filterPanel());
+}
+function togFilter(k, val) {
+  if (!S.filters[k]) S.filters[k] = [];
+  const arr = S.filters[k];
+  const i = arr.indexOf(val);
+  if (i > -1) arr.splice(i, 1); else arr.push(val);
+  if (!arr.length) delete S.filters[k];
+  persist(); renderCurrent(); openSheet(filterPanel());
+}
+function clearFilters() { S.filters = {}; persist(); renderCurrent(); }
+function saveSearch() {
+  const label = prompt("Name this saved search:");
+  if (!label) return;
+  const saved = JSON.parse(localStorage.getItem("cd_saved") || "[]");
+  saved.push({ label, filters: JSON.parse(JSON.stringify(S.filters)) });
+  localStorage.setItem("cd_saved", JSON.stringify(saved));
+  toast("Search saved");
+}
+
+function renderExplore() {
+  const m = document.getElementById("main");
+  const list = applyFilters();
+  const chips = activeChips();
+  const title = S.filters.cat ? (CATS.find(c => c.v === S.filters.cat)?.label || "Explore") : "Explore Diamonds";
+  m.innerHTML = skeleton();
+  setTimeout(() => {
+    m.innerHTML = `
+    <div class="page">
+      <div class="bread"><a href="#" onclick="go('home');return false">Home</a> &nbsp;→&nbsp; ${esc(title)}</div>
+      <div class="page-head">
+        <h1>${esc(title)}</h1>
+        <p>Browse our certified collection of natural fancy color diamonds and bespoke jewelry. Every stone is accompanied by full GIA documentation.</p>
+      </div>
+      <div class="fbar">
+        <button class="btn btn-outline btn-sm" onclick="openSheet(filterPanel())">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg> Filters
+        </button>
+        <span style="color:var(--muted);font-size:13px">${list.length} ${list.length === 1 ? "item" : "items"}</span>
+        <span class="spacer"></span>
+        <select class="sort-select" onchange="setSort(this.value)" aria-label="Sort by">
+          <option value="featured" ${S.sort === "featured" ? "selected" : ""}>Featured</option>
+          <option value="price-asc" ${S.sort === "price-asc" ? "selected" : ""}>Price: low → high</option>
+          <option value="price-desc" ${S.sort === "price-desc" ? "selected" : ""}>Price: high → low</option>
+          <option value="carat" ${S.sort === "carat" ? "selected" : ""}>Largest carat</option>
+        </select>
+      </div>
+      ${chips.length ? `<div class="fbar"><span class="chip-x">${chips.map(c => `${c.label} <button onclick="removeChip({k:'${c.k}',val:'${c.val || ""}'})">✕</button>`).join(" ")}</span><button class="sec-link" onclick="clearFilters()">Clear all</button></div>` : ""}
+      ${list.length ? `<div class="grid g2">${list.map(card).join("")}</div>` : `
+        <div class="empty"><div class="big">💎</div><h3>No stones match</h3><p>Try widening your filters.</p><button class="btn btn-outline" onclick="clearFilters()">Clear filters</button></div>`}
+    </div>`;
+  }, 350);
+}
+function setSort(v) { S.sort = v; persist(); renderCurrent(); }
+
+function renderNewArrivals() {
+  S.filters = Object.assign({}, S.filters, { newArr: true });
+  renderExplore();
+}
+
+/* ---------------- Search ---------------- */
+function onSearch(q) {
+  const box = document.getElementById("search-results");
+  q = q.trim();
+  if (!q) { box.style.display = "none"; return; }
+  const res = PRODUCTS.filter(x => (x.name + " " + x.stock + " " + x.color + " " + x.shape + " " + x.carat + " " + (x.gia || "")).toLowerCase().includes(q.toLowerCase())).slice(0, 6);
+  if (!res.length) { box.style.display = "block"; box.innerHTML = '<div style="padding:14px;color:var(--muted);font-size:13px">No results</div>'; return; }
+  box.innerHTML = res.map(x => `
+    <a href="#" onclick="event.preventDefault(); document.getElementById('search-input').value='${esc(x.name)}'; document.getElementById('search-results').style.display='none'; go('product','${x.id}')">
+      <span class="th"><img src="${productArt(x)}" alt=""></span>
+      <span><span class="nm">${esc(x.name)}</span><br><span class="id">${esc(x.stock)} · ${esc(x.color)} · ${x.carat}ct · GIA</span></span>
+      <span style="margin-left:auto;color:var(--gold-deep);font-weight:700;font-size:13px">${fmt(x.price)}</span>
+    </a>`).join("");
+  box.style.display = "block";
+}
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".search-wrap")) document.getElementById("search-results").style.display = "none";
+});
+function renderSearch() {
+  go("explore");
+}
+
+/* ---------------- Product detail ---------------- */
+let pdIdx = 0;
+function renderProduct(id) {
+  renderProductDetail(id);
+}
+function renderProductDetail(id) {
+  const prod = p(id);
+  if (!prod) { go("explore"); return; }
+  recordRecent(id);
+  pdIdx = 0;
+  const imgs = [productArt(prod)];
+  const isDiamond = prod.type === "diamond";
+  document.getElementById("main").innerHTML = `
+  <div class="page">
+    <div class="bread"><a href="#" onclick="go('home');return false">Home</a> &nbsp;→&nbsp; <a href="#" onclick="go('explore');return false">Explore</a> &nbsp;→&nbsp; ${esc(prod.name)}</div>
+    <div class="pd">
+      <div class="pd-gallery">
+        <div class="main-img" id="pd-main" onclick="this.classList.toggle('zoomed')">
+          <img id="pd-img" src="${imgs[0]}" alt="${esc(prod.name)}">
+        </div>
+        <div class="pd-thumbs">${imgs.map((im, i) => `<button class="${i === 0 ? 'active' : ''}" onclick="setPdImg('${prod.id}','${i}')"><img src="${im}" alt=""></button>`).join("")}
+          <button onclick="toast('Product video available on request')">${'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--gold-deep)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4V8Z" fill="var(--gold-deep)"/></svg>'}</button>
+        </div>
+      </div>
+      <div class="pd-info">
+        <div class="pd-avail ${prod.avail === 'now' ? 'ok' : 'res'}">${prod.avail === "now" ? "● Available now" : "● Available by private reservation"}</div>
+        <h1>${esc(prod.name)}</h1>
+        <div class="stock">Stock ${esc(prod.stock)} · ${esc(prod.gia || "")}</div>
+        <div class="pd-price">${fmt(prod.price)} <small>approx.</small></div>
+        <div class="spec-grid">
+          <div class="spec"><div class="k">Colour</div><div class="v">${esc(prod.color)}</div></div>
+          <div class="spec"><div class="k">Intensity</div><div class="v">${esc(prod.intensity || "—")}</div></div>
+          <div class="spec"><div class="k">Shape</div><div class="v">${esc(prod.shape || "—")}</div></div>
+          <div class="spec"><div class="k">Carat weight</div><div class="v">${prod.carat} ct</div></div>
+          <div class="spec"><div class="k">Clarity</div><div class="v">${esc(prod.clarity || "—")}</div></div>
+          <div class="spec"><div class="k">Cut</div><div class="v">${esc(prod.cut || prod.metal || "—")}</div></div>
+        </div>
+        <div class="pd-actions">
+          <button class="btn btn-primary btn-block" onclick="addToBag('${prod.id}')">Add to Bag</button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <button class="btn btn-outline" onclick="go('consultation')">Book a Private Consultation</button>
+            <button class="btn btn-outline ${isFav(prod.id) ? 'on' : ''}" onclick="toggleFav('${prod.id}')">♡ ${isFav(prod.id) ? "Saved" : "Save"}</button>
+          </div>
+          <button class="btn btn-ghost" onclick="toast('A Colour Diam specialist will contact you shortly')">Request more information</button>
+        </div>
+        <div class="gia-box">
+          <h4>GIA Certification</h4>
+          <p>Report no. <strong>${esc(prod.gia || "—")}</strong>. This stone is accompanied by its original laboratory report issued by the Gemological Institute of America, confirming colour, clarity, cut and carat weight.</p>
+        </div>
+      </div>
+    </div>
+    <div class="pd-desc">
+      <h3>About this piece</h3>
+      <p>${esc(prod.desc)}</p>
+    </div>
+    <section class="section" style="margin-top:40px">
+      <div class="sec-head"><h2>You may also love</h2></div>
+      <div class="grid g2">${PRODUCTS.filter(x => x.id !== prod.id && (x.color === prod.color || x.type === prod.type)).slice(0, 4).map(card).join("") || PRODUCTS.filter(x => x.id !== prod.id).slice(0, 4).map(card).join("")}</div>
+    </section>
+  </div>`;
+}
+function setPdImg(id, i) {
+  document.getElementById("pd-img").src = productArt(p(id));
+  document.querySelectorAll(".pd-thumbs button").forEach((b, x) => b.classList.toggle("active", x === i));
+}
+function quickView(id) {
+  const prod = p(id);
+  document.getElementById("modal-title").textContent = prod.name;
+  document.getElementById("modal-body").innerHTML = `
+    <img src="${productArt(prod)}" alt="${esc(prod.name)}" style="width:100%;border-radius:14px;margin-bottom:16px;background:var(--ivory-2)">
+    <div class="spec-grid" style="margin:0 0 14px">
+      <div class="spec"><div class="k">Stock</div><div class="v">${esc(prod.stock)}</div></div>
+      <div class="spec"><div class="k">Colour</div><div class="v">${esc(prod.color)} · ${esc(prod.intensity || "—")}</div></div>
+      <div class="spec"><div class="k">Shape</div><div class="v">${esc(prod.shape || "—")}</div></div>
+      <div class="spec"><div class="k">Carat</div><div class="v">${prod.carat} ct</div></div>
+    </div>
+    <div style="font-family:var(--serif);font-size:26px;font-weight:600;color:var(--gold-deep)">${fmt(prod.price)}</div>
+    <p style="color:var(--muted);font-size:12.5px;margin:4px 0 16px">${esc(prod.gia || "")}</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn btn-primary btn-sm" onclick="closeModal(); addToBag('${prod.id}')">Add to Bag</button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal(); go('product','${prod.id}')">Full details</button>
+    </div>`;
+  document.getElementById("modal-overlay").classList.add("open");
+}
+
+/* ---------------- Favorites ---------------- */
+function renderFavorites() {
+  const list = S.fav.map(p).filter(Boolean);
+  document.getElementById("main").innerHTML = `
+  <div class="page">
+    <div class="page-head"><h1>Favorites</h1><p>Your saved diamonds and jewelry pieces.</p></div>
+    ${list.length ? `<div class="grid g2">${list.map(card).join("")}</div>` : `
+      <div class="empty"><div class="big">♡</div><h3>No favorites yet</h3><p>Tap the heart on any piece to save it here.</p><button class="btn btn-primary" onclick="go('explore')">Explore Diamonds</button></div>`}
+  </div>`;
+}
+
+/* ---------------- Messages ---------------- */
+const MSGS = [
+  { id: "m1", name: "Colour Diam Concierge", unread: 1, time: "10:24", av: "CD", last: "Your request for the Fancy Vivid Pink is being prepared…", thread: [{ who: "them", t: "Good morning. We have reserved the Fancy Vivid Pink Radiant (CD-1024) for your review until Friday.", time: "09:41" }, { who: "me", t: "Thank you! Could you also send the GIA report and video?", time: "09:52" }, { who: "them", t: "Certainly — your request is being prepared now.", time: "10:24" }] },
+  { id: "m2", name: "Private Consultation Team", unread: 0, time: "Yesterday", av: "PC", last: "Your consultation is confirmed for Thursday at 15:00.", thread: [{ who: "them", t: "Your private consultation is confirmed for Thursday at 15:00. A specialist will join you on the call.", time: "Yesterday" }] }
+];
+let activeMsg = "m1";
+function renderMessages() {
+  const m = document.getElementById("main");
+  m.innerHTML = `
+  <div class="page">
+    <div class="page-head"><h1>Messages</h1><p>Private conversations with your Colour Diam specialists.</p></div>
+    <div class="two-col" style="grid-template-columns:minmax(0,380px) minmax(0,1fr)">
+      <div class="list">
+        ${MSGS.map(x => `
+          <div class="list-item ${activeMsg === x.id ? '' : ''}" style="${activeMsg === x.id ? 'border-color:var(--gold);box-shadow:var(--shadow-sm)' : ''}" onclick="activeMsg='${x.id}';renderMessages()">
+            <span class="li-av">${x.av}</span>
+            <span class="li-main"><span class="t">${x.name} ${x.unread ? '<span class="dot gold"></span>' : ""}</span><span class="s">${x.last}</span></span>
+            <span class="li-side"><span class="t">${x.time}</span></span>
+          </div>`).join("")}
+      </div>
+      <div style="background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:0 20px 20px">
+        ${(() => { const c = MSGS.find(x => x.id === activeMsg); return `
+        <div class="msg-thread">
+          ${c.thread.map(b => `<div class="msg-bubble ${b.who === "me" ? "out" : "in"}">${b.t}<span class="t">${b.time}</span></div>`).join("")}
+        </div>
+        <div class="msg-composer">
+          <input id="msg-input" placeholder="Reply to ${esc(c.name)}…">
+          <button class="btn btn-primary btn-sm" onclick="sendMsg('${c.id}')">Send</button>
+        </div>`; })()}
+      </div>
+    </div>
+  </div>`;
+  setTimeout(() => { const i = document.getElementById("msg-input"); if (i) i.focus(); }, 50);
+}
+function sendMsg(id) {
+  const inp = document.getElementById("msg-input");
+  const t = inp.value.trim(); if (!t) return;
+  const c = MSGS.find(x => x.id === id);
+  const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  c.thread.push({ who: "me", t, time: now });
+  c.last = t; inp.value = ""; renderMessages();
+  setTimeout(() => { c.thread.push({ who: "them", t: "Thank you — a specialist will respond shortly.", time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }); c.last = "Thank you — a specialist will respond shortly."; renderMessages(); }, 1400);
+}
+
+/* ---------------- Bag / checkout ---------------- */
+function renderBag() {
+  const items = S.bag.map(b => ({ ...b, prod: p(b.id) })).filter(x => x.prod);
+  const sub = items.reduce((a, x) => a + x.prod.price * x.qty, 0);
+  document.getElementById("main").innerHTML = `
+  <div class="page">
+    <div class="page-head"><h1>Shopping Bag</h1><p>Your selection of certified diamonds and jewelry.</p></div>
+    ${items.length ? `<div class="two-col">
+      <div>${items.map(b => `
+        <div class="bag-item">
+          <span class="th"><img src="${productArt(b.prod)}" alt=""></span>
+          <span class="mi">
+            <div class="nm">${esc(b.prod.name)}</div>
+            <div style="color:var(--muted);font-size:12px">Stock ${esc(b.prod.stock)}</div>
+            <div class="pr">${fmt(b.prod.price)}</div>
+            <div class="qty">
+              <button onclick="setBagQty('${b.prod.id}',${b.qty - 1})">−</button><span style="min-width:24px;text-align:center;font-weight:600">${b.qty}</span><button onclick="setBagQty('${b.prod.id}',${b.qty + 1})">+</button>
+            </div>
+          </span>
+          <button class="tbtn" onclick="setBagQty('${b.prod.id}',0)">Remove</button>
+        </div>`).join("")}
+      </div>
+      <div class="bag-summary">
+        <h3 style="font-family:var(--serif);margin-bottom:12px">Summary</h3>
+        <div class="r"><span>Subtotal</span><span>${fmt(sub)}</span></div>
+        <div class="r"><span>Shipping & insurance</span><span>Complimentary</span></div>
+        <div class="r"><span>Duties & taxes</span><span>Calculated at checkout</span></div>
+        <div class="r total"><span>Total</span><span>${fmt(sub)}</span></div>
+        <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="go('checkout')">Proceed to Checkout</button>
+        <button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="go('explore')">Continue browsing</button>
+      </div>
+    </div>` : `
+    <div class="empty"><div class="big">🛍</div><h3>Your bag is empty</h3><p>Discover a rare stone and add it to your bag.</p><button class="btn btn-primary" onclick="go('explore')">Explore Diamonds</button></div>`}
+  </div>`;
+}
+
+function renderCheckout() {
+  const items = S.bag.map(b => ({ ...b, prod: p(b.id) })).filter(x => x.prod);
+  document.getElementById("main").innerHTML = `
+  <div class="page">
+    <div class="page-head"><h1>Checkout</h1><p>Secure checkout — our concierge team confirms every order personally.</p></div>
+    <div class="two-col">
+      <div class="panel">
+        <h3>Contact & shipping</h3>
+        <div class="form-grid">
+          <div class="field"><label>Full name</label><input placeholder="Alexandra Laurent"></div>
+          <div class="field"><label>Email</label><input type="email" placeholder="you@email.com"></div>
+          <div class="field"><label>Country</label><input placeholder="United Kingdom"></div>
+          <div class="field"><label>Phone</label><input placeholder="+44…"></div>
+          <div class="field full"><label>Shipping address</label><input placeholder="Address line"></div>
+        </div>
+        <h3 style="margin:18px 0 12px">Payment</h3>
+        <div class="field"><label>Card number</label><input placeholder="4242 4242 4242 4242"></div>
+        <div class="form-grid">
+          <div class="field"><label>Expiry</label><input placeholder="MM / YY"></div>
+          <div class="field"><label>CVC</label><input placeholder="•••"></div>
+        </div>
+      </div>
+      <div class="bag-summary">
+        <h3 style="font-family:var(--serif);margin-bottom:12px">Order summary</h3>
+        ${items.map(b => `<div class="r"><span>${esc(b.prod.name)} × ${b.qty}</span><span>${fmt(b.prod.price * b.qty)}</span></div>`).join("") || '<div class="r"><span>No items</span><span>—</span></div>'}
+        <div class="r"><span>Shipping & insurance</span><span>Complimentary</span></div>
+        <div class="r total"><span>Total</span><span>${fmt(items.reduce((a, x) => a + x.prod.price * x.qty, 0))}</span></div>
+        <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="placeOrder()">Place Order</button>
+        <p style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center">🔒 Payments are processed securely. This is a design preview.</p>
+      </div>
+    </div>
+  </div>`;
+}
+function placeOrder() {
+  const items = S.bag.map(b => ({ ...b, prod: p(b.id) }));
+  if (!items.length) return toast("Your bag is empty");
+  const total = items.reduce((a, x) => a + x.prod.price * x.qty, 0);
+  S.orders.unshift({ no: "CD-" + Math.floor(100000 + Math.random() * 900000), date: new Date().toLocaleDateString("en-GB"), items: items.length, total, status: "Confirmed" });
+  S.bag = [];
+  persist(); updateBadges();
+  toast("Order placed — a concierge will confirm");
+  go("orders");
+}
+
+/* ---------------- Consultation ---------------- */
+function renderConsultation() {
+  document.getElementById("main").innerHTML = `
+  <div class="page">
+    <div class="page-head"><h1>Book a Private Consultation</h1><p>Speak one-to-one with a Colour Diam specialist — in person, by video call, or on WhatsApp. Entirely confidential.</p></div>
+    <div class="two-col" style="grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)">
+      <div class="panel">
+        <h3>Your details</h3>
+        <div class="form-grid">
+          <div class="field"><label>Full name</label><input placeholder="Full name"></div>
+          <div class="field"><label>Email</label><input type="email" placeholder="you@email.com"></div>
+          <div class="field"><label>Phone / WhatsApp</label><input placeholder="+44…"></div>
+          <div class="field"><label>Preferred date</label><input type="date"></div>
+          <div class="field"><label>Time</label><select><option>Morning (09:00–12:00)</option><option>Afternoon (12:00–17:00)</option><option>Evening (17:00–20:00)</option></select></div>
+          <div class="field"><label>Method</label><select><option>Video call</option><option>In person · London</option><option>In person · New York</option><option>WhatsApp</option></select></div>
+        </div>
+        <div class="field"><label>What are you looking for?</label><textarea placeholder="e.g. A vivid pink diamond above 2 carats for an engagement ring"></textarea></div>
+        <button class="btn btn-primary btn-block" onclick="toast('Consultation request sent — we will confirm shortly')">Request Consultation</button>
+      </div>
+      <div>
+        <div class="edu-card" style="border-color:rgba(182,138,62,.3)">
+          <h3>What to expect</h3>
+          <p>A private session guided entirely around you — viewing certified stones, understanding the 4 Cs of fancy colour, and exploring bespoke designs. No obligation.</p>
+        </div>
+        <div class="panel" style="margin-top:14px">
+          <h3>Prefer to talk now?</h3>
+          <a class="btn btn-outline btn-block" style="justify-content:center;margin-bottom:8px" href="https://wa.me/441234567890" target="_blank" rel="noopener">WhatsApp us</a>
+          <a class="btn btn-outline btn-block" style="justify-content:center" href="mailto:concierge@colourdiam.com">Email concierge@colourdiam.com</a>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- Orders ---------------- */
+function renderOrders() {
+  document.getElementById("main").innerHTML = `
+  <div class="page">
+    <div class="page-head"><h1>Order History</h1><p>Your past and in-progress orders.</p></div>
+    ${S.orders.length ? `<div class="list">
+      ${S.orders.map(o => `
+        <div class="list-item">
+          <span class="li-av">${o.no.slice(-3)}</span>
+          <span class="li-main"><span class="t">Order ${o.no}</span><span class="s">${o.date} · ${o.items} ${o.items === 1 ? "item" : "items"}</span></span>
+          <span class="li-side"><span class="t">${fmt(o.total)}</span><span class="s" style="color:var(--gold-deep)">${o.status}</span></span>
+        </div>`).join("")}
+    </div>` : `
+    <div class="empty"><div class="big">📦</div><h3>No orders yet</h3><p>Your orders will appear here.</p><button class="btn btn-primary" onclick="go('explore')">Explore Diamonds</button></div>`}
+  </div>`;
+}
+
+/* ---------------- Profile ---------------- */
+function renderProfile() {
+  document.getElementById("main").innerHTML = `
+  <div class="page">
+    <div class="profile-head">
+      <div class="profile-av">A</div>
+      <div><h2>Alexandra Laurent</h2><p>Private client · London, United Kingdom</p></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="k">Favorites</div><div class="v">${S.fav.length}</div></div>
+      <div class="stat"><div class="k">Orders</div><div class="v">${S.orders.length}</div></div>
+      <div class="stat"><div class="k">Consultations</div><div class="v">1</div></div>
+      <div class="stat"><div class="k">Member since</div><div class="v">2024</div></div>
+    </div>
+    <div class="panel">
+      <h3>Quick actions</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+        <button class="btn btn-outline" onclick="go('favorites')">Favorites</button>
+        <button class="btn btn-outline" onclick="go('orders')">Orders</button>
+        <button class="btn btn-outline" onclick="go('consultation')">Book consultation</button>
+        <button class="btn btn-outline" onclick="go('messages')">Messages</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Contact preferences</h3>
+      <p style="color:var(--muted);font-size:14px;line-height:1.7">We treat your data with the utmost confidentiality. Your preferences can be updated anytime.</p>
+    </div>
+  </div>`;
+}
+
+/* ---------------- Settings ---------------- */
+function renderSettings() {
+  const saved = JSON.parse(localStorage.getItem("cd_saved") || "[]");
+  document.getElementById("main").innerHTML = `
+  <div class="page">
+    <div class="page-head"><h1>Settings</h1><p>Preferences, saved searches and application options.</p></div>
+    <div class="panel">
+      <h3>Preferences</h3>
+      <div class="form-grid">
+        <div class="field"><label>Currency</label><select onchange="S.currency=this.value;persist();renderCurrent()"><option value="USD" ${S.currency === "USD" ? "selected" : ""}>USD — US Dollar</option><option value="GBP" ${S.currency === "GBP" ? "selected" : ""}>GBP — British Pound</option><option value="EUR" ${S.currency === "EUR" ? "selected" : ""}>EUR — Euro</option></select></div>
+        <div class="field"><label>Language</label><select><option>English</option><option>Français</option><option>中文</option></select></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Saved searches</h3>
+      ${saved.length ? saved.map(s => `<button class="btn btn-outline btn-sm" style="margin:0 8px 8px 0" onclick="S.filters=JSON.parse(JSON.stringify(${JSON.stringify(s.filters)}));persist();go('explore')">${esc(s.label)}</button>`).join("") : '<p style="color:var(--muted);font-size:14px">No saved searches yet. Use "Save search" in the filters panel.</p>'}
+    </div>
+    <div class="panel">
+      <h3>Application</h3>
+      <div style="display:grid;gap:10px">
+        <button class="btn btn-outline" onclick="installApp()">Install Colour Diam app</button>
+        <button class="btn btn-outline" onclick="localStorage.clear();location.reload()">Reset local data</button>
+      </div>
+    </div>
+  </div>`;
+}
+function installApp() {
+  if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; }
+  else toast("Open in Chrome and choose “Add to Home screen”");
+}
+
+/* ---------------- Admin ---------------- */
+let adminTab = "overview";
+function renderAdmin() {
+  const m = document.getElementById("main");
+  const tabs = [
+    { id: "overview", label: "Overview" },
+    { id: "products", label: "Products" },
+    { id: "sheets", label: "Google Sheets" },
+    { id: "orders", label: "Orders" },
+    { id: "import", label: "Import & Sync" }
+  ];
+  m.innerHTML = `
+  <div class="page">
+    <div class="page-head"><h1>Admin Dashboard</h1><p>Product management, inventory sync and enquiries — built for your team.</p></div>
+    <div class="tabs">${tabs.map(t => `<button class="tab ${adminTab === t.id ? 'active' : ''}" onclick="adminTab='${t.id}';renderAdmin()">${t.label}</button>`).join("")}</div>
+    <div id="admin-body"></div>
+  </div>`;
+  const body = document.getElementById("admin-body");
+  if (adminTab === "overview") body.innerHTML = adminOverview();
+  if (adminTab === "products") body.innerHTML = adminProducts();
+  if (adminTab === "sheets") body.innerHTML = adminSheets();
+  if (adminTab === "orders") body.innerHTML = adminOrders();
+  if (adminTab === "import") body.innerHTML = adminImport();
+}
+function adminOverview() {
+  const inStock = PRODUCTS.length;
+  const low = PRODUCTS.filter(x => x.avail === "reserve").length;
+  const rev = PRODUCTS.reduce((a, x) => a + x.price, 0);
+  return `
+  <div class="stat-row">
+    <div class="stat"><div class="k">Active products</div><div class="v">${inStock}</div><div class="d">▲ 3 this week</div></div>
+    <div class="stat"><div class="k">By reservation</div><div class="v">${low}</div></div>
+    <div class="stat"><div class="k">Inventory value</div><div class="v" style="font-size:20px">${fmt(rev)}</div></div>
+    <div class="stat"><div class="k">Pending enquiries</div><div class="v">4</div><div class="d">2 new today</div></div>
+  </div>
+  <div class="sync-card">
+    <div class="sync-head"><h3>Google Sheets synchronization</h3><span class="sync-status"><span class="pulse"></span> Connected</span></div>
+    <div class="sync-meta">
+      <div class="m"><div class="k">Last synchronized</div><div class="v">Today 09:14</div></div>
+      <div class="m"><div class="k">Products updated</div><div class="v">14</div></div>
+      <div class="m"><div class="k">Errors</div><div class="v">0</div></div>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="runSync('overview')">Synchronize now</button>
+  </div>
+  <div class="panel"><h3>Recent enquiries</h3>
+    <div class="list">
+      <div class="list-item"><span class="li-av">MR</span><span class="li-main"><span class="t">Request for CD-1024 · Fancy Vivid Pink</span><span class="s">2 min ago</span></span><span class="li-side"><span class="t" style="color:var(--gold-deep)">New</span></span></div>
+      <div class="list-item"><span class="li-av">SC</span><span class="li-main"><span class="t">Bespoke engagement ring enquiry</span><span class="s">28 min ago</span></span><span class="li-side"><span class="t" style="color:var(--muted)">Assigned</span></span></div>
+      <div class="list-item"><span class="li-av">YL</span><span class="li-main"><span class="t">Request for GIA report — CD-2051</span><span class="s">1 h ago</span></span><span class="li-side"><span class="t" style="color:var(--muted)">Replied</span></span></div>
+    </div>
+  </div>`;
+}
+function adminProducts() {
+  return `
+  <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+    <button class="btn btn-primary btn-sm" onclick="adminTab='import';renderAdmin()">+ Add product</button>
+  </div>
+  <div style="overflow-x:auto;border-radius:var(--radius)">
+  <table class="table">
+    <thead><tr><th>Product</th><th>Stock</th><th>Colour</th><th>Carat</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      ${PRODUCTS.map(x => `
+        <tr>
+          <td><span class="cell-p"><span class="th"><img src="${productArt(x)}" alt=""></span><span>${esc(x.name)}</span></span></td>
+          <td>${esc(x.stock)}</td>
+          <td>${esc(x.color)}</td>
+          <td>${x.carat} ct</td>
+          <td style="font-weight:600">${fmt(x.price)}</td>
+          <td><span class="chip" style="padding:4px 10px;font-size:11px">${x.avail === "now" ? "Available" : "Reserve"}</span></td>
+          <td><button class="tbtn" onclick="toast('Editing ${esc(x.name)}')">Edit</button> <button class="tbtn danger" onclick="toast('Products cannot be deleted in this preview')">Hide</button></td>
+        </tr>`).join("")}
+    </tbody>
+  </table>
+  </div>`;
+}
+function adminSheets() {
+  return `
+  <div class="sync-card">
+    <div class="sync-head"><h3>Google Sheets — product catalog</h3><span class="sync-status" id="sync-status"><span class="pulse"></span> <span id="sync-label">Connected</span></span></div>
+    <p style="color:var(--muted);font-size:13.5px;line-height:1.6">Colour Diam Inventory (Sheet 1) · range <strong style="color:var(--ink)">A1:G200</strong>. All price updates made in Sheets propagate to the storefront automatically.</p>
+    <div class="sync-meta">
+      <div class="m"><div class="k">Spreadsheet</div><div class="v" style="font-size:14px">cd-inventory-2026</div></div>
+      <div class="m"><div class="k">Last synchronized</div><div class="v" id="sync-last">Today 09:14</div></div>
+      <div class="m"><div class="k">Products updated</div><div class="v" id="sync-count">14</div></div>
+      <div class="m"><div class="k">Errors</div><div class="v" id="sync-err" style="color:#3f8f52">0</div></div>
+    </div>
+    <button class="btn btn-primary" id="sync-btn" onclick="runSync('sheets')">Synchronize now</button>
+  </div>
+  <div class="panel"><h3>Synchronization log</h3><div class="sync-log" id="sync-log">
+    <div class="ok">✓ 09:14 — Synced 14 products from Google Sheets</div>
+    <div>✓ 08:00 — Prices refreshed for CD-1024, CD-2051</div>
+    <div class="ok">✓ Yesterday — New images imported for 3 pieces</div>
+  </div></div>`;
+}
+function runSync(scope) {
+  const btn = document.getElementById("sync-btn") || (document.querySelector(".sync-card .btn"));
+  if (btn) { btn.textContent = "Synchronizing…"; btn.disabled = true; }
+  const st = document.getElementById("sync-status");
+  const sl = document.getElementById("sync-label");
+  if (st) st.classList.add("syncing");
+  if (sl) sl.textContent = " Syncing";
+  const log = document.getElementById("sync-log");
+  if (log) log.innerHTML = '<div class="ok">→ Contacting Google Sheets…</div>' + log.innerHTML;
+  setTimeout(() => {
+    if (btn) { btn.textContent = "Synchronize now"; btn.disabled = false; }
+    if (st) st.classList.remove("syncing");
+    if (sl) sl.textContent = " Connected";
+    if (log) log.innerHTML = '<div class="ok">✓ Now — Sync complete · 14 products up to date · 0 errors</div>' + log.innerHTML;
+    const c = document.getElementById("sync-count"); if (c) c.textContent = "14";
+    const l = document.getElementById("sync-last"); if (l) l.textContent = "Now";
+    toast("Synchronization complete — 14 products updated");
+    if (scope === "overview") renderAdmin();
+  }, 1800);
+}
+function adminOrders() {
+  return `
+  <div class="panel"><h3>Order management</h3>
+    <div class="list">
+      ${S.orders.length ? S.orders.map(o => `
+        <div class="list-item">
+          <span class="li-av">${o.no.slice(-3)}</span>
+          <span class="li-main"><span class="t">${o.no}</span><span class="s">${o.date} · ${o.items} items</span></span>
+          <span class="li-side"><span class="t">${fmt(o.total)}</span><span class="s" style="color:var(--gold-deep)">${o.status}</span></span>
+        </div>`).join("") : '<div class="empty" style="padding:30px"><p>No orders placed yet.</p></div>'}
+    </div>
+  </div>`;
+}
+function adminImport() {
+  return `
+  <div class="two-col" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+    <div class="panel">
+      <h3>Add a new product</h3>
+      <div class="form-grid">
+        <div class="field"><label>Product name</label><input placeholder="e.g. Fancy Vivid Pink Radiant"></div>
+        <div class="field"><label>Stock ID</label><input placeholder="CD-XXXX"></div>
+        <div class="field"><label>Colour</label><select><option>Pink</option><option>Blue</option><option>Yellow</option><option>Orange</option><option>Champagne</option></select></div>
+        <div class="field"><label>Carat</label><input type="number" step="0.01" placeholder="2.04"></div>
+        <div class="field"><label>Price (USD)</label><input type="number" placeholder="385000"></div>
+        <div class="field"><label>GIA report</label><input placeholder="GIA 2241558900"></div>
+      </div>
+      <div class="field"><label>Description</label><textarea placeholder="Short description…"></textarea></div>
+      <button class="btn btn-primary btn-block" onclick="toast('Product added (design preview)')">Save product</button>
+    </div>
+    <div>
+      <div class="panel">
+        <h3>Import from Google Sheets</h3>
+        <p style="color:var(--muted);font-size:13.5px;line-height:1.7;margin-bottom:14px">Connect your inventory spreadsheet. New rows are imported as draft products ready for review.</p>
+        <div class="field"><label>Spreadsheet URL or ID</label><input placeholder="https://docs.google.com/spreadsheets/d/…"></div>
+        <button class="btn btn-outline btn-block" onclick="toast('Spreadsheet connected — previewing import')">Preview import</button>
+      </div>
+      <div class="panel">
+        <h3>Bulk image upload</h3>
+        <p style="color:var(--muted);font-size:13.5px;margin-bottom:14px">Upload studio photography and video for your pieces.</p>
+        <div style="border:2px dashed var(--line-strong);border-radius:var(--radius-sm);padding:34px;text-align:center;color:var(--muted);font-size:13.5px">Drop images here</div>
+        <button class="btn btn-ghost btn-block" style="margin-top:12px" onclick="toast('Upload simulated in this preview')">Choose files</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- Rail ---------------- */
+function renderRail() {
+  const rail = document.getElementById("rail");
+  const on = VIEW.current === "home" || VIEW.current === "product";
+  document.body.classList.toggle("rail-on", on && window.innerWidth >= 1440);
+  if (!on) return;
+  const bagItems = S.bag.map(b => ({ ...b, prod: p(b.id) })).filter(x => x.prod).slice(0, 3);
+  const recent = S.recent.map(p).filter(Boolean).slice(0, 4);
+  const bagTotal = S.bag.reduce((a, b) => a + (p(b.id)?.price || 0) * b.qty, 0);
+  rail.innerHTML = `
+    <h4>Shopping bag</h4>
+    <div class="rail-card">
+      ${bagItems.length ? bagItems.map(b => `
+        <div class="rail-item" onclick="go('bag')">
+          <span class="th"><img src="${productArt(b.prod)}" alt=""></span>
+          <span><span class="nm">${esc(b.prod.name)}</span><span class="pr">${fmt(b.prod.price)} × ${b.qty}</span></span>
+        </div>`).join("") + `
+        <div class="rail-item"><span style="flex:1;font-size:13px;font-weight:600">Subtotal</span><span class="pr">${fmt(bagTotal)}</span></div>
+        <button class="btn btn-primary btn-sm btn-block" style="margin-top:8px" onclick="go('bag')">View bag</button>`
+        : '<div style="font-size:13px;color:var(--muted)">Your bag is empty</div>'}
+    </div>
+    <h4>Recently viewed</h4>
+    <div class="rail-card">
+      ${recent.map(x => `
+        <div class="rail-item" onclick="go('product','${x.id}')">
+          <span class="th"><img src="${productArt(x)}" alt=""></span>
+          <span><span class="nm">${esc(x.name)}</span><span class="pr">${fmt(x.price)}</span></span>
+        </div>`).join("")}
+    </div>
+    <div class="rail-card" style="border-color:rgba(182,138,62,.35)">
+      <h4 style="margin-bottom:6px">Private consultation</h4>
+      <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:10px">Speak with a specialist about a specific stone or a bespoke commission.</p>
+      <button class="btn btn-primary btn-sm btn-block" onclick="go('consultation')">Book a consultation</button>
+    </div>`;
+}
+function updateRail() {
+  const on = VIEW.current === "home" || VIEW.current === "product";
+  document.body.classList.toggle("rail-on", on && window.innerWidth >= 1440);
+}
+window.addEventListener("resize", () => { updateRail(); if (document.getElementById("rail").innerHTML) renderRail(); });
+
+/* ---------------- Init ---------------- */
+renderSidebar();
+go("home");
+updateBadges();
+</script>
+</body>
+</html>
