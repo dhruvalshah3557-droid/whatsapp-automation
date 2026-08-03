@@ -471,40 +471,240 @@ header { margin-bottom: clamp(14px, 2.5vw, 24px); gap: clamp(10px, 2vw, 16px); }
   .stat-card .value { font-size: clamp(22px, 7vw, 28px); }
   .filter-chips button { padding: 7px 12px; font-size: 12px; }
 }
+
+/* ===================== FACEBOOK-STYLE MOBILE APP ===================== */
+:root {
+  --fb-bg: #18191a;
+  --fb-card: #242526;
+  --fb-hover: #3a3b3c;
+  --fb-blue: #1877f2;
+  --fb-blue-dark: #166fe5;
+  --fb-text: #e4e6eb;
+  --fb-muted: #b0b3b8;
+  --fb-gold: #d4af37;
+}
+body { background: var(--fb-bg); padding: 0 0 calc(var(--tabbar) + env(safe-area-inset-bottom) + 28px); }
+.container { max-width: 680px; padding: 0; }
+footer { color: var(--fb-muted); }
+.tab-content:not(#tab-home) { padding: 12px 12px 24px; }
+.tab-content > footer { padding: 0 12px 8px; }
+
+/* Top bar like Facebook */
+.fb-topbar {
+  position: sticky; top: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--fb-card);
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,.4);
+}
+.fb-topbar-logo {
+  font-family: var(--font-serif); font-weight: 700; font-size: 23px;
+  background: linear-gradient(120deg, #f7e08a, #d4af37 50%, #b8860b);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.fb-topbar-icons { display: flex; gap: 10px; }
+.fb-topbar-icon {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--fb-hover); color: var(--fb-text);
+  display: flex; align-items: center; justify-content: center; text-decoration: none;
+  transition: background .2s ease, color .2s ease;
+}
+.fb-topbar-icon:hover { color: var(--fb-blue); background: rgba(24,119,242,.2); }
+
+/* Composer card */
+.fb-composer {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--fb-card); border-radius: 10px;
+  padding: 12px 16px; margin: 12px 12px 0;
+}
+.fb-composer-input {
+  flex: 1; background: var(--fb-hover); color: var(--fb-muted);
+  border-radius: 999px; padding: 9px 16px; font-size: 14px; cursor: text;
+}
+
+/* Avatars */
+.fb-avatar {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, #d4af37, #9a7a1e);
+}
+.fb-avatar-lg { width: 40px; height: 40px; }
+.fb-avatar-sm { width: 40px; height: 40px; font-size: 15px; }
+.fb-composer .fb-avatar { background: linear-gradient(135deg, #25d366, #128c4a); }
+
+/* Stories row */
+.fb-stories {
+  display: flex; gap: 12px; overflow-x: auto; padding: 14px 12px 16px;
+  scrollbar-width: none;
+}
+.fb-stories::-webkit-scrollbar { display: none; }
+.fb-story {
+  flex: 0 0 72px; text-align: center; text-decoration: none;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.fb-story-ring {
+  width: 66px; height: 66px; border-radius: 50%; padding: 3px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.4);
+}
+.fb-story-avatar {
+  width: 100%; height: 100%; border-radius: 50%;
+  background: var(--fb-card);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: #fff; font-size: 18px;
+  border: 3px solid var(--fb-card);
+}
+.fb-story span { font-size: 12px; color: var(--fb-text); max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Post cards */
+.fb-post {
+  background: var(--fb-card); border-radius: 10px;
+  margin: 0 12px 14px; overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,.3);
+}
+.fb-post-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; }
+.fb-post-meta { flex: 1; min-width: 0; }
+.fb-post-name { font-weight: 600; font-size: 15px; color: var(--fb-text); }
+.fb-verified {
+  display: inline-block; width: 15px; height: 15px; border-radius: 50%;
+  background: var(--fb-blue); color: #fff; font-size: 10px; line-height: 15px; text-align: center;
+}
+.fb-post-time { font-size: 12px; color: var(--fb-muted); }
+.fb-post-body { padding: 0 16px 12px; }
+.fb-post-copy { font-size: 14px; line-height: 1.5; color: var(--fb-text); margin-bottom: 12px; }
+.fb-post-media {
+  position: relative; border-radius: 8px; min-height: 160px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  color: #fff; font-family: var(--font-serif);
+}
+.fb-post-media span { font-size: 46px; font-weight: 700; text-shadow: 0 2px 12px rgba(0,0,0,.4); }
+.fb-post-media em { font-style: normal; font-size: 17px; letter-spacing: .03em; background: rgba(0,0,0,.28); padding: 6px 18px; border-radius: 999px; }
+.fb-post-actions {
+  display: flex; border-top: 1px solid rgba(255,255,255,.08); padding: 4px 8px;
+}
+.fb-post-actions a, .fb-post-actions button {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: none; border: none; color: var(--fb-muted);
+  font-size: 13px; font-weight: 600; padding: 10px 4px; border-radius: 8px;
+  cursor: pointer; text-decoration: none;
+  transition: background .2s ease, color .2s ease;
+}
+.fb-post-actions a:hover, .fb-post-actions button:hover { background: var(--fb-hover); color: var(--fb-blue); }
+
+/* Menu tab */
+.fb-menu-head { font-family: var(--font-serif); font-size: 22px; font-weight: 700; padding: 16px 16px 8px; color: var(--fb-text); }
+.fb-menu-grid { display: flex; flex-direction: column; gap: 4px; }
+.fb-menu-item {
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
+  background: none; border: none; color: var(--fb-text); text-decoration: none;
+  padding: 12px 8px; border-radius: 10px; cursor: pointer; font-family: inherit;
+  transition: background .2s ease;
+}
+.fb-menu-item:hover { background: var(--fb-hover); }
+.fb-menu-ico {
+  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; font-size: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.3);
+}
+.fb-menu-item strong { display: block; font-size: 15px; font-weight: 600; }
+.fb-menu-item small { display: block; color: var(--fb-muted); font-size: 12px; margin-top: 2px; }
+
+/* Facebook-style bottom nav */
+.tabbar {
+  left: 0; right: 0; bottom: 0; transform: none;
+  width: 100%; height: calc(var(--tabbar) + env(safe-area-inset-bottom));
+  padding: 6px 4px env(safe-area-inset-bottom);
+  border-radius: 0; border-top: 1px solid rgba(255,255,255,.1); border-left: none; border-right: none;
+  background: var(--fb-card);
+  backdrop-filter: none;
+  box-shadow: 0 -2px 10px rgba(0,0,0,.4);
+}
+.tab-item { border-radius: 8px; margin: 0 2px; color: var(--fb-muted); }
+.tab-item .ico { color: var(--fb-muted); }
+.tab-item.active { color: var(--fb-blue); }
+.tab-item.active .ico { color: var(--fb-blue); }
+.tab-item.active { background: rgba(24,119,242,.12); box-shadow: none; }
+
+/* Cards → Facebook surfaces */
+.card, .stat-card, .tile, .color-tile, .link-list a {
+  background: var(--fb-card); border: none; border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.3);
+}
+.card:hover, .stat-card:hover, .tile:hover, .color-tile:hover, .link-list a:hover { border: none; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+.stat-card::before { display: none; }
+.stat-card .value { font-family: var(--font-serif); }
+
+/* Buttons → Facebook blue (gold kept for brand CTA) */
+.btn { background: var(--fb-blue); color: #fff; box-shadow: none; }
+.btn:hover { background: var(--fb-blue-dark); box-shadow: none; }
+.btn-ghost { background: var(--fb-hover); color: var(--fb-text); }
+.btn-ghost:hover { background: #4a4b4c; }
+.btn-danger { background: rgba(244,63,94,.18); color: #f87171; }
+#install { background: var(--fb-blue); color: #fff; }
+
+/* Filter chips, inputs, link-list adapt to FB surfaces */
+.filter-chips button { background: var(--fb-hover); border: none; color: var(--fb-muted); }
+.filter-chips button.active { background: rgba(24,119,242,.2); color: var(--fb-blue); border: none; box-shadow: none; }
+input, select, textarea { background: var(--fb-hover); border: none; }
+input:focus, select:focus, textarea:focus { border: none; box-shadow: 0 0 0 3px rgba(24,119,242,.4); background: var(--fb-hover); }
+.list-item { background: var(--fb-hover); border: none; }
+.website-btn { background: var(--fb-hover); border: none; }
+
+/* Hide the old hero styles; hero no longer used on Home (kept for safety) */
+.hero { display: none; }
+
+/* Menu card containers sit flush like FB */
+#tab-menu .card { margin: 0 12px 14px; }
+
+@media (min-width: 760px) {
+  .tabbar { left: 50%; right: auto; transform: translateX(-50%); width: min(100%, 680px); border-radius: 16px 16px 0 0; }
+}
 </style>
 </head>
 <body>
 <div class="container">
-  <header>
-    <div>
-      <h1>Colourdiam</h1>
-      <p>Elegant &amp; Timeless Diamond Jewelry</p>
+  <div class="fb-topbar">
+    <div class="fb-topbar-logo">Colourdiam</div>
+    <div class="fb-topbar-icons">
+      <a class="fb-topbar-icon" href="https://www.colourdiam.com" target="_blank" rel="noopener" aria-label="Website"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 4 9 15 15 0 0 1-4 9 15 15 0 0 1-4-9 15 15 0 0 1 4-9z"/></svg></a>
+      <a class="fb-topbar-icon" href="./messaging/index.html" target="_blank" rel="noopener" aria-label="Messaging"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 1 1 16.1-3.8z"/><path d="M8 11h8M8 15h4"/></svg></a>
     </div>
-    <a class="website-btn" href="https://www.colourdiam.com" target="_blank" rel="noopener">www.colourdiam.com ↗</a>
-  </header>
+  </div>
 
   <section id="tab-home" class="tab-content active">
-    <div class="hero">
-      <h2>Elegant &amp; Timeless Diamond Jewelry</h2>
-      <p>Rings | Earrings | Necklaces | Bracelets — Certified Diamonds | Custom Designs</p>
-      <div class="hero-tags">
-        <span class="chip">Free Shipping</span>
-        <span class="chip">100% Money Back</span>
-        <span class="chip">Lifetime Warranty</span>
-        <span class="chip">Support 24/7</span>
+    <div class="fb-composer">
+      <div class="fb-avatar fb-avatar-lg">C</div>
+      <div class="fb-composer-input" onclick="goTab('design')">What's on your mind, ColourDiam?</div>
+    </div>
+
+    <div class="fb-stories" id="home-stories"></div>
+
+    <div class="fb-post">
+      <div class="fb-post-head">
+        <div class="fb-avatar fb-avatar-sm">C</div>
+        <div class="fb-post-meta">
+          <div class="fb-post-name">Colourdiam <span class="fb-verified">✓</span></div>
+          <div class="fb-post-time">Business Overview · Just now</div>
+        </div>
+      </div>
+      <div class="fb-post-body">
+        <div class="stats">
+          <div class="stat-card"><div class="value" id="h-total-sales">$0</div><div class="label">Total Sales</div></div>
+          <div class="stat-card"><div class="value" id="h-total-purchase">$0</div><div class="label">Purchases</div></div>
+          <div class="stat-card"><div class="value" id="h-total-cost">$0</div><div class="label">Costs</div></div>
+          <div class="stat-card"><div class="value" id="h-profit">$0</div><div class="label">Profit</div></div>
+        </div>
+      </div>
+      <div class="fb-post-actions">
+        <button onclick="goTab('business')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12M15 10v12M3 14v8M11 2v20M19 6v16"/><path d="M1 14a2 2 0 0 0 4 0V6a2 2 0 0 0-4 0v8z"/></svg>Business</button>
+        <button onclick="goTab('shop')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.2 13H4.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg>Shop</button>
+        <button onclick="goTab('design')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3Z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5Z"/><circle cx="11" cy="11" r="2"/></svg>Share</button>
       </div>
     </div>
 
-    <div class="tab-title">Shop by Category</div>
-    <div class="grid-sm" id="home-cats"></div>
-
-    <div class="tab-title" style="margin-top:20px">Business Overview</div>
-    <div class="stats">
-      <div class="stat-card"><div class="value" id="h-total-sales">$0</div><div class="label">Total Sales</div></div>
-      <div class="stat-card"><div class="value" id="h-total-purchase">$0</div><div class="label">Purchases</div></div>
-      <div class="stat-card"><div class="value" id="h-total-cost">$0</div><div class="label">Costs</div></div>
-      <div class="stat-card"><div class="value" id="h-profit">$0</div><div class="label">Profit</div></div>
-    </div>
+    <div id="home-posts"></div>
 
     <footer>Data saved locally on this device · Website: www.colourdiam.com</footer>
   </section>
@@ -631,9 +831,6 @@ header { margin-bottom: clamp(14px, 2.5vw, 24px); gap: clamp(10px, 2vw, 16px); }
 
     <div class="tab-sub" style="font-weight:600;color:var(--text);margin-top:20px">Messaging Platforms</div>
     <div class="grid" id="grid"></div>
-
-    <div class="tab-title" style="margin-top:24px">Information</div>
-    <div class="link-list" id="info-links"></div>
   </section>
 
   <section id="tab-analytics" class="tab-content">
@@ -732,17 +929,42 @@ header { margin-bottom: clamp(14px, 2.5vw, 24px); gap: clamp(10px, 2vw, 16px); }
     </div>
   </section>
 
+  <section id="tab-menu" class="tab-content">
+    <div class="fb-menu-head">Menu</div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title" style="margin-bottom:6px">Business Tools</div>
+      <div class="fb-menu-grid">
+        <button class="fb-menu-item" onclick="goTab('ai')"><span class="fb-menu-ico" style="background:linear-gradient(135deg,#f7e08a,#b08a1f)">AI</span><span><strong>AI Assistant</strong><small>Manage records by chat</small></span></button>
+        <button class="fb-menu-item" onclick="goTab('design')"><span class="fb-menu-ico" style="background:linear-gradient(135deg,#e4405f,#a81e3a)">D</span><span><strong>Design Your Own</strong><small>Custom piece requests</small></span></button>
+        <button class="fb-menu-item" onclick="goTab('analytics')"><span class="fb-menu-ico" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">A</span><span><strong>Website Analytics</strong><small>Plausible · GoatCounter · GA4</small></span></button>
+        <a class="fb-menu-item" href="./messaging/index.html" target="_blank" rel="noopener"><span class="fb-menu-ico" style="background:linear-gradient(135deg,#25d366,#128c4a)">M</span><span><strong>Messaging Connector</strong><small>Set up WhatsApp, IG &amp; more</small></span></a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:6px">About &amp; Support</div>
+      <div class="link-list" id="info-links"></div>
+    </div>
+
+    <div class="card" style="text-align:center;margin-top:16px">
+      <div class="fb-avatar" style="width:52px;height:52px;font-size:22px;margin:0 auto 10px">C</div>
+      <div class="tab-sub" style="margin-bottom:10px">Install Colourdiam as an app on this device</div>
+      <button class="btn btn-ghost" onclick="tryInstall()">Install App</button>
+    </div>
+
+    <footer>Data saved locally on this device · Website: www.colourdiam.com</footer>
+  </section>
+
   <button id="install" hidden>Install app</button>
 </div>
 
 <nav class="tabbar">
-  <button class="tab-item active" data-tab="home"><span class="ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg></span>Home</button>
-  <button class="tab-item" data-tab="shop"><span class="ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.2 13H4.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg></span>Shop</button>
-  <button class="tab-item" data-tab="diamonds"><span class="ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9l4-6Z"/><path d="M2 9h20"/><path d="M12 21 8 9l4-6 4 6-4 12"/></svg></span>Diamonds</button>
-  <button class="tab-item" data-tab="design"><span class="ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3Z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5Z"/><circle cx="11" cy="11" r="2"/></svg></span>Design</button>
-  <button class="tab-item" data-tab="analytics"><span class="ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M3 20h18"/></svg></span>Analytics</button>
-  <button class="tab-item" data-tab="ai"><span class="ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4L12 3Z"/><path d="M19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9L19 14Z"/></svg></span>AI</button>
-  <button class="tab-item" data-tab="business"><span class="ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg></span>Business</button>
+  <button class="tab-item active" data-tab="home"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg></span>Home</button>
+  <button class="tab-item" data-tab="shop"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.2 13H4.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg></span>Shop</button>
+  <button class="tab-item" data-tab="diamonds"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9l4-6Z"/><path d="M2 9h20"/><path d="M12 21 8 9l4-6 4 6-4 12"/></svg></span>Diamonds</button>
+  <button class="tab-item" data-tab="business"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg></span>Business</button>
+  <button class="tab-item" data-tab="menu"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Menu</button>
 </nav>
 
 <script>
@@ -768,12 +990,25 @@ document.getElementById("install").addEventListener("click", async () => {
 
 document.querySelectorAll(".tab-item").forEach(btn => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-item").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".tab-content").forEach(s => s.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+    goTab(btn.dataset.tab);
   });
 });
+
+function goTab(name) {
+  document.querySelectorAll(".tab-item").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
+  document.querySelectorAll(".tab-content").forEach(s => s.classList.toggle("active", s.id === "tab-" + name));
+  window.scrollTo({ top: 0 });
+}
+
+function tryInstall() {
+  const btn = document.getElementById("install");
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; btn.style.display = "none"; });
+  } else {
+    btn.style.display = "block";
+  }
+}
 
 const SITE = "https://www.colourdiam.com";
 
@@ -835,8 +1070,63 @@ function renderCategories() {
        <div class="t-name">${c.name}</div>
        <div class="t-cta">Shop Now →</div>
      </a>`).join("");
-  document.getElementById("home-cats").innerHTML = html;
   document.getElementById("shop-cats").innerHTML = html;
+}
+
+const STORY_GRADIENTS = [
+  ["#d4af37", "#8b5a2b"], ["#e6c200", "#b8860b"], ["#f97316", "#c2410c"],
+  ["#ec4899", "#9d174d"], ["#3b82f6", "#1d4ed8"], ["#22c55e", "#15803d"]
+];
+
+function renderStories() {
+  const stories = categories.map((c, i) => {
+    const [a, b] = STORY_GRADIENTS[i % STORY_GRADIENTS.length];
+    return `<a class="fb-story" href="${c.url}" target="_blank" rel="noopener">
+      <div class="fb-story-ring" style="background:conic-gradient(from 0deg, ${a}, ${b}, ${a})">
+        <div class="fb-story-avatar" style="background:${c.color}">${c.icon}</div>
+      </div>
+      <span>${c.name}</span>
+    </a>`;
+  });
+  diamonds.slice(0, 4).forEach((d, i) => {
+    const [a, b] = STORY_GRADIENTS[(i + 2) % STORY_GRADIENTS.length];
+    stories.push(`<a class="fb-story" href="${SITE}/diamonds/${d.name.toLowerCase()}" target="_blank" rel="noopener">
+      <div class="fb-story-ring" style="background:conic-gradient(from 0deg, ${a}, ${b}, ${a})">
+        <div class="fb-story-avatar" style="background:${d.hex}"><span style="filter:invert(.9)">${d.name[0]}</span></div>
+      </div>
+      <span>${d.name}</span>
+    </a>`);
+  });
+  document.getElementById("home-stories").innerHTML = stories.join("");
+}
+
+function renderPosts() {
+  const posts = categories.map((c, i) => {
+    const [a, b] = STORY_GRADIENTS[i % STORY_GRADIENTS.length];
+    return `
+    <div class="fb-post">
+      <div class="fb-post-head">
+        <div class="fb-avatar fb-avatar-sm" style="background:${c.color}">${c.icon}</div>
+        <div class="fb-post-meta">
+          <div class="fb-post-name">${c.name} <span class="fb-verified">✓</span></div>
+          <div class="fb-post-time">Colourdiam · Sponsored</div>
+        </div>
+      </div>
+      <div class="fb-post-body">
+        <div class="fb-post-copy">Explore our hand-picked ${c.name.toLowerCase()} collection — certified diamonds, lifetime warranty and free insured shipping.</div>
+        <div class="fb-post-media" style="background:linear-gradient(135deg, ${a}, ${b})">
+          <span>${c.icon}</span>
+          <em>${c.name} — Shop Now</em>
+        </div>
+      </div>
+      <div class="fb-post-actions">
+        <a href="${c.url}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>Like</a>
+        <button onclick="goTab('design')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 1 1 16.1-3.8z"/></svg>Comment</button>
+        <a href="${c.url}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg>Share</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById("home-posts").innerHTML = posts.join("");
 }
 
 function renderDiamonds() {
@@ -1590,6 +1880,8 @@ async function aiSend() {
 }
 
 renderCategories();
+renderStories();
+renderPosts();
 renderDiamonds();
 renderPlatforms();
 renderInfoLinks();
