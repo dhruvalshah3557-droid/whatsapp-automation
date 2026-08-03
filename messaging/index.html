@@ -611,6 +611,59 @@ input:focus, textarea:focus { border-color: var(--fb-blue); box-shadow: 0 0 0 1p
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #c9ccd1; border-radius: 999px; border: none; }
 ::-webkit-scrollbar-thumb:hover { background: #b0b3b8; }
+
+/* ===================== FACEBOOK BOTTOM NAV ===================== */
+.app { padding-bottom: calc(66px + env(safe-area-inset-bottom)); }
+.tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: calc(64px + env(safe-area-inset-bottom));
+  padding: 6px 6px env(safe-area-inset-bottom);
+  background: var(--fb-card);
+  border-top: 1px solid #dadde1;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, .06);
+  display: flex; align-items: stretch; justify-content: space-around;
+  z-index: 60;
+}
+.tab-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; color: var(--fb-muted); background: none; border: none;
+  font-size: 10.5px; font-weight: 600; font-family: inherit; cursor: pointer;
+  border-radius: 10px; margin: 0 2px;
+  transition: color .2s, background .2s;
+}
+.tab-item .ico { line-height: 1; color: var(--fb-muted); }
+.tab-item:hover { background: var(--fb-bg); }
+.tab-item.active { color: var(--fb-blue); background: rgba(24, 119, 242, .12); }
+.tab-item.active .ico { color: var(--fb-blue); }
+
+@media (min-width: 761px) {
+  .tabbar { left: 50%; right: auto; transform: translateX(-50%); width: min(100%, 720px); border-radius: 16px 16px 0 0; }
+}
+
+#chat-panel.show-mobile { z-index: 100; }
+
+/* Feed views (Notifications / Menu) */
+.feed-wrap { flex: 1; overflow-y: auto; background: var(--fb-bg); }
+.feed-header { padding: 16px 16px 10px; }
+.feed-header h2 { font-size: 20px; font-weight: 800; }
+.notif-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+  background: var(--fb-card); border-bottom: 1px solid #e4e6eb;
+}
+.notif-item .avatar { width: 42px; height: 42px; font-size: 15px; }
+.notif-main { flex: 1; min-width: 0; }
+.notif-text { font-size: 14px; }
+.notif-text strong { font-weight: 700; }
+.notif-sub { font-size: 13px; color: var(--fb-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.notif-time { font-size: 11.5px; color: var(--fb-muted); flex-shrink: 0; }
+.menu-list { padding: 8px 0; }
+.menu-item {
+  display: flex; align-items: center; width: 100%; text-align: left;
+  background: var(--fb-card); border: none; border-bottom: 1px solid #e4e6eb;
+  color: var(--fb-text); text-decoration: none;
+  padding: 15px 16px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer;
+}
+.menu-item:hover { background: var(--fb-bg); }
 </style>
 </head>
 <body>
@@ -619,11 +672,6 @@ input:focus, textarea:focus { border-color: var(--fb-blue); box-shadow: 0 0 0 1p
     <div class="brand">
       <img class="brand-logo-img" src="./logo.png" alt="Colourdiam">
       <h1>Colourdiam <span>Messaging</span></h1>
-    </div>
-    <div class="nav-tabs">
-      <button class="active" data-view="chats" onclick="switchView('chats')">Chats</button>
-      <button data-view="ai" onclick="switchView('ai')">AI Bot</button>
-      <button data-view="connector" onclick="switchView('connector')">Connector</button>
     </div>
   </div>
 
@@ -756,7 +804,41 @@ input:focus, textarea:focus { border-color: var(--fb-blue); box-shadow: 0 0 0 1p
         </div>
       </div>
     </div>
+
+    <!-- Notifications view -->
+    <div id="view-notifications" class="view">
+      <div class="feed-wrap">
+        <div class="feed-header">
+          <h2>Notifications</h2>
+        </div>
+        <div id="notif-list"></div>
+      </div>
+    </div>
+
+    <!-- Menu view -->
+    <div id="view-menu" class="view">
+      <div class="feed-wrap">
+        <div class="feed-header">
+          <h2>Menu</h2>
+        </div>
+        <div class="menu-list">
+          <button class="menu-item" onclick="switchView('connector')">Connector settings</button>
+          <button class="menu-item" onclick="switchView('ai')">AI Assistant</button>
+          <button class="menu-item" onclick="tryInstallApp()">Install app</button>
+          <a class="menu-item" href="https://www.colourdiam.com" target="_blank" rel="noopener">Website</a>
+        </div>
+        <p style="color:var(--fb-muted);font-size:12px;text-align:center;margin:18px 0">Colourdiam Messaging · config stays on this device</p>
+      </div>
+    </div>
   </div>
+
+  <nav class="tabbar">
+    <button class="tab-item active" data-view="chats" onclick="switchView('chats')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg></span>Home</button>
+    <button class="tab-item" data-view="ai" onclick="switchView('ai')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m10 9 6 3-6 3V9Z"/></svg></span>Reels</button>
+    <button class="tab-item" data-view="connector" onclick="switchView('connector')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.2 13H4.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg></span>Marketplace</button>
+    <button class="tab-item" data-view="notifications" onclick="switchView('notifications')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span>Notifications</button>
+    <button class="tab-item" data-view="menu" onclick="switchView('menu')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Menu</button>
+  </nav>
 </div>
 
 <script>
@@ -777,10 +859,11 @@ function load(key) { try { return JSON.parse(localStorage.getItem(key)) || {}; }
 function save(key, v) { localStorage.setItem(key, JSON.stringify(v)); }
 
 function switchView(v) {
-  document.querySelectorAll(".nav-tabs button").forEach(b => b.classList.toggle("active", b.dataset.view === v));
+  document.querySelectorAll(".tab-item").forEach(b => b.classList.toggle("active", b.dataset.view === v));
   document.querySelectorAll(".view").forEach(el => el.classList.toggle("active", el.id === "view-" + v));
   document.getElementById("chat-panel").classList.remove("show-mobile");
   document.getElementById("sidebar").classList.remove("hide-mobile");
+  if (v === "notifications") renderNotifications();
 }
 
 /* ---------------- Connector ---------------- */
@@ -1149,6 +1232,37 @@ function renderContacts() {
     </div>`).join("");
 }
 
+function renderNotifications() {
+  const d = chatData();
+  if (!d.contacts) d.contacts = JSON.parse(JSON.stringify(SEED));
+  const list = document.getElementById("notif-list");
+  const items = d.contacts.map(c => {
+    const last = c.messages[c.messages.length - 1] || {};
+    return `
+    <div class="notif-item">
+      <div class="avatar" style="background:${c.color}">${c.initials}</div>
+      <div class="notif-main">
+        <div class="notif-text"><strong>${esc(c.name)}</strong> · ${esc(c.platform)}</div>
+        <div class="notif-sub">${esc(last.text || "")}</div>
+      </div>
+      <div class="notif-time">${esc(c.time)}</div>
+    </div>`;
+  }).join("");
+  list.innerHTML = items || '<div style="padding:20px;color:var(--fb-muted);font-size:13px;text-align:center">No notifications yet</div>';
+}
+
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferredPrompt = e; });
+
+function tryInstallApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt = null;
+  } else {
+    alert("Open this page in Chrome on Android/iOS, tap the menu, and choose 'Add to Home screen' to install the app.");
+  }
+}
+
 function renderChat(c) {
   document.getElementById("ch-avatar").textContent = c.initials;
   document.getElementById("ch-avatar").style.background = c.color;
@@ -1446,6 +1560,7 @@ vtInput.addEventListener("input", () => { const c = load(CFG_KEY); c.verify_toke
   vtInput.value = cfg.verify_token || "";
   render();
   renderContacts();
+  renderNotifications();
   document.getElementById("ai-status").textContent = aiStatusText();
   aiInit();
 })();
