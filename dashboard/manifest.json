@@ -1,12 +1,16 @@
 {
+  "id": "./",
   "name": "Colourdiam",
   "short_name": "Colourdiam",
   "description": "Colourdiam - messaging automation for WhatsApp, Instagram, Facebook, TikTok, LINE and WeChat",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
   "background_color": "#0f1115",
   "theme_color": "#0f1115",
   "orientation": "portrait",
+  "categories": ["business", "shopping"],
   "icons": [
     {
       "src": "./icons/icon-192.png",
