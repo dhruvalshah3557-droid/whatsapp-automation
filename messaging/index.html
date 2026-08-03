@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Colourdiam Messaging</title>
-<meta name="theme-color" content="#0f1115">
+<meta name="theme-color" content="#1877F2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CD Messaging">
@@ -432,6 +432,182 @@ input:focus, textarea:focus { border-color: rgba(212,175,55,.6); box-shadow: 0 0
   .chat-header .ch-name { font-size: 14px; }
   .send-btn { width: 40px; height: 40px; }
 }
+
+/* ===================== FACEBOOK-STYLE THEME ===================== */
+:root {
+  --fb-blue: #1877f2;
+  --fb-blue-deep: #0866ff;
+  --fb-bg: #f0f2f5;
+  --fb-card: #ffffff;
+  --fb-text: #050505;
+  --fb-muted: #65676b;
+  --fb-border: #ccd0d5;
+  --fb-soft: #e4e6eb;
+  --fb-green: #31a24c;
+  --fb-in: #e4e6eb;
+  --fb-out: #0084ff;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--fb-bg);
+  color: var(--fb-text);
+}
+
+/* Topbar - Messenger blue header */
+.topbar {
+  height: 54px;
+  background: linear-gradient(180deg, #1f6ff2, #1877f2);
+  border-bottom: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .18);
+}
+.brand .logo {
+  background: #fff;
+  color: var(--fb-blue);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+}
+.brand-logo-img { height: 30px; border-radius: 50%; background: #fff; padding: 2px; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+.brand h1 { color: #fff; font-family: inherit; font-size: 17px; letter-spacing: -.2px; }
+.brand h1 span {
+  background: none; -webkit-text-fill-color: #dbe7ff; background-clip: unset;
+  font-weight: 400;
+}
+.nav-tabs { background: rgba(0, 0, 0, .18); padding: 3px; border-radius: 999px; }
+.nav-tabs button { color: #e7f0ff; font-size: 13px; padding: 7px 14px; }
+.nav-tabs button:hover { background: rgba(255, 255, 255, .15); color: #fff; }
+.nav-tabs button.active {
+  background: #fff; color: var(--fb-blue);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+}
+
+/* Sidebar */
+.sidebar {
+  background: var(--fb-card);
+  border-right: 1px solid #dadde1;
+}
+.sidebar-search input {
+  background-color: var(--fb-bg);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%2365676b' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
+  background-position: 12px center;
+}
+.sidebar-search input:focus {
+  border-color: var(--fb-blue);
+  background-color: #fff;
+  box-shadow: 0 0 0 1px var(--fb-blue);
+}
+.contact-item:hover { background: var(--fb-bg); }
+.contact-item.active {
+  background: #e7f3ff;
+  box-shadow: none;
+}
+.avatar { position: relative; box-shadow: 0 2px 5px rgba(0,0,0,.18); }
+.avatar.online::after {
+  content: "";
+  position: absolute;
+  bottom: -1px; right: -1px;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  background: var(--fb-green);
+  border: 2.5px solid #fff;
+}
+.ci-name { font-weight: 600; font-size: 14.5px; }
+.ci-time { font-size: 11.5px; }
+.ci-msg { font-size: 13px; }
+.unread { background: var(--fb-blue); color: #fff; box-shadow: none; padding: 2px 7px; }
+.platform-tag { color: var(--fb-blue); background: #e7f3ff; border: none; }
+
+/* Chat area */
+.chat-panel { background: var(--fb-card); }
+.chat-header {
+  background: var(--fb-card);
+  border-bottom: 1px solid #dadde1;
+  box-shadow: none;
+}
+.ch-name { font-weight: 700; }
+.ch-header-btn { color: var(--fb-blue); font-size: 22px; padding: 6px 12px; border-radius: 50%; }
+.ch-header-btn:hover { background: var(--fb-bg); color: var(--fb-blue); }
+.messages { background: var(--fb-card); }
+.day-divider span {
+  background: var(--fb-soft);
+  border: none;
+  color: var(--fb-muted);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.bubble { box-shadow: none; }
+.msg-row.in .bubble {
+  background: var(--fb-in);
+  color: var(--fb-text);
+  border-radius: 18px 18px 18px 4px;
+  box-shadow: 0 1px 1px rgba(0,0,0,.06);
+}
+.msg-row.out .bubble {
+  background: var(--fb-out);
+  color: #fff;
+  border-radius: 18px 18px 4px 18px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+.msg-row.in .bubble .time { color: #8a8d91; }
+.msg-row.out .bubble .time { color: rgba(255,255,255,.85); }
+.msg-row.out .bubble .ticks { color: rgba(255,255,255,.92); }
+
+/* Input bar */
+.input-bar { background: var(--fb-card); border-top: 1px solid #dadde1; }
+.input-bar textarea {
+  background: var(--fb-bg);
+  border: 1px solid transparent;
+  border-radius: 999px;
+}
+.input-bar textarea:focus { border-color: var(--fb-blue); background: #fff; box-shadow: 0 0 0 1px var(--fb-blue); }
+.send-btn {
+  background: var(--fb-blue);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(24,119,242,.4);
+}
+.send-btn:hover { background: var(--fb-blue-deep); transform: none; }
+
+/* Connector */
+.card {
+  background: var(--fb-card);
+  border: 1px solid #dadde1;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+.card:hover { border-color: #ccd0d5; box-shadow: 0 2px 6px rgba(0,0,0,.07); }
+.card-head { border-bottom: 1px solid #f0f2f5; }
+.card-title { font-family: inherit; font-size: 16px; }
+.step { background: #e7f3ff; border: none; color: var(--fb-blue); padding: 4px 10px; border-radius: 999px; letter-spacing: .05em; font-size: 11px; }
+input, textarea { background: var(--fb-bg); border: 1px solid transparent; border-radius: 8px; transition: border-color .15s, background .15s, box-shadow .15s; }
+input:focus, textarea:focus { border-color: var(--fb-blue); box-shadow: 0 0 0 1px var(--fb-blue); background: #fff; }
+.webhook-box, .cmd, .env-out { background: var(--fb-bg); border-color: #dddfe2; }
+.btn { background: var(--fb-blue); color: #fff; box-shadow: none; border-radius: 8px; }
+.btn:hover { background: var(--fb-blue-deep); box-shadow: none; transform: none; }
+.btn-ghost { background: var(--fb-card); color: var(--fb-text); border: 1px solid #ccd0d5; }
+.btn-ghost:hover { border-color: var(--fb-blue); box-shadow: none; }
+.copy-btn { color: var(--fb-blue); border-radius: 8px; }
+.copy-btn:hover { border-color: var(--fb-blue); background: #e7f3ff; box-shadow: none; transform: none; }
+.copy-btn.done { color: var(--fb-green); border-color: var(--fb-green); }
+.details summary { color: var(--fb-blue); }
+.details ol li::marker { color: var(--fb-blue); }
+.install-steps li::marker { color: var(--fb-blue); }
+.logo-lg { border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.status-dot { display: inline-block; }
+.status-online { background: var(--fb-green); box-shadow: none; }
+.status-pending { background: #f0a500; box-shadow: none; }
+.msg.ok { background: #e7f3ff; color: var(--fb-blue-deep); }
+.note code { color: var(--fb-blue); }
+
+/* AI view */
+.ai-panel .avatar { box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c9ccd1; border-radius: 999px; border: none; }
+::-webkit-scrollbar-thumb:hover { background: #b0b3b8; }
 </style>
 </head>
 <body>
@@ -494,7 +670,7 @@ input:focus, textarea:focus { border-color: rgba(212,175,55,.6); box-shadow: 0 0
             <button class="ch-header-btn" onclick="aiToggleSettings()">⚙</button>
           </div>
 
-          <div id="ai-settings" style="display:none;background:var(--header);border-bottom:1px solid var(--border);padding:12px 14px">
+          <div id="ai-settings" style="display:none;background:#f0f2f5;border-bottom:1px solid #dadde1;padding:12px 14px">
             <div class="form-row">
               <div><label>API Base URL</label><input id="ai-base" placeholder="https://api.openai.com/v1"></div>
               <div><label>Model</label><input id="ai-model" placeholder="gpt-4o-mini"></div>
@@ -956,7 +1132,7 @@ function renderContacts() {
   if (!filtered.length) { list.innerHTML = '<div style="padding:20px;color:var(--muted);font-size:13px;text-align:center">No chats found</div>'; return; }
   list.innerHTML = filtered.map(c => `
     <div class="contact-item ${d.activeId === c.id ? 'active' : ''}" onclick="openChat('${c.id}')">
-      <div class="avatar" style="background:${c.color}">${c.initials}</div>
+      <div class="avatar ${c.online ? 'online' : ''}" style="background:${c.color}">${c.initials}</div>
       <div class="ci-main">
         <div class="ci-top">
           <span class="ci-name">${esc(c.name)}<span class="platform-tag">${esc(c.platform)}</span></span>
@@ -1081,7 +1257,7 @@ function aiRender() {
     const d = "Today";
     const divider = (d !== lastDay) ? `<div class="day-divider"><span>${d}</span></div>` : "";
     lastDay = d;
-    return `${divider}<div class="msg-row ${isMe ? "out" : "in"}"><div class="bubble" style="${isMe ? "" : "background:#202a3a"}">${esc(msg.text)}</div></div>`;
+    return `${divider}<div class="msg-row ${isMe ? "out" : "in"}"><div class="bubble" style="${isMe ? "" : "background:#e4e6eb;color:#050505"}">${esc(msg.text)}</div></div>`;
   }).join("");
   aiScroll();
 }
