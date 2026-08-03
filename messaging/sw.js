@@ -1,8 +1,9 @@
-const CACHE = "colourdiam-msg-v2";
+const CACHE = "colourdiam-msg-v3";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
+  "./logo.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-512.png",
