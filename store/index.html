@@ -730,6 +730,41 @@ body.rail-on .main { margin-right: var(--rail-w); }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+.toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 6px 0; }
+.switch { position: relative; display: inline-block; width: 46px; height: 26px; flex: none; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch .slider { position: absolute; inset: 0; background: #d8d2c6; border-radius: 26px; cursor: pointer; transition: .2s; }
+.switch .slider::before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.switch input:checked + .slider { background: var(--gold); }
+.switch input:checked + .slider::before { transform: translateX(20px); }
+
+.rev-box { margin-top: 34px; }
+.rev { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.rev:last-child { border-bottom: none; }
+.rev-stars { color: var(--gold); letter-spacing: 2px; font-size: 14px; margin-bottom: 6px; }
+.rev-head { display: flex; gap: 10px; align-items: baseline; font-size: 14px; }
+.rev-head span { color: var(--muted); font-size: 12px; }
+.rev p { color: var(--ink); font-size: 14px; line-height: 1.6; margin-top: 6px; }
+.f-label { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink); margin: 12px 0 6px; }
+.f-in { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font: inherit; font-size: 14px; background: var(--ivory-2); color: var(--ink); }
+.f-in:focus { outline: 2px solid rgba(182,138,62,.35); border-color: var(--gold); }
+.rv-rate span { cursor: pointer; }
+
+.purch-th { display: inline-block; width: 44px; height: 44px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--ivory-2); }
+.purch-th img { width: 100%; height: 100%; object-fit: cover; }
+
+.lock-screen { position: fixed; inset: 0; z-index: 1000; background: linear-gradient(160deg, #16130e, #2b241a); display: flex; align-items: center; justify-content: center; padding: 24px; }
+.lock-screen[hidden] { display: none; }
+.lock-card { text-align: center; color: var(--ivory); max-width: 320px; width: 100%; }
+.lock-mark { font-size: 44px; margin-bottom: 10px; }
+.lock-card h2 { font-family: var(--serif); font-weight: 600; letter-spacing: .5px; margin-bottom: 8px; }
+.lock-hint { color: rgba(250,247,242,.65); font-size: 13.5px; margin-bottom: 26px; line-height: 1.5; }
+.lock-fab { width: 76px; height: 76px; border-radius: 50%; border: none; cursor: pointer; background: linear-gradient(145deg, var(--gold), var(--gold-deep)); display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 12px 30px rgba(182,138,62,.35); transition: transform .15s; }
+.lock-fab:hover { transform: scale(1.06); }
+.lock-fab.busy { opacity: .6; pointer-events: none; }
+.lock-actions { margin-top: 24px; }
+.lock-actions .btn { border-color: rgba(250,247,242,.25); color: var(--ivory); }
 </style>
 </head>
 <body>
@@ -776,25 +811,25 @@ body.rail-on .main { margin-right: var(--rail-w); }
 <nav class="bottomnav" aria-label="Bottom navigation">
   <button class="bn-item active" data-view="home" onclick="go('home')">
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg>
-    Home
+    <span data-i18n="nav_home">Home</span>
   </button>
   <button class="bn-item" data-view="explore" onclick="go('explore')">
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9l4-6Z"/><path d="M2 9h20"/><path d="M12 21 8 9l4-6 4 6-4 12"/></svg>
-    Products
+    <span data-i18n="nav_products">Products</span>
   </button>
   <button class="bn-item" data-view="messages" onclick="go('messages')">
     <span class="badge" id="bn-msg">1</span>
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 1 1 16.1-3.8z"/><path d="M8 11h8M8 15h4"/></svg>
-    Messages
+    <span data-i18n="nav_messages">Messages</span>
   </button>
   <button class="bn-item" data-view="favorites" onclick="go('favorites')">
     <span class="badge" id="bn-fav">0</span>
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-9.3-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.3 11C19 15.4 12 20 12 20Z"/></svg>
-    Wishlist
+    <span data-i18n="nav_wishlist">Wishlist</span>
   </button>
   <button class="bn-item" data-view="profile" onclick="go('profile')">
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
-    Profile
+    <span data-i18n="nav_profile">Profile</span>
   </button>
 </nav>
 
@@ -823,6 +858,20 @@ body.rail-on .main { margin-right: var(--rail-w); }
 
 <div class="toast" id="toast"></div>
 
+<div class="lock-screen" id="lock-screen" hidden>
+  <div class="lock-card">
+    <div class="lock-mark">💎</div>
+    <h2>Colour Diam</h2>
+    <p class="lock-hint" id="lock-hint">Confirm with your fingerprint or face to continue.</p>
+    <button class="lock-fab" id="lock-fab" onclick="tryUnlock()" aria-label="Unlock">
+      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.6" fill="#fff" stroke="none"/></svg>
+    </button>
+    <div class="lock-actions">
+      <button class="btn btn-outline btn-sm" onclick="skipLock()">Skip for this session</button>
+    </div>
+  </div>
+</div>
+
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => { navigator.serviceWorker.register("./sw.js").catch(() => {}); });
@@ -843,9 +892,13 @@ function loadState() {
       sort: d.sort || "featured",
       currency: d.currency || "USD",
       recent: Array.isArray(d.recent) ? d.recent : ["d2", "d3"],
-      orders: Array.isArray(d.orders) ? d.orders : []
+      orders: Array.isArray(d.orders) ? d.orders : [],
+      lang: d.lang || "en",
+      sec: d.sec || { touchid: false, cred: null },
+      comments: d.comments || {},
+      purchases: Array.isArray(d.purchases) ? d.purchases : []
     };
-  } catch (e) { return { fav: ["d1", "d7"], bag: [], filters: {}, sort: "featured", currency: "USD", recent: ["d2", "d3"], orders: [] }; }
+  } catch (e) { return { fav: ["d1", "d7"], bag: [], filters: {}, sort: "featured", currency: "USD", recent: ["d2", "d3"], orders: [], lang: "en", sec: { touchid: false, cred: null }, comments: {}, purchases: [] }; }
 }
 function persist() { localStorage.setItem(LS_KEY, JSON.stringify(S)); }
 const VIEW = { current: "home", param: null };
@@ -867,6 +920,7 @@ const IC = {
   admin: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v6c0 5 3.8 8.4 9 9 5.2-.6 9-4 9-9V7l-9-5Z"/><path d="m9 12 2 2 4-4"/></svg>',
   settings: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg>',
   newarr: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13h6L11 22l8.5-11h-6L13 2Z"/></svg>',
+  bag: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.1 13H4.9L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg>',
   bespoke: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3Z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5Z"/><circle cx="11" cy="11" r="2"/></svg>',
   chev: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 4l-4 8 4 8M10 12h8M14 8l4 4-4 4"/></svg>',
   collapse: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 4l4 8-4 8M14 12H6M10 8l-4 4 4 4"/></svg>',
@@ -874,35 +928,358 @@ const IC = {
 };
 
 /* ---------------- Navigation model ---------------- */
-const NAV_GROUPS = [
+/* ---------------- Internationalization ---------------- */
+const LANGS = [
+  { code: "en", label: "English" },
+  { code: "zh", label: "中文 · Chinese" },
+  { code: "th", label: "ไทย · Thai" }
+];
+const I18N = {
+  en: {
+    nav_home: "Home", nav_products: "Products", nav_messages: "Messages", nav_wishlist: "Wishlist", nav_profile: "Profile",
+    grp_discover: "Discover", grp_jewelry: "Jewelry", grp_account: "My Account",
+    nav_newarrivals: "New Arrivals", nav_rings: "Rings", nav_earrings: "Earrings", nav_necklaces: "Necklaces", nav_bracelets: "Bracelets",
+    nav_bespoke: "Bespoke Jewelry", nav_wishlist2: "Wishlist", nav_consultation: "Private Consultation", nav_orders: "Orders",
+    nav_purchases: "Purchases", nav_admin: "Admin", nav_settings: "Settings",
+    hero_kicker: "Natural fancy color diamonds · Since 1994",
+    hero_title: "Rare diamonds for <em>discerning</em> collectors",
+    hero_sub: "For over three decades, Colour Diam has sourced exceptional natural fancy color diamonds and crafted bespoke jewelry for collectors and connoisseurs worldwide.",
+    cta_consult: "Book a Private Consultation",
+    cta_explore: "Explore Rare Diamonds",
+    sec_featured: "Featured Diamonds", sec_newarr: "New Arrivals", sec_collections: "Collections",
+    sec_edu: "Diamond Education",
+    edu_title: "The 4 Cs of fancy color diamonds",
+    edu_text: "Fancy color diamonds are graded first on <strong>hue</strong>, <strong>tone</strong> and <strong>saturation</strong> rather than the colorless scale. The rarest colours — red, blue and vivid pink — command the highest value per carat of any gemstone on earth.",
+    explore_title: "Explore Diamonds",
+    explore_sub: "Browse our certified collection of natural fancy color diamonds and bespoke jewelry. Every stone is accompanied by full GIA documentation.",
+    fav_title: "Wishlist",
+    fav_sub: "Your saved diamonds and jewelry pieces.",
+    fav_empty_title: "No favorites yet",
+    fav_empty_sub: "Tap the heart on any piece to save it here.",
+    bag_title: "Shopping Bag",
+    bag_sub: "Your selection of certified diamonds and jewelry.",
+    bag_empty_title: "Your bag is empty",
+    bag_empty_sub: "Explore our certified collection and add a piece you love.",
+    bag_summary: "Order summary", bag_subtotal: "Subtotal", bag_shipping: "Concierge delivery", bag_free: "Complimentary", bag_total: "Total",
+    checkout_calc: "Calculated at checkout",
+    ck_contact: "Contact & shipping", ck_name: "Full name", ck_email: "Email", ck_country: "Country", ck_phone: "Phone",
+    ck_address: "Shipping address", ck_payment: "Payment", ck_card: "Card number", ck_expiry: "Expiry", ck_cvc: "CVC",
+    ck_noitems: "No items", ck_place: "Place Order", ck_secure: "Payments are processed securely. This is a design preview.",
+    cons_details: "Your details", cons_phone: "Phone / WhatsApp", cons_date: "Preferred date", cons_time: "Time",
+    cons_morning: "Morning (09:00–12:00)", cons_afternoon: "Afternoon (12:00–17:00)", cons_evening: "Evening (17:00–20:00)",
+    cons_method: "Method", cons_video: "Video call", cons_inp_lon: "In person · London", cons_inp_ny: "In person · New York",
+    cons_wa: "WhatsApp", cons_looking: "What are you looking for?", cons_ph_looking: "e.g. A vivid pink diamond above 2 carats for an engagement ring",
+    cons_btn: "Request Consultation", cons_sent: "Consultation request sent — we will confirm shortly",
+    cons_expect_title: "What to expect",
+    cons_expect_sub: "A private session guided entirely around you — viewing certified stones, understanding the 4 Cs of fancy colour, and exploring bespoke designs. No obligation.",
+    cons_talk_title: "Prefer to talk now?", cons_wa_us: "WhatsApp us", cons_email: "Email concierge@colourdiam.com",
+    profile_name: "Alexandra Laurent", profile_sub: "Private client · London, United Kingdom",
+    stat_cons: "Consultations",
+    contact_pref: "Contact preferences",
+    contact_pref_sub: "We treat your data with the utmost confidentiality. Your preferences can be updated anytime.",
+    set_app: "Application", set_install: "Install Colour Diam app", set_reset: "Reset local data",
+    install_toast: "Open in Chrome and choose \"Add to Home screen\"",
+    cur_usd: "USD — US Dollar", cur_gbp: "GBP — British Pound", cur_eur: "EUR — Euro",
+    saved_empty: "No saved searches yet. Use \"Save search\" in the filters panel.",
+    checkout_btn: "Proceed to Checkout", keep_shopping: "Keep shopping", checkout_title: "Checkout",
+    checkout_sub: "Secure checkout — our concierge team confirms every order personally.",
+    order_title: "Order History",
+    order_sub: "Your past and in-progress orders.",
+    order_no: "Order", order_items: "items", order_empty_title: "No orders yet", order_empty_sub: "Your orders will appear here.",
+    st_confirmed: "Confirmed", st_delivered: "Delivered", order_placed: "Order placed — a concierge will confirm",
+    purchase_title: "Purchases",
+    purchase_sub: "Diamonds and jewelry delivered to you.",
+    purchase_empty_title: "No purchases yet", purchase_empty_sub: "Delivered pieces will appear here.",
+    profile_title: "Profile", profile_sub: "Manage your account, preferences and security.",
+    stat_fav: "Wishlist", stat_orders: "Orders", stat_purchases: "Purchases", stat_member: "Member since",
+    qa_profile: "Wishlist", qa_orders: "Orders", qa_purchases: "Purchases", qa_book: "Book consultation", qa_messages: "Messages", qa_settings: "Settings", qa_lock: "Lock app", qa_title: "Quick actions",
+    consult_title: "Book a Private Consultation",
+    consult_sub: "Speak one-to-one with a Colour Diam specialist — in person, by video call, or on WhatsApp. Entirely confidential.",
+    settings_title: "Settings",
+    settings_sub: "Preferences, saved searches, security and application options.",
+    pref_title: "Preferences", pref_currency: "Currency", pref_language: "Language",
+    saved_searches: "Saved searches",
+    sec_title: "Security", sec_touchid: "Biometric unlock (Touch ID / Face ID)",
+    sec_touchid_sub: "Unlock Colour Diam with your fingerprint or face on this device.",
+    sec_on: "Enabled", sec_off: "Disabled", sec_lock_now: "Lock now", sec_unlock: "Unlock", sec_skip: "Skip for this session",
+    sec_touchid_hint: "Confirm with your fingerprint or face to continue.",
+    sec_unsupported: "Biometrics are not available on this device or browser.",
+    sec_touchid_failed: "Could not verify — please try again or skip for this session.",
+    sec_enabled_toast: "Biometric unlock enabled", sec_disabled_toast: "Biometric unlock disabled",
+    msgs_title: "Messages",
+    msg_search_ph: "Search chats", msg_filter_title: "Filter conversations", msg_show: "Show",
+    msg_empty: "No conversations found.", msg_you: "You: ", msg_online: "online", msg_away: "last seen recently",
+    wa_cert: "Send Certificate", wa_similar: "Send Similar Diamonds", wa_quote: "Send Quote", wa_book: "Book Consultation",
+    msg_ph: "Message {name}",
+    wa_video_toast: "Starting a private video call…", wa_call_toast: "Starting a secure call…",
+    wa_attach_toast: "Attach a GIA report, image or video", wa_emoji_toast: "Emoji picker coming soon",
+    collapse_menu: "Collapse menu",
+    add_bag: "Add to Bag", ask_info: "Request More Info", book_view: "Book a Viewing",
+    to_bag: "Added to bag", to_fav: "Saved to wishlist", to_unfav: "Removed from wishlist",
+    spec_stock: "Stock", spec_color: "Colour", spec_shape: "Shape", spec_carat: "Carat", spec_clarity: "Clarity", spec_cut: "Cut", spec_gia: "GIA Report",
+    reviews: "Reviews", review_write: "Write a review", review_name: "Your name", review_text: "Your review", review_rating: "Rating", review_submit: "Submit review", review_no: "No reviews yet — be the first.",
+    search_ph: "Search stock ID, colour, shape, carat, GIA…",
+    close: "Close", all: "All", unread: "Unread", pinned: "Pinned", view: "View",
+    home: "Home",
+    explore_filters: "Filters", sort_by: "Sort by", sort_featured: "Featured",
+    sort_asc: "Price: low → high", sort_desc: "Price: high → low", sort_carat: "Largest carat",
+    clear_all: "Clear all", clear_filters: "Clear filters", no_match_title: "No stones match",
+    no_match_sub: "Try widening your filters.", no_results: "No results", item: "item", items: "items",
+    quick_view: "Quick view", save_to_fav: "Save to favorites",
+    avail_now: "Available now", avail_res: "Available by private reservation",
+    video_hint: "Product video available on request", approx: "approx.",
+    spec_intensity: "Intensity", spec_carat_w: "Carat weight",
+    gia_title: "GIA Certification",
+    gia_desc: "Report no. <strong>{gia}</strong>. This stone is accompanied by its original laboratory report issued by the Gemological Institute of America, confirming colour, clarity, cut and carat weight.",
+    about_title: "About this piece", also_love: "You may also love",
+    save: "Save", saved: "Saved",
+    request_info: "Request more information",
+    request_info_toast: "A Colour Diam specialist will contact you shortly",
+    full_details: "Full details"
+  },
+  zh: {
+    nav_home: "首页", nav_products: "产品", nav_messages: "消息", nav_wishlist: "心愿单", nav_profile: "个人",
+    grp_discover: "发现", grp_jewelry: "珠宝", grp_account: "我的账户",
+    nav_newarrivals: "新品上架", nav_rings: "戒指", nav_earrings: "耳环", nav_necklaces: "项链", nav_bracelets: "手链",
+    nav_bespoke: "定制珠宝", nav_wishlist2: "心愿单", nav_consultation: "私人咨询", nav_orders: "订单",
+    nav_purchases: "购买记录", nav_admin: "管理后台", nav_settings: "设置",
+    hero_kicker: "天然彩色钻石 · 始于1994年",
+    hero_title: "为<em>慧眼</em>收藏家而生的稀有钻石",
+    hero_sub: "三十多年来，Colour Diam 为全球收藏家与鉴赏家甄选非凡的天然彩色钻石，并定制匠心珠宝。",
+    cta_consult: "预约私人咨询",
+    cta_explore: "探索稀有钻石",
+    sec_featured: "精选钻石", sec_newarr: "新品上架", sec_collections: "系列",
+    sec_edu: "钻石知识",
+    edu_title: "彩色钻石的 4C",
+    edu_text: "彩色钻石首先按<strong>色调</strong>、<strong>明度</strong>与<strong>饱和度</strong>分级，而非无色钻石的标尺。最稀有的颜色——红、蓝与艳彩粉——其每克拉价值居所有宝石之最。",
+    explore_title: "探索钻石",
+    explore_sub: "浏览我们经认证的天然彩色钻石与定制珠宝系列。每颗钻石均附有完整的 GIA 证书。",
+    fav_title: "心愿单",
+    fav_sub: "你保存的钻石与珠宝。",
+    fav_empty_title: "暂无收藏",
+    fav_empty_sub: "点击任意作品的爱心图标即可保存到此处。",
+    bag_title: "购物袋",
+    bag_sub: "你挑选的经认证钻石与珠宝。",
+    bag_empty_title: "购物袋是空的",
+    bag_empty_sub: "探索我们的认证系列，添加一件你心仪的作品。",
+    bag_summary: "订单摘要", bag_subtotal: "小计", bag_shipping: "礼宾配送", bag_free: "免费", bag_total: "合计",
+    checkout_calc: "结算时计算",
+    ck_contact: "联系与配送", ck_name: "姓名", ck_email: "电子邮箱", ck_country: "国家/地区", ck_phone: "电话",
+    ck_address: "配送地址", ck_payment: "付款", ck_card: "卡号", ck_expiry: "有效期", ck_cvc: "CVC",
+    ck_noitems: "无商品", ck_place: "提交订单", ck_secure: "付款通过安全渠道处理。此为设计预览。",
+    cons_details: "你的信息", cons_phone: "电话 / WhatsApp", cons_date: "首选日期", cons_time: "时间",
+    cons_morning: "上午（09:00–12:00）", cons_afternoon: "下午（12:00–17:00）", cons_evening: "晚间（17:00–20:00）",
+    cons_method: "方式", cons_video: "视频通话", cons_inp_lon: "亲临 · 伦敦", cons_inp_ny: "亲临 · 纽约",
+    cons_wa: "WhatsApp", cons_looking: "你在寻找什么？", cons_ph_looking: "例如：2克拉以上、适合订婚戒指的艳彩粉钻",
+    cons_btn: "请求咨询", cons_sent: "咨询请求已发送——我们将尽快与您确认",
+    cons_expect_title: "咨询内容",
+    cons_expect_sub: "完全围绕你的私人专属会谈——鉴赏认证钻石、了解彩色钻石的4C，并探索定制设计。无任何购买义务。",
+    cons_talk_title: "想现在聊聊？", cons_wa_us: "通过 WhatsApp 联系我们", cons_email: "邮件 concierge@colourdiam.com",
+    profile_name: "Alexandra Laurent", profile_sub: "私人客户 · 伦敦，英国",
+    stat_cons: "咨询",
+    contact_pref: "联系偏好",
+    contact_pref_sub: "我们以最高级别的保密性对待您的数据。您可随时更新您的偏好。",
+    set_app: "应用", set_install: "安装 Colour Diam 应用", set_reset: "重置本地数据",
+    install_toast: "请在 Chrome 中打开并选择「添加到主屏幕」",
+    cur_usd: "USD — 美元", cur_gbp: "GBP — 英镑", cur_eur: "EUR — 欧元",
+    saved_empty: "暂无保存的搜索。可在筛选面板中使用「保存搜索」。",
+    checkout_btn: "前往结算", keep_shopping: "继续选购", checkout_title: "结算",
+    checkout_sub: "安全结算——我们的礼宾团队会亲自确认每一笔订单。",
+    order_title: "订单历史",
+    order_sub: "你的历史订单与进行中的订单。",
+    order_no: "订单", order_items: "件", order_empty_title: "暂无订单", order_empty_sub: "你的订单将显示在这里。",
+    st_confirmed: "已确认", st_delivered: "已交付", order_placed: "订单已提交——礼宾将与您确认",
+    purchase_title: "购买记录",
+    purchase_sub: "已交付给你的钻石与珠宝。",
+    purchase_empty_title: "暂无购买记录", purchase_empty_sub: "已交付的作品将显示在这里。",
+    profile_title: "个人资料", profile_sub: "管理你的账户、偏好与安全设置。",
+    stat_fav: "心愿单", stat_orders: "订单", stat_purchases: "购买", stat_member: "加入时间",
+    qa_profile: "心愿单", qa_orders: "订单", qa_purchases: "购买记录", qa_book: "预约咨询", qa_messages: "消息", qa_settings: "设置", qa_lock: "锁定应用", qa_title: "快捷操作",
+    consult_title: "预约私人咨询",
+    consult_sub: "与 Colour Diam 专家一对一交流——可亲临门店、视频通话或通过 WhatsApp。全程保密。",
+    settings_title: "设置",
+    settings_sub: "偏好、保存的搜索、安全与应用选项。",
+    pref_title: "偏好设置", pref_currency: "货币", pref_language: "语言",
+    saved_searches: "保存的搜索",
+    sec_title: "安全", sec_touchid: "生物识别解锁（触控 ID / 面容 ID）",
+    sec_touchid_sub: "使用指纹或面容在此设备上解锁 Colour Diam。",
+    sec_on: "已启用", sec_off: "已关闭", sec_lock_now: "立即锁定", sec_unlock: "解锁", sec_skip: "本次跳过",
+    sec_touchid_hint: "请按指纹或面容以继续。",
+    sec_unsupported: "此设备或浏览器不支持生物识别。",
+    sec_touchid_failed: "无法验证——请重试或选择本次跳过。",
+    sec_enabled_toast: "已启用生物识别解锁", sec_disabled_toast: "已停用生物识别解锁",
+    msgs_title: "消息",
+    msg_search_ph: "搜索聊天", msg_filter_title: "筛选会话", msg_show: "显示",
+    msg_empty: "没有找到会话。", msg_you: "你：", msg_online: "在线", msg_away: "最近上线",
+    wa_cert: "发送证书", wa_similar: "发送相似钻石", wa_quote: "发送报价", wa_book: "预约咨询",
+    msg_ph: "给 {name} 发消息",
+    wa_video_toast: "正在发起私人视频通话…", wa_call_toast: "正在发起安全通话…",
+    wa_attach_toast: "附件 GIA 证书、图片或视频", wa_emoji_toast: "表情选择器即将上线",
+    collapse_menu: "收起菜单",
+    add_bag: "加入购物袋", ask_info: "咨询详情", book_view: "预约鉴赏",
+    to_bag: "已加入购物袋", to_fav: "已保存到心愿单", to_unfav: "已从心愿单移除",
+    spec_stock: "编号", spec_color: "颜色", spec_shape: "切形", spec_carat: "克拉", spec_clarity: "净度", spec_cut: "切工", spec_gia: "GIA 证书",
+    reviews: "评价", review_write: "撰写评价", review_name: "你的姓名", review_text: "你的评价", review_rating: "评分", review_submit: "提交评价", review_no: "暂无评价——来做第一位吧。",
+    search_ph: "搜索编号、颜色、切形、克拉、GIA…",
+    close: "关闭", all: "全部", unread: "未读", pinned: "置顶", view: "查看",
+    home: "首页",
+    explore_filters: "筛选", sort_by: "排序方式", sort_featured: "推荐",
+    sort_asc: "价格：从低到高", sort_desc: "价格：从高到低", sort_carat: "克拉数最大",
+    clear_all: "全部清除", clear_filters: "清除筛选", no_match_title: "没有匹配的钻石",
+    no_match_sub: "试试放宽筛选条件。", no_results: "无结果", item: "件", items: "件",
+    quick_view: "快速查看", save_to_fav: "保存到收藏",
+    avail_now: "现货可购", avail_res: "需私人预约",
+    video_hint: "可按需提供产品视频", approx: "约",
+    spec_intensity: "色彩强度", spec_carat_w: "克拉重量",
+    gia_title: "GIA 认证",
+    gia_desc: "证书编号 <strong>{gia}</strong>。此钻石附有美国宝石学院 (GIA) 出具的原始实验室报告，确认颜色、净度、切工与克拉重量。",
+    about_title: "关于这件作品", also_love: "你可能也喜欢",
+    save: "保存", saved: "已保存",
+    request_info: "咨询更多信息",
+    request_info_toast: "Colour Diam 专家将尽快与您联系",
+    full_details: "查看详情"
+  },
+  th: {
+    nav_home: "หน้าแรก", nav_products: "ผลิตภัณฑ์", nav_messages: "ข้อความ", nav_wishlist: "รายการโปรด", nav_profile: "โปรไฟล์",
+    grp_discover: "สำรวจ", grp_jewelry: "จิวเวลรี่", grp_account: "บัญชีของฉัน",
+    nav_newarrivals: "สินค้าใหม่", nav_rings: "แหวน", nav_earrings: "ต่างหู", nav_necklaces: "สร้อยคอ", nav_bracelets: "กำไล",
+    nav_bespoke: "จิวเวลรี่สั่งทำ", nav_wishlist2: "รายการโปรด", nav_consultation: "ปรึกษาส่วนตัว", nav_orders: "คำสั่งซื้อ",
+    nav_purchases: "ประวัติการซื้อ", nav_admin: "ผู้ดูแล", nav_settings: "ตั้งค่า",
+    hero_kicker: "เพชรสีธรรมชาติ · ตั้งแต่ปี 1994",
+    hero_title: "เพชรหายากสำหรับ<em>นักสะสม</em>ผู้มีวิจารณญาณ",
+    hero_sub: "กว่า 3 ทศวรรษที่ Colour Diam คัดสรรเพชรสีธรรมชาติชั้นเลิศและสร้างสรรค์จิวเวลรี่สั่งทำเพื่อนักสะสมทั่วโลก",
+    cta_consult: "จองปรึกษาส่วนตัว",
+    cta_explore: "สำรวจเพชรหายาก",
+    sec_featured: "เพชรแนะนำ", sec_newarr: "สินค้าใหม่", sec_collections: "คอลเลกชัน",
+    sec_edu: "ความรู้เรื่องเพชร",
+    edu_title: "หลัก 4C ของเพชรสีธรรมชาติ",
+    edu_text: "เพชรสีธรรมชาติจัดเกรดจาก<strong>เฉดสี</strong> <strong>ความเข้ม</strong> และ<strong>ความอิ่มตัวของสี</strong>เป็นหลัก แทนสเกลเพชรไร้สี สีที่หายากที่สุด — แดง น้ำเงิน และชมพู vivid — มีมูลค่าต่อกะรัตสูงที่สุดในบรรดาอัญมณีทั้งปวง",
+    explore_title: "สำรวจเพชร",
+    explore_sub: "ชมคอลเลกชันเพชรสีธรรมชาติและจิวเวลรี่สั่งทำที่ผ่านการรับรอง ทุกเม็ดมาพร้อมเอกสาร GIA ครบถ้วน",
+    fav_title: "รายการโปรด",
+    fav_sub: "เพชรและจิวเวลรี่ที่คุณบันทึกไว้",
+    fav_empty_title: "ยังไม่มีรายการโปรด",
+    fav_empty_sub: "กดไอคอนหัวใจบนชิ้นงานใดก็ได้เพื่อบันทึกไว้ที่นี่",
+    bag_title: "ตะกร้าสินค้า",
+    bag_sub: "เพชรและจิวเวลรี่ที่ผ่านการรับรองที่คุณเลือก",
+    bag_empty_title: "ตะกร้าว่างเปล่า",
+    bag_empty_sub: "สำรวจคอลเลกชันของเราและเพิ่มชิ้นงานที่คุณชื่นชอบ",
+    bag_summary: "สรุปคำสั่งซื้อ", bag_subtotal: "ยอดรวม", bag_shipping: "จัดส่งโดยคอนเซียร์จ", bag_free: "ฟรี", bag_total: "รวมทั้งสิ้น",
+    checkout_calc: "คำนวณเมื่อชำระเงิน",
+    ck_contact: "ข้อมูลติดต่อและการจัดส่ง", ck_name: "ชื่อเต็ม", ck_email: "อีเมล", ck_country: "ประเทศ", ck_phone: "โทรศัพท์",
+    ck_address: "ที่อยู่จัดส่ง", ck_payment: "การชำระเงิน", ck_card: "หมายเลขบัตร", ck_expiry: "วันหมดอายุ", ck_cvc: "CVC",
+    ck_noitems: "ไม่มีสินค้า", ck_place: "สั่งซื้อ", ck_secure: "การชำระเงินดำเนินการอย่างปลอดภัย นี่คือตัวอย่างการออกแบบ",
+    cons_details: "ข้อมูลของคุณ", cons_phone: "โทรศัพท์ / WhatsApp", cons_date: "วันที่ต้องการ", cons_time: "เวลา",
+    cons_morning: "เช้า (09:00–12:00)", cons_afternoon: "บ่าย (12:00–17:00)", cons_evening: "เย็น (17:00–20:00)",
+    cons_method: "ช่องทาง", cons_video: "วิดีโอคอล", cons_inp_lon: "พบหน้ากัน · ลอนดอน", cons_inp_ny: "พบหน้ากัน · นิวยอร์ก",
+    cons_wa: "WhatsApp", cons_looking: "คุณกำลังมองหาอะไร?", cons_ph_looking: "เช่น เพชรสีชมพู vivid ตั้งแต่ 2 กะรัตขึ้นไปสำหรับแหวนหมั้น",
+    cons_btn: "ขอคำปรึกษา", cons_sent: "ส่งคำขอปรึกษาแล้ว — เราจะยืนยันให้เร็วที่สุด",
+    cons_expect_title: "สิ่งที่คุณจะได้รับ",
+    cons_expect_sub: "เซสชันส่วนตัวที่จัดขึ้นเพื่อคุณโดยเฉพาะ — ชมเพชรที่ผ่านการรับรอง เรียนรู้เรื่อง 4C ของเพชรสี และสำรวจงานสั่งทำ โดยไม่มีข้อผูกมัด",
+    cons_talk_title: "อยากคุยตอนนี้?", cons_wa_us: "ติดต่อผ่าน WhatsApp", cons_email: "อีเมล concierge@colourdiam.com",
+    profile_name: "Alexandra Laurent", profile_sub: "ลูกค้าส่วนตัว · ลอนดอน สหราชอาณาจักร",
+    stat_cons: "การปรึกษา",
+    contact_pref: "ช่องทางติดต่อที่ต้องการ",
+    contact_pref_sub: "เราปฏิบัติต่อข้อมูลของคุณอย่างเป็นความลับสูงสุด คุณสามารถอัปเดตการตั้งค่าได้ทุกเมื่อ",
+    set_app: "แอปพลิเคชัน", set_install: "ติดตั้งแอป Colour Diam", set_reset: "รีเซ็ตข้อมูลในเครื่อง",
+    install_toast: "เปิดใน Chrome แล้วเลือก \"เพิ่มไปยังหน้าจอหลัก\"",
+    cur_usd: "USD — ดอลลาร์สหรัฐ", cur_gbp: "GBP — ปอนด์อังกฤษ", cur_eur: "EUR — ยูโร",
+    saved_empty: "ยังไม่มีการค้นหาที่บันทึกไว้ ใช้ \"บันทึกการค้นหา\" ในแผงตัวกรอง",
+    checkout_btn: "ไปยังชำระเงิน", keep_shopping: "เลือกซื้อต่อ", checkout_title: "ชำระเงิน",
+    checkout_sub: "ชำระเงินอย่างปลอดภัย — ทีมคอนเซียร์จยืนยันทุกคำสั่งซื้อเป็นการส่วนตัว",
+    order_title: "ประวัติคำสั่งซื้อ",
+    order_sub: "คำสั่งซื้อที่ผ่านมาและที่กำลังดำเนินการ",
+    order_no: "คำสั่งซื้อ", order_items: "ชิ้น", order_empty_title: "ยังไม่มีคำสั่งซื้อ", order_empty_sub: "คำสั่งซื้อของคุณจะปรากฏที่นี่",
+    st_confirmed: "ยืนยันแล้ว", st_delivered: "จัดส่งแล้ว", order_placed: "สั่งซื้อสำเร็จ — คอนเซียร์จจะยืนยันกับคุณ",
+    purchase_title: "ประวัติการซื้อ",
+    purchase_sub: "เพชรและจิวเวลรี่ที่จัดส่งถึงคุณแล้ว",
+    purchase_empty_title: "ยังไม่มีการซื้อ", purchase_empty_sub: "ชิ้นงานที่จัดส่งแล้วจะปรากฏที่นี่",
+    profile_title: "โปรไฟล์", profile_sub: "จัดการบัญชี การตั้งค่า และความปลอดภัยของคุณ",
+    stat_fav: "รายการโปรด", stat_orders: "คำสั่งซื้อ", stat_purchases: "การซื้อ", stat_member: "สมาชิกตั้งแต่",
+    qa_profile: "รายการโปรด", qa_orders: "คำสั่งซื้อ", qa_purchases: "ประวัติการซื้อ", qa_book: "จองปรึกษา", qa_messages: "ข้อความ", qa_settings: "ตั้งค่า", qa_lock: "ล็อกแอป", qa_title: "การดำเนินการด่วน",
+    consult_title: "จองปรึกษาส่วนตัว",
+    consult_sub: "พูดคุยแบบตัวต่อตัวกับผู้เชี่ยวชาญ Colour Diam — ด้วยตนเอง ทางวิดีโอ หรือ WhatsApp เป็นความลับอย่างสมบูรณ์",
+    settings_title: "ตั้งค่า",
+    settings_sub: "การตั้งค่า การค้นหาที่บันทึกไว้ ความปลอดภัย และตัวเลือกแอป",
+    pref_title: "การตั้งค่า", pref_currency: "สกุลเงิน", pref_language: "ภาษา",
+    saved_searches: "การค้นหาที่บันทึกไว้",
+    sec_title: "ความปลอดภัย", sec_touchid: "ปลดล็อกด้วยไบโอเมตริก (Touch ID / Face ID)",
+    sec_touchid_sub: "ปลดล็อก Colour Diam ด้วยลายนิ้วมือหรือใบหน้าบนอุปกรณ์นี้",
+    sec_on: "เปิดใช้", sec_off: "ปิด", sec_lock_now: "ล็อกตอนนี้", sec_unlock: "ปลดล็อก", sec_skip: "ข้ามในครั้งนี้",
+    sec_touchid_hint: "ยืนยันด้วยลายนิ้วมือหรือใบหน้าเพื่อดำเนินการต่อ",
+    sec_unsupported: "อุปกรณ์หรือเบราว์เซอร์นี้ไม่รองรับไบโอเมตริก",
+    sec_touchid_failed: "ไม่สามารถยืนยันได้ — โปรดลองอีกครั้งหรือข้ามในครั้งนี้",
+    sec_enabled_toast: "เปิดใช้การปลดล็อกด้วยไบโอเมตริกแล้ว", sec_disabled_toast: "ปิดการปลดล็อกด้วยไบโอเมตริกแล้ว",
+    msgs_title: "ข้อความ",
+    msg_search_ph: "ค้นหาแชท", msg_filter_title: "กรองบทสนทนา", msg_show: "แสดง",
+    msg_empty: "ไม่พบบทสนทนา", msg_you: "คุณ: ", msg_online: "ออนไลน์", msg_away: "ออนไลน์ล่าสุด",
+    wa_cert: "ส่งใบรับรอง", wa_similar: "ส่งเพชรที่คล้ายกัน", wa_quote: "ส่งใบเสนอราคา", wa_book: "จองปรึกษา",
+    msg_ph: "ส่งข้อความถึง {name}",
+    wa_video_toast: "กำลังเริ่มวิดีโอคอลส่วนตัว…", wa_call_toast: "กำลังเริ่มสายที่ปลอดภัย…",
+    wa_attach_toast: "แนบใบรับรอง GIA รูปภาพหรือวิดีโอ", wa_emoji_toast: "อีโมจิเร็วๆ นี้",
+    collapse_menu: "ย่อเมนู",
+    add_bag: "เพิ่มลงตะกร้า", ask_info: "สอบถามข้อมูล", book_view: "จองชมสินค้า",
+    to_bag: "เพิ่มลงตะกร้าแล้ว", to_fav: "บันทึกไปรายการโปรดแล้ว", to_unfav: "นำออกจากรายการโปรดแล้ว",
+    spec_stock: "เลขสินค้า", spec_color: "สี", spec_shape: "รูปทรง", spec_carat: "กะรัต", spec_clarity: "ความสะอาด", spec_cut: "การเจียระไน", spec_gia: "ใบรับรอง GIA",
+    reviews: "รีวิว", review_write: "เขียนรีวิว", review_name: "ชื่อของคุณ", review_text: "รีวิวของคุณ", review_rating: "คะแนน", review_submit: "ส่งรีวิว", review_no: "ยังไม่มีรีวิว — เป็นคนแรกเลย",
+    search_ph: "ค้นหาเลขสินค้า สี รูปทรง กะรัต GIA…",
+    close: "ปิด", all: "ทั้งหมด", unread: "ยังไม่อ่าน", pinned: "ปักหมุด", view: "ดู",
+    home: "หน้าแรก",
+    explore_filters: "ตัวกรอง", sort_by: "จัดเรียงโดย", sort_featured: "แนะนำ",
+    sort_asc: "ราคา: ต่ำ → สูง", sort_desc: "ราคา: สูง → ต่ำ", sort_carat: "กะรัตใหญ่สุด",
+    clear_all: "ล้างทั้งหมด", clear_filters: "ล้างตัวกรอง", no_match_title: "ไม่มีเพชรที่ตรงเงื่อนไข",
+    no_match_sub: "ลองขยายเงื่อนไขการกรอง", no_results: "ไม่พบผลลัพธ์", item: "ชิ้น", items: "ชิ้น",
+    quick_view: "ดูตัวอย่าง", save_to_fav: "บันทึกรายการโปรด",
+    avail_now: "มีสินค้าพร้อมส่ง", avail_res: "จองผ่านการติดต่อส่วนตัว",
+    video_hint: "มีวิดีโอสินค้าตามคำขอ", approx: "ประมาณ",
+    spec_intensity: "ความเข้มของสี", spec_carat_w: "น้ำหนักกะรัต",
+    gia_title: "ใบรับรอง GIA",
+    gia_desc: "เลขที่ใบรับรอง <strong>{gia}</strong> เพชรเม็ดนี้มาพร้อมรายงานห้องปฏิบัติการต้นฉบับจากสถาบันอัญมณีวิทยาแห่งอเมริกา (GIA) ยืนยันสี ความสะอาด การเจียระไน และน้ำหนักกะรัต",
+    about_title: "เกี่ยวกับชิ้นงานนี้", also_love: "คุณอาจชอบเช่นกัน",
+    save: "บันทึก", saved: "บันทึกแล้ว",
+    request_info: "ขอข้อมูลเพิ่มเติม",
+    request_info_toast: "ผู้เชี่ยวชาญ Colour Diam จะติดต่อคุณเร็วๆ นี้",
+    full_details: "ดูรายละเอียด"
+  }
+};
+function t(k) { const l = I18N[S.lang] || I18N.en; return l[k] != null ? l[k] : (I18N.en[k] != null ? I18N.en[k] : k); }
+function setLang(code) { S.lang = code; persist(); applyI18n(); renderSidebar(); renderDrawer(); updateBadges(); if (document.getElementById("main").innerHTML) renderCurrent(); }
+function applyI18n() {
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.getAttribute("data-i18n")); });
+  const si = document.getElementById("search-input");
+  if (si) si.placeholder = t("search_ph");
+}
+
+NAV_GROUPS = [
   {
-    title: "Discover",
+    title: "grp_discover",
     items: [
-      { v: "home", label: "Home", icon: IC.home },
-      { v: "explore", label: "Products", icon: IC.explore },
-      { v: "newarrivals", label: "New Arrivals", icon: IC.newarr }
+      { v: "home", label: "nav_home", icon: IC.home },
+      { v: "explore", label: "nav_products", icon: IC.explore },
+      { v: "newarrivals", label: "nav_newarrivals", icon: IC.newarr }
     ]
   },
   {
-    title: "Jewelry",
+    title: "grp_jewelry",
     items: [
-      { v: "cat", p: "rings", label: "Rings", icon: IC.ring },
-      { v: "cat", p: "earrings", label: "Earrings", icon: IC.earring },
-      { v: "cat", p: "necklaces", label: "Necklaces", icon: IC.necklace },
-      { v: "cat", p: "bracelets", label: "Bracelets", icon: IC.bracelet },
-      { v: "bespoke", label: "Bespoke Jewelry", icon: IC.bespoke }
+      { v: "cat", p: "rings", label: "nav_rings", icon: IC.ring },
+      { v: "cat", p: "earrings", label: "nav_earrings", icon: IC.earring },
+      { v: "cat", p: "necklaces", label: "nav_necklaces", icon: IC.necklace },
+      { v: "cat", p: "bracelets", label: "nav_bracelets", icon: IC.bracelet },
+      { v: "bespoke", label: "nav_bespoke", icon: IC.bespoke }
     ]
   },
   {
-    title: "My Account",
+    title: "grp_account",
     items: [
-      { v: "favorites", label: "Wishlist", icon: IC.fav },
-      { v: "messages", label: "Messages", icon: IC.msg },
-      { v: "consultation", label: "Private Consultation", icon: IC.consult },
-      { v: "orders", label: "Orders", icon: IC.orders },
-      { v: "profile", label: "Profile", icon: IC.profile },
-      { v: "admin", label: "Admin", icon: IC.admin },
-      { v: "settings", label: "Settings", icon: IC.settings }
+      { v: "favorites", label: "nav_wishlist2", icon: IC.fav },
+      { v: "messages", label: "nav_messages", icon: IC.msg },
+      { v: "consultation", label: "nav_consultation", icon: IC.consult },
+      { v: "orders", label: "nav_orders", icon: IC.orders },
+      { v: "purchases", label: "nav_purchases", icon: IC.bag },
+      { v: "profile", label: "nav_profile", icon: IC.profile },
+      { v: "admin", label: "nav_admin", icon: IC.admin },
+      { v: "settings", label: "nav_settings", icon: IC.settings }
     ]
   }
 ];
@@ -917,15 +1294,15 @@ function isActive(v, p) {
 function renderSidebar() {
   document.getElementById("side-inner").innerHTML = NAV_GROUPS.map(g => `
     <div class="side-group">
-      <div class="side-group-title">${g.title}</div>
+      <div class="side-group-title">${t(g.title)}</div>
       ${g.items.map(it => `
         <button class="side-item ${isActive(it.v, it.p) ? 'active' : ''}" onclick="nav('${it.v}','${it.p || ''}')">
-          ${it.icon}<span>${it.label}</span>
+          ${it.icon}<span>${t(it.label)}</span>
         </button>`).join("")}
     </div>`).join("") + `
     <div class="side-collapse">
       <button class="collapse-btn" onclick="toggleNav()" aria-label="Collapse menu">
-        <span id="collapse-ico">${IC.collapse}</span><span class="lbl">Collapse menu</span>
+        <span id="collapse-ico">${IC.collapse}</span><span class="lbl">${t("collapse_menu")}</span>
       </button>
     </div>`;
 }
@@ -933,9 +1310,9 @@ function renderSidebar() {
 function renderDrawer() {
   document.getElementById("drawer-body").innerHTML = NAV_GROUPS.map(g => `
     <div class="d-group">
-      <div class="d-title">${g.title}</div>
+      <div class="d-title">${t(g.title)}</div>
       ${g.items.map(it => `
-        <button class="d-item ${isActive(it.v, it.p) ? 'active' : ''}" onclick="closeDrawer(); nav('${it.v}','${it.p || ''}')">${it.icon}<span>${it.label}</span></button>`).join("")}
+        <button class="d-item ${isActive(it.v, it.p) ? 'active' : ''}" onclick="closeDrawer(); nav('${it.v}','${it.p || ''}')">${it.icon}<span>${t(it.label)}</span></button>`).join("")}
     </div>`).join("");
 }
 
@@ -1026,8 +1403,8 @@ function updateBadges() {
 function isFav(id) { return S.fav.includes(id); }
 function toggleFav(id) {
   const i = S.fav.indexOf(id);
-  if (i > -1) { S.fav.splice(i, 1); toast("Removed from favorites"); }
-  else { S.fav.push(id); toast("Saved to favorites"); }
+  if (i > -1) { S.fav.splice(i, 1); toast(t("to_unfav")); }
+  else { S.fav.push(id); toast(t("to_fav")); }
   persist(); updateBadges();
   renderRail();
   const cv = VIEW.current;
@@ -1044,7 +1421,7 @@ function addToBag(id) {
   if (i > -1) S.bag[i].qty++;
   else S.bag.push({ id, qty: 1 });
   persist(); updateBadges(); renderRail();
-  toast("Added to bag");
+  toast(t("to_bag"));
 }
 function setBagQty(id, qty) {
   const i = S.bag.findIndex(b => b.id === id);
@@ -1074,9 +1451,9 @@ function go(v, param) {
     home: renderHome, explore: renderExplore, newarrivals: renderNewArrivals, product: renderProduct,
     favorites: renderFavorites, messages: renderMessages, profile: renderProfile, bag: renderBag,
     checkout: renderCheckout, consultation: renderConsultation, orders: renderOrders,
-    admin: renderAdmin, settings: renderSettings, search: renderSearch
+    purchases: renderPurchases,     admin: renderAdmin, settings: renderSettings, search: renderSearch
   };
-  (views[v] || renderHome)();
+  (views[v] || renderHome)(param);
   updateRail();
   renderRail();
   updateBadges();
@@ -1096,14 +1473,14 @@ function card(p, opts) {
     <div class="img-wrap" onclick="go('product','${p.id}')">
       <img src="${productArt(p)}" alt="${esc(p.name)}" loading="lazy">
       ${p.tag ? `<span class="tag">${esc(p.tag)}</span>` : ""}
-      <button class="fave ${isFav(p.id) ? 'on' : ''}" data-id="${p.id}" aria-label="Save to favorites" onclick="event.stopPropagation(); toggleFav('${p.id}')">
+      <button class="fave ${isFav(p.id) ? 'on' : ''}" data-id="${p.id}" aria-label="${t("save_to_fav")}" onclick="event.stopPropagation(); toggleFav('${p.id}')">
         <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-9.3-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.3 11C19 15.4 12 20 12 20Z"/></svg>
       </button>
-      <button class="qv" onclick="event.stopPropagation(); quickView('${p.id}')">Quick view</button>
+      <button class="qv" onclick="event.stopPropagation(); quickView('${p.id}')">${t("quick_view")}</button>
     </div>
     <div class="body">
       <div class="nm">${esc(p.name)}</div>
-      <div class="stk">Stock ${esc(p.stock)}</div>
+      <div class="stk">${t("spec_stock")} ${esc(p.stock)}</div>
       <div class="specs"><span>${esc(p.color)}</span><span>${esc(p.intensity || p.metal)}</span><span>${esc(spec)}</span></div>
       <div class="row">
         <span class="price">${fmt(p.price)}</span>
@@ -1127,43 +1504,43 @@ function renderHome() {
   <div class="page">
     <section class="hero">
       <div>
-        <div class="kicker">Natural fancy color diamonds · Since 1994</div>
-        <h1>Rare diamonds for <em>discerning</em> collectors</h1>
-        <p>For over three decades, Colour Diam has sourced exceptional natural fancy color diamonds and crafted bespoke jewelry for collectors and connoisseurs worldwide.</p>
+        <div class="kicker">${t("hero_kicker")}</div>
+        <h1>${t("hero_title")}</h1>
+        <p>${t("hero_sub")}</p>
         <div class="cta-row">
-          <button class="btn btn-primary" onclick="go('consultation')">Book a Private Consultation</button>
-          <button class="btn btn-outline" onclick="go('explore')">Explore Rare Diamonds</button>
+          <button class="btn btn-primary" onclick="go('consultation')">${t("cta_consult")}</button>
+          <button class="btn btn-outline" onclick="go('explore')">${t("cta_explore")}</button>
         </div>
       </div>
       <div class="hero-art"><img src="${heroArt()}" alt="Fancy pink diamond"></div>
     </section>
 
     <section class="section">
-      <div class="sec-head"><h2>Featured Diamonds</h2><span class="sub">A curated selection of investment-grade stones</span><button class="sec-link" onclick="go('explore')">View all →</button></div>
+      <div class="sec-head"><h2>${t("sec_featured")}</h2><span class="sub">A curated selection of investment-grade stones</span><button class="sec-link" onclick="go('explore')">${t("view")} →</button></div>
       <div class="grid g2">${featured.map(card).join("")}</div>
     </section>
 
     <section class="section">
-      <div class="sec-head"><h2>Collections</h2><span class="sub">Explore by jewelry category</span></div>
+      <div class="sec-head"><h2>${t("sec_collections")}</h2><span class="sub">Explore by jewelry category</span></div>
       <div class="collections">
         ${colls.map(c => `
           <button class="collection-card" onclick="nav('cat','${c.cat}')">
             <span class="bg" style="background:linear-gradient(150deg, ${c.bg1}, ${c.bg2})">${c.icon.replace('20','64')}</span>
-            <span class="cap"><h3>${c.name}</h3><span>Shop the collection</span></span>
+            <span class="cap"><h3>${t("nav_" + c.cat)}</h3><span>Shop the collection</span></span>
           </button>`).join("")}
       </div>
     </section>
 
     <section class="section">
-      <div class="sec-head"><h2>New Arrivals</h2><span class="sub">Recently certified and crafted</span><button class="sec-link" onclick="go('newarrivals')">View all →</button></div>
+      <div class="sec-head"><h2>${t("sec_newarr")}</h2><span class="sub">Recently certified and crafted</span><button class="sec-link" onclick="go('newarrivals')">${t("view")} →</button></div>
       <div class="grid g2">${newArr.map(card).join("")}</div>
     </section>
 
     <section class="section">
-      <div class="sec-head"><h2>Diamond Education</h2><span class="sub">Understanding natural fancy color</span></div>
+      <div class="sec-head"><h2>${t("sec_edu")}</h2><span class="sub">Understanding natural fancy color</span></div>
       <div class="edu-card">
-        <h3>The 4 Cs of fancy color diamonds</h3>
-        <p>Fancy color diamonds are graded first on <strong>hue</strong>, <strong>tone</strong> and <strong>saturation</strong> rather than the colorless scale. The rarest colours — red, blue and vivid pink — command the highest value per carat of any gemstone on earth.</p>
+        <h3>${t("edu_title")}</h3>
+        <p>${t("edu_text")}</p>
         <div class="pill-row"><span class="pill">Hue</span><span class="pill">Tone</span><span class="pill">Saturation</span><span class="pill">GIA Certification</span><span class="pill">Investment</span></div>
       </div>
     </section>
@@ -1297,32 +1674,32 @@ function renderExplore() {
   const m = document.getElementById("main");
   const list = applyFilters();
   const chips = activeChips();
-  const title = S.filters.cat ? (CATS.find(c => c.v === S.filters.cat)?.label || "Explore") : "Explore Diamonds";
+  const title = S.filters.cat ? (CATS.find(c => c.v === S.filters.cat)?.label || "Explore") : t("explore_title");
   m.innerHTML = skeleton();
   setTimeout(() => {
     m.innerHTML = `
     <div class="page">
-      <div class="bread"><a href="#" onclick="go('home');return false">Home</a> &nbsp;→&nbsp; ${esc(title)}</div>
+      <div class="bread"><a href="#" onclick="go('home');return false">${t("home")}</a> &nbsp;→&nbsp; ${esc(title)}</div>
       <div class="page-head">
         <h1>${esc(title)}</h1>
-        <p>Browse our certified collection of natural fancy color diamonds and bespoke jewelry. Every stone is accompanied by full GIA documentation.</p>
+        <p>${t("explore_sub")}</p>
       </div>
       <div class="fbar">
         <button class="btn btn-outline btn-sm" onclick="openSheet(filterPanel())">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg> Filters
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg> ${t("explore_filters")}
         </button>
-        <span style="color:var(--muted);font-size:13px">${list.length} ${list.length === 1 ? "item" : "items"}</span>
+        <span style="color:var(--muted);font-size:13px">${list.length} ${list.length === 1 ? t("item") : t("items")}</span>
         <span class="spacer"></span>
-        <select class="sort-select" onchange="setSort(this.value)" aria-label="Sort by">
-          <option value="featured" ${S.sort === "featured" ? "selected" : ""}>Featured</option>
-          <option value="price-asc" ${S.sort === "price-asc" ? "selected" : ""}>Price: low → high</option>
-          <option value="price-desc" ${S.sort === "price-desc" ? "selected" : ""}>Price: high → low</option>
-          <option value="carat" ${S.sort === "carat" ? "selected" : ""}>Largest carat</option>
+        <select class="sort-select" onchange="setSort(this.value)" aria-label="${t("sort_by")}">
+          <option value="featured" ${S.sort === "featured" ? "selected" : ""}>${t("sort_featured")}</option>
+          <option value="price-asc" ${S.sort === "price-asc" ? "selected" : ""}>${t("sort_asc")}</option>
+          <option value="price-desc" ${S.sort === "price-desc" ? "selected" : ""}>${t("sort_desc")}</option>
+          <option value="carat" ${S.sort === "carat" ? "selected" : ""}>${t("sort_carat")}</option>
         </select>
       </div>
-      ${chips.length ? `<div class="fbar"><span class="chip-x">${chips.map(c => `${c.label} <button onclick="removeChip({k:'${c.k}',val:'${c.val || ""}'})">✕</button>`).join(" ")}</span><button class="sec-link" onclick="clearFilters()">Clear all</button></div>` : ""}
+      ${chips.length ? `<div class="fbar"><span class="chip-x">${chips.map(c => `${c.label} <button onclick="removeChip({k:'${c.k}',val:'${c.val || ""}'})">✕</button>`).join(" ")}</span><button class="sec-link" onclick="clearFilters()">${t("clear_all")}</button></div>` : ""}
       ${list.length ? `<div class="grid g2">${list.map(card).join("")}</div>` : `
-        <div class="empty"><div class="big">💎</div><h3>No stones match</h3><p>Try widening your filters.</p><button class="btn btn-outline" onclick="clearFilters()">Clear filters</button></div>`}
+        <div class="empty"><div class="big">💎</div><h3>${t("no_match_title")}</h3><p>${t("no_match_sub")}</p><button class="btn btn-outline" onclick="clearFilters()">${t("clear_filters")}</button></div>`}
     </div>`;
   }, 350);
 }
@@ -1339,7 +1716,7 @@ function onSearch(q) {
   q = q.trim();
   if (!q) { box.style.display = "none"; return; }
   const res = PRODUCTS.filter(x => (x.name + " " + x.stock + " " + x.color + " " + x.shape + " " + x.carat + " " + (x.gia || "")).toLowerCase().includes(q.toLowerCase())).slice(0, 6);
-  if (!res.length) { box.style.display = "block"; box.innerHTML = '<div style="padding:14px;color:var(--muted);font-size:13px">No results</div>'; return; }
+  if (!res.length) { box.style.display = "block"; box.innerHTML = '<div style="padding:14px;color:var(--muted);font-size:13px">' + t("no_results") + '</div>'; return; }
   box.innerHTML = res.map(x => `
     <a href="#" onclick="event.preventDefault(); document.getElementById('search-input').value='${esc(x.name)}'; document.getElementById('search-results').style.display='none'; go('product','${x.id}')">
       <span class="th"><img src="${productArt(x)}" alt=""></span>
@@ -1369,52 +1746,105 @@ function renderProductDetail(id) {
   const isDiamond = prod.type === "diamond";
   document.getElementById("main").innerHTML = `
   <div class="page">
-    <div class="bread"><a href="#" onclick="go('home');return false">Home</a> &nbsp;→&nbsp; <a href="#" onclick="go('explore');return false">Explore</a> &nbsp;→&nbsp; ${esc(prod.name)}</div>
+    <div class="bread"><a href="#" onclick="go('home');return false">${t("home")}</a> &nbsp;→&nbsp; <a href="#" onclick="go('explore');return false">${t("explore_title")}</a> &nbsp;→&nbsp; ${esc(prod.name)}</div>
     <div class="pd">
       <div class="pd-gallery">
         <div class="main-img" id="pd-main" onclick="this.classList.toggle('zoomed')">
           <img id="pd-img" src="${imgs[0]}" alt="${esc(prod.name)}">
         </div>
         <div class="pd-thumbs">${imgs.map((im, i) => `<button class="${i === 0 ? 'active' : ''}" onclick="setPdImg('${prod.id}','${i}')"><img src="${im}" alt=""></button>`).join("")}
-          <button onclick="toast('Product video available on request')">${'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--gold-deep)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4V8Z" fill="var(--gold-deep)"/></svg>'}</button>
+          <button onclick="toast('${t("video_hint").replace(/'/g, "\\'")}')">${'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--gold-deep)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4V8Z" fill="var(--gold-deep)"/></svg>'}</button>
         </div>
       </div>
       <div class="pd-info">
-        <div class="pd-avail ${prod.avail === 'now' ? 'ok' : 'res'}">${prod.avail === "now" ? "● Available now" : "● Available by private reservation"}</div>
+        <div class="pd-avail ${prod.avail === 'now' ? 'ok' : 'res'}">${prod.avail === "now" ? "● " + t("avail_now") : "● " + t("avail_res")}</div>
         <h1>${esc(prod.name)}</h1>
-        <div class="stock">Stock ${esc(prod.stock)} · ${esc(prod.gia || "")}</div>
-        <div class="pd-price">${fmt(prod.price)} <small>approx.</small></div>
+        <div class="stock">${t("spec_stock")} ${esc(prod.stock)} · ${esc(prod.gia || "")}</div>
+        <div class="pd-price">${fmt(prod.price)} <small>${t("approx")}</small></div>
         <div class="spec-grid">
-          <div class="spec"><div class="k">Colour</div><div class="v">${esc(prod.color)}</div></div>
-          <div class="spec"><div class="k">Intensity</div><div class="v">${esc(prod.intensity || "—")}</div></div>
-          <div class="spec"><div class="k">Shape</div><div class="v">${esc(prod.shape || "—")}</div></div>
-          <div class="spec"><div class="k">Carat weight</div><div class="v">${prod.carat} ct</div></div>
-          <div class="spec"><div class="k">Clarity</div><div class="v">${esc(prod.clarity || "—")}</div></div>
-          <div class="spec"><div class="k">Cut</div><div class="v">${esc(prod.cut || prod.metal || "—")}</div></div>
+          <div class="spec"><div class="k">${t("spec_color")}</div><div class="v">${esc(prod.color)}</div></div>
+          <div class="spec"><div class="k">${t("spec_intensity")}</div><div class="v">${esc(prod.intensity || "—")}</div></div>
+          <div class="spec"><div class="k">${t("spec_shape")}</div><div class="v">${esc(prod.shape || "—")}</div></div>
+          <div class="spec"><div class="k">${t("spec_carat_w")}</div><div class="v">${prod.carat} ct</div></div>
+          <div class="spec"><div class="k">${t("spec_clarity")}</div><div class="v">${esc(prod.clarity || "—")}</div></div>
+          <div class="spec"><div class="k">${t("spec_cut")}</div><div class="v">${esc(prod.cut || prod.metal || "—")}</div></div>
         </div>
         <div class="pd-actions">
-          <button class="btn btn-primary btn-block" onclick="addToBag('${prod.id}')">Add to Bag</button>
+          <button class="btn btn-primary btn-block" onclick="addToBag('${prod.id}')">${t("add_bag")}</button>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <button class="btn btn-outline" onclick="go('consultation')">Book a Private Consultation</button>
-            <button class="btn btn-outline ${isFav(prod.id) ? 'on' : ''}" onclick="toggleFav('${prod.id}')">♡ ${isFav(prod.id) ? "Saved" : "Save"}</button>
+            <button class="btn btn-outline" onclick="go('consultation')">${t("book_view")}</button>
+            <button class="btn btn-outline ${isFav(prod.id) ? 'on' : ''}" onclick="toggleFav('${prod.id}')">♡ ${isFav(prod.id) ? t("saved") : t("save")}</button>
           </div>
-          <button class="btn btn-ghost" onclick="toast('A Colour Diam specialist will contact you shortly')">Request more information</button>
+          <button class="btn btn-ghost" onclick="toast('${t("request_info_toast").replace(/'/g, "\\'")}')">${t("request_info")}</button>
         </div>
         <div class="gia-box">
-          <h4>GIA Certification</h4>
-          <p>Report no. <strong>${esc(prod.gia || "—")}</strong>. This stone is accompanied by its original laboratory report issued by the Gemological Institute of America, confirming colour, clarity, cut and carat weight.</p>
+          <h4>${t("gia_title")}</h4>
+          <p>${t("gia_desc").replace("{gia}", "<strong>" + esc(prod.gia || "—") + "</strong>")}</p>
         </div>
       </div>
     </div>
     <div class="pd-desc">
-      <h3>About this piece</h3>
+      <h3>${t("about_title")}</h3>
       <p>${esc(prod.desc)}</p>
     </div>
+    ${reviewsSection(prod)}
     <section class="section" style="margin-top:40px">
-      <div class="sec-head"><h2>You may also love</h2></div>
+      <div class="sec-head"><h2>${t("also_love")}</h2></div>
       <div class="grid g2">${PRODUCTS.filter(x => x.id !== prod.id && (x.color === prod.color || x.type === prod.type)).slice(0, 4).map(card).join("") || PRODUCTS.filter(x => x.id !== prod.id).slice(0, 4).map(card).join("")}</div>
     </section>
   </div>`;
+}
+function reviewsSection(prod) {
+  const list = S.comments[prod.id] || [];
+  return `
+  <div class="rev-box">
+    <div class="sec-head"><h2>${t("reviews")} <span style="font-weight:400;color:var(--muted);font-size:13px">(${list.length})</span></h2><button class="sec-link" onclick="openReviewForm('${prod.id}')">${t("review_write")} →</button></div>
+    ${list.length ? `<div class="rev-list">${list.map(rev => `
+      <div class="rev">
+        <div class="rev-stars">${revStars(rev.r)}</div>
+        <div class="rev-head"><strong>${esc(rev.n)}</strong><span>${esc(rev.d)}</span></div>
+        <p>${esc(rev.t)}</p>
+      </div>`).join("")}</div>` : `<p style="color:var(--muted);font-size:13.5px;padding:6px 0">${t("review_no")}</p>`}
+  </div>`;
+}
+function revStars(r) {
+  let s = "";
+  for (let i = 1; i <= 5; i++) s += i <= r ? "★" : "☆";
+  return `<span style="color:var(--gold);letter-spacing:2px">${s}</span>`;
+}
+function openReviewForm(id) {
+  document.getElementById("modal-title").textContent = t("review_write");
+  document.getElementById("modal-body").innerHTML = `
+    <label class="f-label">${t("review_name")}</label>
+    <input class="f-in" id="rv-name" placeholder="${t("review_name")}" maxlength="40">
+    <label class="f-label">${t("review_rating")}</label>
+    <div class="rv-rate" id="rv-rate" style="font-size:26px;letter-spacing:6px;cursor:pointer;color:var(--gold)">
+      ${[1,2,3,4,5].map(i => `<span data-r="${i}" onclick="setReviewRate(${i})">☆</span>`).join("")}
+    </div>
+    <label class="f-label">${t("review_text")}</label>
+    <textarea class="f-in" id="rv-text" rows="4" placeholder="${t("review_text")}" maxlength="500"></textarea>
+    <button class="btn btn-primary btn-block" onclick="submitReview('${id}')">${t("review_submit")}</button>`;
+  document.getElementById("modal-overlay").classList.add("open");
+  rvRate = 5;
+  setReviewRate(5);
+}
+let rvRate = 5;
+function setReviewRate(r) {
+  rvRate = r;
+  const box = document.getElementById("rv-rate");
+  if (!box) return;
+  box.innerHTML = [1,2,3,4,5].map(i => `<span data-r="${i}" onclick="setReviewRate(${i})">${i <= r ? "★" : "☆"}</span>`).join("");
+}
+function submitReview(id) {
+  const n = (document.getElementById("rv-name").value || "Guest").trim();
+  const tx = document.getElementById("rv-text").value.trim();
+  if (!tx) { toast("Please write a short review"); return; }
+  if (!S.comments[id]) S.comments[id] = [];
+  S.comments[id].unshift({ n, t: tx, r: rvRate, d: new Date().toLocaleDateString() });
+  persist();
+  closeModal();
+  renderCurrent();
+  toast("Review submitted — thank you!");
 }
 function setPdImg(id, i) {
   document.getElementById("pd-img").src = productArt(p(id));
@@ -1426,16 +1856,16 @@ function quickView(id) {
   document.getElementById("modal-body").innerHTML = `
     <img src="${productArt(prod)}" alt="${esc(prod.name)}" style="width:100%;border-radius:14px;margin-bottom:16px;background:var(--ivory-2)">
     <div class="spec-grid" style="margin:0 0 14px">
-      <div class="spec"><div class="k">Stock</div><div class="v">${esc(prod.stock)}</div></div>
-      <div class="spec"><div class="k">Colour</div><div class="v">${esc(prod.color)} · ${esc(prod.intensity || "—")}</div></div>
-      <div class="spec"><div class="k">Shape</div><div class="v">${esc(prod.shape || "—")}</div></div>
-      <div class="spec"><div class="k">Carat</div><div class="v">${prod.carat} ct</div></div>
+      <div class="spec"><div class="k">${t("spec_stock")}</div><div class="v">${esc(prod.stock)}</div></div>
+      <div class="spec"><div class="k">${t("spec_color")}</div><div class="v">${esc(prod.color)} · ${esc(prod.intensity || "—")}</div></div>
+      <div class="spec"><div class="k">${t("spec_shape")}</div><div class="v">${esc(prod.shape || "—")}</div></div>
+      <div class="spec"><div class="k">${t("spec_carat")}</div><div class="v">${prod.carat} ct</div></div>
     </div>
     <div style="font-family:var(--serif);font-size:26px;font-weight:600;color:var(--gold-deep)">${fmt(prod.price)}</div>
     <p style="color:var(--muted);font-size:12.5px;margin:4px 0 16px">${esc(prod.gia || "")}</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button class="btn btn-primary btn-sm" onclick="closeModal(); addToBag('${prod.id}')">Add to Bag</button>
-      <button class="btn btn-outline btn-sm" onclick="closeModal(); go('product','${prod.id}')">Full details</button>
+      <button class="btn btn-primary btn-sm" onclick="closeModal(); addToBag('${prod.id}')">${t("add_bag")}</button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal(); go('product','${prod.id}')">${t("full_details")}</button>
     </div>`;
   document.getElementById("modal-overlay").classList.add("open");
 }
@@ -1445,9 +1875,9 @@ function renderFavorites() {
   const list = S.fav.map(p).filter(Boolean);
   document.getElementById("main").innerHTML = `
   <div class="page">
-    <div class="page-head"><h1>Favorites</h1><p>Your saved diamonds and jewelry pieces.</p></div>
+    <div class="page-head"><h1>${t("fav_title")}</h1><p>${t("fav_sub")}</p></div>
     ${list.length ? `<div class="grid g2">${list.map(card).join("")}</div>` : `
-      <div class="empty"><div class="big">♡</div><h3>No favorites yet</h3><p>Tap the heart on any piece to save it here.</p><button class="btn btn-primary" onclick="go('explore')">Explore Diamonds</button></div>`}
+      <div class="empty"><div class="big">♡</div><h3>${t("fav_empty_title")}</h3><p>${t("fav_empty_sub")}</p><button class="btn btn-primary" onclick="go('explore')">${t("cta_explore")}</button></div>`}
   </div>`;
 }
 
@@ -1546,7 +1976,7 @@ function waList() {
   chats.sort((a, b) => (a.pinned === b.pinned) ? 0 : (a.pinned ? -1 : 1));
   return `
   <div class="wa-topbar">
-    <span class="wa-title">Messages</span>
+    <span class="wa-title">${t("msgs_title")}</span>
     <button class="wa-icon-btn" aria-label="Search" onclick="toggleMsgSearch()">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
     </button>
@@ -1554,17 +1984,17 @@ function waList() {
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 5h16M7 12h10M10 19h4"/></svg>
     </button>
   </div>
-  ${msgSearchOpen ? `<div class="wa-search"><span class="wa-sico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><input id="wa-q" placeholder="Search chats" value="${esc(msgQuery)}" oninput="msgQuery=this.value;renderMessages()"></div>` : ""}
+  ${msgSearchOpen ? `<div class="wa-search"><span class="wa-sico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><input id="wa-q" placeholder="${t("msg_search_ph")}" value="${esc(msgQuery)}" oninput="msgQuery=this.value;renderMessages()"></div>` : ""}
   <div class="wa-list-scroll">
     ${chats.map(c => `
       <div class="wa-chat ${activeMsg === c.id && msgView === "chat" ? "active" : ""}" onclick="openMsg('${c.id}')">
         ${msgAvatarHTML(c)}
         <div class="wa-chat-main">
           <div class="wa-row1"><span class="wa-name">${esc(c.name)}</span><span class="wa-time">${esc(c.time)}</span></div>
-          <div class="wa-row2"><span class="wa-prev ${(c.unread || 0) > 0 ? "unread" : ""}">${c.pinned ? '<span class="wa-pin">📌</span>' : ""}${c.me ? "You: " : ""}${esc(c.last)}</span>${(c.unread || 0) > 0 ? `<span class="wa-unread">${c.unread}</span>` : ""}</div>
+          <div class="wa-row2"><span class="wa-prev ${(c.unread || 0) > 0 ? "unread" : ""}">${c.pinned ? '<span class="wa-pin">📌</span>' : ""}${c.me ? t("msg_you") : ""}${esc(c.last)}</span>${(c.unread || 0) > 0 ? `<span class="wa-unread">${c.unread}</span>` : ""}</div>
         </div>
       </div>`).join("")}
-    ${chats.length ? "" : `<div class="wa-empty">No conversations found.</div>`}
+    ${chats.length ? "" : `<div class="wa-empty">${t("msg_empty")}</div>`}
   </div>`;
 }
 function waThread(c) {
@@ -1574,11 +2004,11 @@ function waThread(c) {
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
     ${msgAvatarHTML(c)}
-    <div class="wa-tinfo"><div class="wa-tname">${esc(c.name)}</div><div class="wa-tstatus ${c.online ? "" : "away"}">${c.online ? "online" : "last seen recently"}</div></div>
-    <button class="wa-icon-btn" aria-label="Video call" onclick="toast('Starting a private video call…')">
+    <div class="wa-tinfo"><div class="wa-tname">${esc(c.name)}</div><div class="wa-tstatus ${c.online ? "" : "away"}">${c.online ? t("msg_online") : t("msg_away")}</div></div>
+    <button class="wa-icon-btn" aria-label="Video call" onclick="toast('${t("wa_video_toast").replace(/'/g, "\\'")}')">
       <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg>
     </button>
-    <button class="wa-icon-btn" aria-label="Voice call" onclick="toast('Starting a secure call…')">
+    <button class="wa-icon-btn" aria-label="Voice call" onclick="toast('${t("wa_call_toast").replace(/'/g, "\\'")}')">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L8.1 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.6 2Z"/></svg>
     </button>
   </div>
@@ -1587,17 +2017,17 @@ function waThread(c) {
     ${c.typing ? waTypingHTML() : ""}
   </div>
   <div class="wa-quick">
-    <button class="wa-qbtn" onclick="sendCert('${c.id}')">📄 Send Certificate</button>
-    <button class="wa-qbtn" onclick="sendSimilar('${c.id}')">💎 Send Similar Diamonds</button>
-    <button class="wa-qbtn" onclick="sendQuote('${c.id}')">💰 Send Quote</button>
-    <button class="wa-qbtn" onclick="bookConsult('${c.id}')">📅 Book Consultation</button>
+    <button class="wa-qbtn" onclick="sendCert('${c.id}')">📄 ${t("wa_cert")}</button>
+    <button class="wa-qbtn" onclick="sendSimilar('${c.id}')">💎 ${t("wa_similar")}</button>
+    <button class="wa-qbtn" onclick="sendQuote('${c.id}')">💰 ${t("wa_quote")}</button>
+    <button class="wa-qbtn" onclick="bookConsult('${c.id}')">📅 ${t("wa_book")}</button>
   </div>
   <div class="wa-composer">
-    <button class="wa-icon-btn" aria-label="Attach" onclick="toast('Attach a GIA report, image or video')">
+    <button class="wa-icon-btn" aria-label="Attach" onclick="toast('${t("wa_attach_toast").replace(/'/g, "\\'")}')">
       <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21.4 11.1-9 9a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.9 1.9 0 0 1-2.6-2.6l7.3-7.3"/></svg>
     </button>
-    <input id="msg-input" placeholder="Message ${esc(c.name)}" autocomplete="off" onkeydown="if(event.key==='Enter')sendMsg('${c.id}')">
-    <button class="wa-icon-btn" aria-label="Emoji" onclick="toast('Emoji picker coming soon')">
+    <input id="msg-input" placeholder="${t("msg_ph").replace("{name}", esc(c.name))}" autocomplete="off" onkeydown="if(event.key==='Enter')sendMsg('${c.id}')">
+    <button class="wa-icon-btn" aria-label="Emoji" onclick="toast('${t("wa_emoji_toast").replace(/'/g, "\\'")}')">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg>
     </button>
     <button class="wa-send" aria-label="Send" onclick="sendMsg('${c.id}')">
@@ -1631,12 +2061,12 @@ function toggleMsgSearch() {
 }
 function openMsgFilter() {
   openSheet(`
-    <div class="sheet-head"><h3>Filter conversations</h3></div>
+    <div class="sheet-head"><h3>${t("msg_filter_title")}</h3></div>
     <div class="f-sheet">
       <div class="f-group">
-        <h5>Show</h5>
+        <h5>${t("msg_show")}</h5>
         <div class="f-opts">
-          ${[["all", "All"], ["unread", "Unread"], ["pinned", "Pinned"]].map(([v, l]) => `<button class="chip ${msgFilter === v ? "active" : ""}" onclick="setMsgFilter('${v}')">${l}</button>`).join("")}
+          ${[["all", t("all")], ["unread", t("unread")], ["pinned", t("pinned")]].map(([v, l]) => `<button class="chip ${msgFilter === v ? "active" : ""}" onclick="setMsgFilter('${v}')">${l}</button>`).join("")}
         </div>
       </div>
     </div>`);
@@ -1706,33 +2136,33 @@ function renderBag() {
   const sub = items.reduce((a, x) => a + x.prod.price * x.qty, 0);
   document.getElementById("main").innerHTML = `
   <div class="page">
-    <div class="page-head"><h1>Shopping Bag</h1><p>Your selection of certified diamonds and jewelry.</p></div>
+    <div class="page-head"><h1>${t("bag_title")}</h1><p>${t("bag_sub")}</p></div>
     ${items.length ? `<div class="two-col">
       <div>${items.map(b => `
         <div class="bag-item">
           <span class="th"><img src="${productArt(b.prod)}" alt=""></span>
           <span class="mi">
             <div class="nm">${esc(b.prod.name)}</div>
-            <div style="color:var(--muted);font-size:12px">Stock ${esc(b.prod.stock)}</div>
+            <div style="color:var(--muted);font-size:12px">${t("spec_stock")} ${esc(b.prod.stock)}</div>
             <div class="pr">${fmt(b.prod.price)}</div>
             <div class="qty">
               <button onclick="setBagQty('${b.prod.id}',${b.qty - 1})">−</button><span style="min-width:24px;text-align:center;font-weight:600">${b.qty}</span><button onclick="setBagQty('${b.prod.id}',${b.qty + 1})">+</button>
             </div>
           </span>
-          <button class="tbtn" onclick="setBagQty('${b.prod.id}',0)">Remove</button>
+          <button class="tbtn" onclick="setBagQty('${b.prod.id}',0)">✕</button>
         </div>`).join("")}
       </div>
       <div class="bag-summary">
-        <h3 style="font-family:var(--serif);margin-bottom:12px">Summary</h3>
-        <div class="r"><span>Subtotal</span><span>${fmt(sub)}</span></div>
-        <div class="r"><span>Shipping & insurance</span><span>Complimentary</span></div>
-        <div class="r"><span>Duties & taxes</span><span>Calculated at checkout</span></div>
-        <div class="r total"><span>Total</span><span>${fmt(sub)}</span></div>
-        <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="go('checkout')">Proceed to Checkout</button>
-        <button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="go('explore')">Continue browsing</button>
+        <h3 style="font-family:var(--serif);margin-bottom:12px">${t("bag_summary")}</h3>
+        <div class="r"><span>${t("bag_subtotal")}</span><span>${fmt(sub)}</span></div>
+        <div class="r"><span>${t("bag_shipping")}</span><span>${t("bag_free")}</span></div>
+        <div class="r"><span>Duties &amp; taxes</span><span>${t("checkout_calc")}</span></div>
+        <div class="r total"><span>${t("bag_total")}</span><span>${fmt(sub)}</span></div>
+        <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="go('checkout')">${t("checkout_btn")}</button>
+        <button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="go('explore')">${t("keep_shopping")}</button>
       </div>
     </div>` : `
-    <div class="empty"><div class="big">🛍</div><h3>Your bag is empty</h3><p>Discover a rare stone and add it to your bag.</p><button class="btn btn-primary" onclick="go('explore')">Explore Diamonds</button></div>`}
+    <div class="empty"><div class="big">🛍</div><h3>${t("bag_empty_title")}</h3><p>${t("bag_empty_sub")}</p><button class="btn btn-primary" onclick="go('explore')">${t("cta_explore")}</button></div>`}
   </div>`;
 }
 
@@ -1740,74 +2170,102 @@ function renderCheckout() {
   const items = S.bag.map(b => ({ ...b, prod: p(b.id) })).filter(x => x.prod);
   document.getElementById("main").innerHTML = `
   <div class="page">
-    <div class="page-head"><h1>Checkout</h1><p>Secure checkout — our concierge team confirms every order personally.</p></div>
+    <div class="page-head"><h1>${t("checkout_title")}</h1><p>${t("checkout_sub")}</p></div>
     <div class="two-col">
       <div class="panel">
-        <h3>Contact & shipping</h3>
+        <h3>${t("ck_contact")}</h3>
         <div class="form-grid">
-          <div class="field"><label>Full name</label><input placeholder="Alexandra Laurent"></div>
-          <div class="field"><label>Email</label><input type="email" placeholder="you@email.com"></div>
-          <div class="field"><label>Country</label><input placeholder="United Kingdom"></div>
-          <div class="field"><label>Phone</label><input placeholder="+44…"></div>
-          <div class="field full"><label>Shipping address</label><input placeholder="Address line"></div>
+          <div class="field"><label>${t("ck_name")}</label><input placeholder="Alexandra Laurent"></div>
+          <div class="field"><label>${t("ck_email")}</label><input type="email" placeholder="you@email.com"></div>
+          <div class="field"><label>${t("ck_country")}</label><input placeholder="United Kingdom"></div>
+          <div class="field"><label>${t("ck_phone")}</label><input placeholder="+44…"></div>
+          <div class="field full"><label>${t("ck_address")}</label><input placeholder="Address line"></div>
         </div>
-        <h3 style="margin:18px 0 12px">Payment</h3>
-        <div class="field"><label>Card number</label><input placeholder="4242 4242 4242 4242"></div>
+        <h3 style="margin:18px 0 12px">${t("ck_payment")}</h3>
+        <div class="field"><label>${t("ck_card")}</label><input placeholder="4242 4242 4242 4242"></div>
         <div class="form-grid">
-          <div class="field"><label>Expiry</label><input placeholder="MM / YY"></div>
-          <div class="field"><label>CVC</label><input placeholder="•••"></div>
+          <div class="field"><label>${t("ck_expiry")}</label><input placeholder="MM / YY"></div>
+          <div class="field"><label>${t("ck_cvc")}</label><input placeholder="•••"></div>
         </div>
       </div>
       <div class="bag-summary">
-        <h3 style="font-family:var(--serif);margin-bottom:12px">Order summary</h3>
-        ${items.map(b => `<div class="r"><span>${esc(b.prod.name)} × ${b.qty}</span><span>${fmt(b.prod.price * b.qty)}</span></div>`).join("") || '<div class="r"><span>No items</span><span>—</span></div>'}
-        <div class="r"><span>Shipping & insurance</span><span>Complimentary</span></div>
-        <div class="r total"><span>Total</span><span>${fmt(items.reduce((a, x) => a + x.prod.price * x.qty, 0))}</span></div>
-        <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="placeOrder()">Place Order</button>
-        <p style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center">🔒 Payments are processed securely. This is a design preview.</p>
+        <h3 style="font-family:var(--serif);margin-bottom:12px">${t("bag_summary")}</h3>
+        ${items.map(b => `<div class="r"><span>${esc(b.prod.name)} × ${b.qty}</span><span>${fmt(b.prod.price * b.qty)}</span></div>`).join("") || '<div class="r"><span>' + t("ck_noitems") + '</span><span>—</span></div>'}
+        <div class="r"><span>${t("bag_shipping")}</span><span>${t("bag_free")}</span></div>
+        <div class="r total"><span>${t("bag_total")}</span><span>${fmt(items.reduce((a, x) => a + x.prod.price * x.qty, 0))}</span></div>
+        <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="placeOrder()">${t("ck_place")}</button>
+        <p style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center">🔒 ${t("ck_secure")}</p>
       </div>
     </div>
   </div>`;
 }
 function placeOrder() {
   const items = S.bag.map(b => ({ ...b, prod: p(b.id) }));
-  if (!items.length) return toast("Your bag is empty");
+  if (!items.length) return toast(t("bag_empty_title"));
   const total = items.reduce((a, x) => a + x.prod.price * x.qty, 0);
-  S.orders.unshift({ no: "CD-" + Math.floor(100000 + Math.random() * 900000), date: new Date().toLocaleDateString("en-GB"), items: items.length, total, status: "Confirmed" });
+  const no = "CD-" + Math.floor(100000 + Math.random() * 900000);
+  const date = new Date().toLocaleDateString("en-GB");
+  S.orders.unshift({ no, date, items: items.length, total, status: t("st_confirmed"), delivered: false, ids: items.map(x => x.id) });
+  if (!S.purchases) S.purchases = [];
+  S.purchases.unshift({ no, date, items: items.length, total, status: t("st_delivered"), ids: items.map(x => x.id) });
   S.bag = [];
   persist(); updateBadges();
-  toast("Order placed — a concierge will confirm");
-  go("orders");
+  toast(t("order_placed"));
+  go("purchases");
+}
+
+function renderPurchases() {
+  const list = (S.purchases || []).map(o => {
+    const prods = (o.ids || []).map(p).filter(Boolean);
+    return { ...o, prods };
+  });
+  document.getElementById("main").innerHTML = `
+  <div class="page">
+    <div class="page-head"><h1>${t("purchase_title")}</h1><p>${t("purchase_sub")}</p></div>
+    ${list.length ? `<div class="list">
+      ${list.map(o => `
+        <div class="list-item" style="align-items:flex-start">
+          <span class="li-av" style="background:var(--gold);color:#fff;font-weight:700">✓</span>
+          <span class="li-main">
+            <span class="t">${t("order_no")} ${o.no}</span>
+            <span class="s">${o.date} · ${o.items} ${o.items === 1 ? t("item") : t("items")}</span>
+            <span class="s" style="display:flex;gap:8px;margin-top:8px">${o.prods.map(x => `<span class="purch-th" title="${esc(x.name)}"><img src="${productArt(x)}" alt=""></span>`).join("")}</span>
+          </span>
+          <span class="li-side"><span class="t">${fmt(o.total)}</span><span class="s" style="color:var(--gold-deep)">${esc(o.status)}</span></span>
+        </div>`).join("")}
+    </div>` : `
+    <div class="empty"><div class="big">💎</div><h3>${t("purchase_empty_title")}</h3><p>${t("purchase_empty_sub")}</p><button class="btn btn-primary" onclick="go('explore')">${t("cta_explore")}</button></div>`}
+  </div>`;
 }
 
 /* ---------------- Consultation ---------------- */
 function renderConsultation() {
   document.getElementById("main").innerHTML = `
   <div class="page">
-    <div class="page-head"><h1>Book a Private Consultation</h1><p>Speak one-to-one with a Colour Diam specialist — in person, by video call, or on WhatsApp. Entirely confidential.</p></div>
+    <div class="page-head"><h1>${t("consult_title")}</h1><p>${t("consult_sub")}</p></div>
     <div class="two-col" style="grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)">
       <div class="panel">
-        <h3>Your details</h3>
+        <h3>${t("cons_details")}</h3>
         <div class="form-grid">
-          <div class="field"><label>Full name</label><input placeholder="Full name"></div>
-          <div class="field"><label>Email</label><input type="email" placeholder="you@email.com"></div>
-          <div class="field"><label>Phone / WhatsApp</label><input placeholder="+44…"></div>
-          <div class="field"><label>Preferred date</label><input type="date"></div>
-          <div class="field"><label>Time</label><select><option>Morning (09:00–12:00)</option><option>Afternoon (12:00–17:00)</option><option>Evening (17:00–20:00)</option></select></div>
-          <div class="field"><label>Method</label><select><option>Video call</option><option>In person · London</option><option>In person · New York</option><option>WhatsApp</option></select></div>
+          <div class="field"><label>${t("ck_name")}</label><input placeholder="${t("ck_name")}"></div>
+          <div class="field"><label>${t("ck_email")}</label><input type="email" placeholder="you@email.com"></div>
+          <div class="field"><label>${t("cons_phone")}</label><input placeholder="+44…"></div>
+          <div class="field"><label>${t("cons_date")}</label><input type="date"></div>
+          <div class="field"><label>${t("cons_time")}</label><select><option>${t("cons_morning")}</option><option>${t("cons_afternoon")}</option><option>${t("cons_evening")}</option></select></div>
+          <div class="field"><label>${t("cons_method")}</label><select><option>${t("cons_video")}</option><option>${t("cons_inp_lon")}</option><option>${t("cons_inp_ny")}</option><option>${t("cons_wa")}</option></select></div>
         </div>
-        <div class="field"><label>What are you looking for?</label><textarea placeholder="e.g. A vivid pink diamond above 2 carats for an engagement ring"></textarea></div>
-        <button class="btn btn-primary btn-block" onclick="toast('Consultation request sent — we will confirm shortly')">Request Consultation</button>
+        <div class="field"><label>${t("cons_looking")}</label><textarea placeholder="${t("cons_ph_looking")}"></textarea></div>
+        <button class="btn btn-primary btn-block" onclick="toast('${t("cons_sent").replace(/'/g, "\\'")}')">${t("cons_btn")}</button>
       </div>
       <div>
         <div class="edu-card" style="border-color:rgba(182,138,62,.3)">
-          <h3>What to expect</h3>
-          <p>A private session guided entirely around you — viewing certified stones, understanding the 4 Cs of fancy colour, and exploring bespoke designs. No obligation.</p>
+          <h3>${t("cons_expect_title")}</h3>
+          <p>${t("cons_expect_sub")}</p>
         </div>
         <div class="panel" style="margin-top:14px">
-          <h3>Prefer to talk now?</h3>
-          <a class="btn btn-outline btn-block" style="justify-content:center;margin-bottom:8px" href="https://wa.me/441234567890" target="_blank" rel="noopener">WhatsApp us</a>
-          <a class="btn btn-outline btn-block" style="justify-content:center" href="mailto:concierge@colourdiam.com">Email concierge@colourdiam.com</a>
+          <h3>${t("cons_talk_title")}</h3>
+          <a class="btn btn-outline btn-block" style="justify-content:center;margin-bottom:8px" href="https://wa.me/441234567890" target="_blank" rel="noopener">${t("cons_wa_us")}</a>
+          <a class="btn btn-outline btn-block" style="justify-content:center" href="mailto:concierge@colourdiam.com">${t("cons_email")}</a>
         </div>
       </div>
     </div>
@@ -1818,16 +2276,16 @@ function renderConsultation() {
 function renderOrders() {
   document.getElementById("main").innerHTML = `
   <div class="page">
-    <div class="page-head"><h1>Order History</h1><p>Your past and in-progress orders.</p></div>
+    <div class="page-head"><h1>${t("order_title")}</h1><p>${t("order_sub")}</p></div>
     ${S.orders.length ? `<div class="list">
       ${S.orders.map(o => `
         <div class="list-item">
           <span class="li-av">${o.no.slice(-3)}</span>
-          <span class="li-main"><span class="t">Order ${o.no}</span><span class="s">${o.date} · ${o.items} ${o.items === 1 ? "item" : "items"}</span></span>
-          <span class="li-side"><span class="t">${fmt(o.total)}</span><span class="s" style="color:var(--gold-deep)">${o.status}</span></span>
+          <span class="li-main"><span class="t">${t("order_no")} ${o.no}</span><span class="s">${o.date} · ${o.items} ${o.items === 1 ? t("item") : t("items")}</span></span>
+          <span class="li-side"><span class="t">${fmt(o.total)}</span><span class="s" style="color:var(--gold-deep)">${esc(o.status)}</span></span>
         </div>`).join("")}
     </div>` : `
-    <div class="empty"><div class="big">📦</div><h3>No orders yet</h3><p>Your orders will appear here.</p><button class="btn btn-primary" onclick="go('explore')">Explore Diamonds</button></div>`}
+    <div class="empty"><div class="big">📦</div><h3>${t("order_empty_title")}</h3><p>${t("order_empty_sub")}</p><button class="btn btn-primary" onclick="go('explore')">${t("cta_explore")}</button></div>`}
   </div>`;
 }
 
@@ -1837,26 +2295,32 @@ function renderProfile() {
   <div class="page">
     <div class="profile-head">
       <div class="profile-av">A</div>
-      <div><h2>Alexandra Laurent</h2><p>Private client · London, United Kingdom</p></div>
+      <div><h2>${t("profile_name")}</h2><p>${t("profile_sub")}</p></div>
     </div>
     <div class="stat-row">
-      <div class="stat"><div class="k">Favorites</div><div class="v">${S.fav.length}</div></div>
-      <div class="stat"><div class="k">Orders</div><div class="v">${S.orders.length}</div></div>
-      <div class="stat"><div class="k">Consultations</div><div class="v">1</div></div>
-      <div class="stat"><div class="k">Member since</div><div class="v">2024</div></div>
+      <div class="stat"><div class="k">${t("stat_fav")}</div><div class="v">${S.fav.length}</div></div>
+      <div class="stat"><div class="k">${t("stat_orders")}</div><div class="v">${S.orders.length}</div></div>
+      <div class="stat"><div class="k">${t("stat_purchases")}</div><div class="v">${(S.purchases || []).length}</div></div>
+      <div class="stat"><div class="k">${t("stat_member")}</div><div class="v">2024</div></div>
     </div>
     <div class="panel">
-      <h3>Quick actions</h3>
+      <h3>${t("qa_title")}</h3>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
-        <button class="btn btn-outline" onclick="go('favorites')">Favorites</button>
-        <button class="btn btn-outline" onclick="go('orders')">Orders</button>
-        <button class="btn btn-outline" onclick="go('consultation')">Book consultation</button>
-        <button class="btn btn-outline" onclick="go('messages')">Messages</button>
+        <button class="btn btn-outline" onclick="go('favorites')">${t("qa_profile")}</button>
+        <button class="btn btn-outline" onclick="go('orders')">${t("qa_orders")}</button>
+        <button class="btn btn-outline" onclick="go('purchases')">${t("qa_purchases")}</button>
+        <button class="btn btn-outline" onclick="go('consultation')">${t("qa_book")}</button>
+        <button class="btn btn-outline" onclick="go('messages')">${t("qa_messages")}</button>
+        <button class="btn btn-outline" onclick="go('settings')">${t("qa_settings")}</button>
       </div>
     </div>
     <div class="panel">
-      <h3>Contact preferences</h3>
-      <p style="color:var(--muted);font-size:14px;line-height:1.7">We treat your data with the utmost confidentiality. Your preferences can be updated anytime.</p>
+      <h3>${t("sec_title")}</h3>
+      <button class="btn btn-outline btn-block" style="justify-content:center" onclick="lockApp()">${t("qa_lock")}</button>
+    </div>
+    <div class="panel">
+      <h3>${t("contact_pref")}</h3>
+      <p style="color:var(--muted);font-size:14px;line-height:1.7">${t("contact_pref_sub")}</p>
     </div>
   </div>`;
 }
@@ -1864,32 +2328,50 @@ function renderProfile() {
 /* ---------------- Settings ---------------- */
 function renderSettings() {
   const saved = JSON.parse(localStorage.getItem("cd_saved") || "[]");
+  const bio = bioAvailable();
   document.getElementById("main").innerHTML = `
   <div class="page">
-    <div class="page-head"><h1>Settings</h1><p>Preferences, saved searches and application options.</p></div>
+    <div class="page-head"><h1>${t("settings_title")}</h1><p>${t("settings_sub")}</p></div>
     <div class="panel">
-      <h3>Preferences</h3>
+      <h3>${t("pref_title")}</h3>
       <div class="form-grid">
-        <div class="field"><label>Currency</label><select onchange="S.currency=this.value;persist();renderCurrent()"><option value="USD" ${S.currency === "USD" ? "selected" : ""}>USD — US Dollar</option><option value="GBP" ${S.currency === "GBP" ? "selected" : ""}>GBP — British Pound</option><option value="EUR" ${S.currency === "EUR" ? "selected" : ""}>EUR — Euro</option></select></div>
-        <div class="field"><label>Language</label><select><option>English</option><option>Français</option><option>中文</option></select></div>
+        <div class="field"><label>${t("pref_currency")}</label><select onchange="S.currency=this.value;persist();renderCurrent()">
+          <option value="USD" ${S.currency === "USD" ? "selected" : ""}>${t("cur_usd")}</option>
+          <option value="GBP" ${S.currency === "GBP" ? "selected" : ""}>${t("cur_gbp")}</option>
+          <option value="EUR" ${S.currency === "EUR" ? "selected" : ""}>${t("cur_eur")}</option>
+        </select></div>
+        <div class="field"><label>${t("pref_language")}</label><select onchange="setLang(this.value);renderCurrent()">
+          ${LANGS.map(l => `<option value="${l.code}" ${S.lang === l.code ? "selected" : ""}>${l.label}</option>`).join("")}
+        </select></div>
       </div>
     </div>
     <div class="panel">
-      <h3>Saved searches</h3>
-      ${saved.length ? saved.map(s => `<button class="btn btn-outline btn-sm" style="margin:0 8px 8px 0" onclick="S.filters=JSON.parse(JSON.stringify(${JSON.stringify(s.filters)}));persist();go('explore')">${esc(s.label)}</button>`).join("") : '<p style="color:var(--muted);font-size:14px">No saved searches yet. Use "Save search" in the filters panel.</p>'}
+      <h3>${t("sec_title")}</h3>
+      <div class="toggle-row">
+        <div>
+          <div style="font-weight:600;font-size:14.5px">${t("sec_touchid")}</div>
+          <div style="color:var(--muted);font-size:12.5px;margin-top:2px">${t("sec_touchid_sub")}</div>
+        </div>
+        ${bio ? `<label class="switch"><input type="checkbox" ${(S.sec && S.sec.touchid) ? "checked" : ""} onchange="this.checked ? setupTouchId() : removeTouchId()"><span class="slider"></span></label>` : `<span style="color:var(--muted);font-size:12.5px">${t("sec_unsupported")}</span>`}
+      </div>
+      ${(S.sec && S.sec.touchid) ? `<button class="btn btn-outline btn-block" style="justify-content:center;margin-top:12px" onclick="lockApp()">${t("sec_lock_now")}</button>` : ""}
     </div>
     <div class="panel">
-      <h3>Application</h3>
+      <h3>${t("saved_searches")}</h3>
+      ${saved.length ? saved.map(s => `<button class="btn btn-outline btn-sm" style="margin:0 8px 8px 0" onclick="S.filters=JSON.parse(JSON.stringify(${JSON.stringify(s.filters)}));persist();go('explore')">${esc(s.label)}</button>`).join("") : `<p style="color:var(--muted);font-size:14px">${t("saved_empty")}</p>`}
+    </div>
+    <div class="panel">
+      <h3>${t("set_app")}</h3>
       <div style="display:grid;gap:10px">
-        <button class="btn btn-outline" onclick="installApp()">Install Colour Diam app</button>
-        <button class="btn btn-outline" onclick="localStorage.clear();location.reload()">Reset local data</button>
+        <button class="btn btn-outline" onclick="installApp()">${t("set_install")}</button>
+        <button class="btn btn-outline" onclick="localStorage.clear();location.reload()">${t("set_reset")}</button>
       </div>
     </div>
   </div>`;
 }
 function installApp() {
   if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; }
-  else toast("Open in Chrome and choose “Add to Home screen”");
+  else toast(t("install_toast"));
 }
 
 /* ---------------- Admin ---------------- */
@@ -2093,10 +2575,115 @@ function updateRail() {
 }
 window.addEventListener("resize", () => { updateRail(); if (document.getElementById("rail").innerHTML) renderRail(); syncMsgShell(); });
 
+/* ---------------- Biometrics / Touch ID ---------------- */
+function bioAvailable() {
+  return !!(window.PublicKeyCredential && navigator.credentials && (window.isSecureContext || location.hostname === "localhost" || location.hostname === "127.0.0.1"));
+}
+async function setupTouchId() {
+  if (!bioAvailable()) return toast(t("sec_unsupported"));
+  const rpId = location.hostname || "localhost";
+  try {
+    const cred = await navigator.credentials.create({
+      publicKey: {
+        challenge: new Uint8Array(32).map(() => Math.floor(Math.random() * 256)),
+        rp: { name: "Colour Diam", id: rpId },
+        user: { id: new TextEncoder().encode("colourdiam-user"), name: "alexandra", displayName: "Alexandra Laurent" },
+        pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+        authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
+        timeout: 60000
+      }
+    });
+    if (cred) {
+      const raw = new Uint8Array(cred.rawId);
+      S.sec.touchid = true;
+      S.sec.cred = { id: cred.id, rawId: btoa(String.fromCharCode.apply(null, raw)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "") };
+      persist(); renderCurrent();
+      toast(t("sec_enabled_toast"));
+    }
+  } catch (e) {
+    toast(t("sec_unsupported"));
+  }
+}
+async function removeTouchId() {
+  S.sec.touchid = false;
+  S.sec.cred = null;
+  persist(); renderCurrent();
+  toast(t("sec_disabled_toast"));
+}
+async function verifyTouchId() {
+  if (!S.sec || !S.sec.cred) return false;
+  const b64 = S.sec.cred.rawId.replace(/-/g, "+").replace(/_/g, "/");
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  const assertion = await navigator.credentials.get({
+    publicKey: {
+      challenge: new Uint8Array(32).map(() => Math.floor(Math.random() * 256)),
+      allowCredentials: [{ type: "public-key", id: arr }],
+      userVerification: "required",
+      timeout: 60000
+    }
+  });
+  return !!assertion;
+}
+function lockApp() {
+  if (!S.sec || !S.sec.touchid) return toast(t("sec_touchid") + " → " + t("sec_off"));
+  const ls = document.getElementById("lock-screen");
+  if (!ls) return;
+  ls.hidden = false;
+  document.getElementById("lock-hint").textContent = t("sec_touchid_hint");
+  const fab = document.getElementById("lock-fab");
+  fab.classList.remove("busy");
+  setTimeout(tryUnlock, 350);
+}
+async function tryUnlock() {
+  const fab = document.getElementById("lock-fab");
+  const hint = document.getElementById("lock-hint");
+  fab.classList.add("busy");
+  hint.textContent = t("sec_touchid_hint") + " …";
+  try {
+    const ok = await verifyTouchId();
+    if (ok) document.getElementById("lock-screen").hidden = true;
+    else hint.textContent = t("sec_touchid_failed");
+  } catch (e) {
+    hint.textContent = t("sec_touchid_failed");
+  } finally {
+    fab.classList.remove("busy");
+  }
+}
+function skipLock() {
+  document.getElementById("lock-screen").hidden = true;
+}
+function seedComments() {
+  const seed = {
+    d1: [
+      { n: "Isabelle M.", t: "Breathtaking colour in person — exactly as the GIA report describes. Our engagement ring is perfect.", r: 5, d: "12 Jun 2026" },
+      { n: "Tom R.", t: "The concierge team was discreet and knowledgeable. Beautiful stone.", r: 5, d: "3 May 2026" }
+    ],
+    d7: [
+      { n: "Priya S.", t: "An investment-grade stone with superb saturation. Very happy.", r: 5, d: "21 Apr 2026" }
+    ],
+    j2: [
+      { n: "Camille D.", t: "The craftsmanship is exquisite and it arrived beautifully packaged.", r: 5, d: "9 Mar 2026" },
+      { n: "Andrew L.", t: "Stunning necklace, exactly the champagne gold I wanted.", r: 4, d: "18 Feb 2026" }
+    ],
+    d5: [
+      { n: "Nadia K.", t: "Colour is deep and even. GIA documents arrived with the stone.", r: 5, d: "30 Jan 2026" }
+    ]
+  };
+  let changed = false;
+  for (const k in seed) {
+    if (!S.comments[k]) { S.comments[k] = seed[k]; changed = true; }
+  }
+  if (changed) persist();
+}
+
 /* ---------------- Init ---------------- */
+seedComments();
 renderSidebar();
 go("home");
 updateBadges();
+if (S.sec && S.sec.touchid && S.sec.cred) setTimeout(lockApp, 600);
 </script>
 </body>
 </html>
