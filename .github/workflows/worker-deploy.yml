@@ -23,6 +23,18 @@ jobs:
         with:
           node-version: 20
 
+      - name: Debug secrets presence
+        run: |
+          echo "CF_TOKEN=$([ -n "$CF" ] && echo present || echo MISSING)"
+          echo "CF_ACCOUNT=$([ -n "$CA" ] && echo present || echo MISSING)"
+          echo "FB_TOKEN=$([ -n "$FB" ] && echo present || echo MISSING)"
+          echo "VERIFY=$([ -n "$VT" ] && echo present || echo MISSING)"
+        env:
+          CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CA: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          FB: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN }}
+          VT: ${{ secrets.VERIFY_TOKEN }}
+
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
