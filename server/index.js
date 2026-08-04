@@ -24,6 +24,28 @@ loadEnv();
 const env = process.env;
 const PORT = env.PORT || 3000;
 
+const STATIC_ROOT = env.STATIC_ROOT || path.join(__dirname, "..", "messaging");
+const MIME = {
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8",
+  ".css": "text/css",
+  ".json": "application/json",
+  ".webmanifest": "application/manifest+json",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".gif": "image/gif",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
+  ".webp": "image/webp",
+  ".mp3": "audio/mpeg",
+  ".wav": "audio/wav",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2",
+  ".txt": "text/plain",
+};
+
 const EVENTS_FILE = env.EVENTS_FILE || path.join(__dirname, "events.json");
 const MAX_EVENTS = 200;
 let events = loadEvents();
@@ -76,7 +98,7 @@ async function handle(req, res) {
   }
   const route = matchRoute(url.pathname);
   if (!route) {
-    sendJson(res, 404, { error: "Not found" });
+    await serveStatic(req, res, url);
     return;
   }
 
@@ -431,6 +453,39 @@ function readBody(req) {
     req.on("end", () => resolve(data));
     req.on("error", reject);
   });
+}
+
+async function serveStatic(req, res, url) {
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    sendJson(res, 405, { error: "Method not allowed" });
+    return;
+  }
+  let rel;
+  try {
+    rel = decodeURIComponent(url.pathname);
+  } catch (err) {
+    sendJson(res, 400, { error: "Bad request" });
+    return;
+  }
+  if (rel === "/") rel = "/index.html";
+  const filePath = path.normalize(path.join(STATIC_ROOT, rel));
+  if (!filePath.startsWith(STATIC_ROOT)) {
+    sendJson(res, 403, { error: "Forbidden" });
+    return;
+  }
+  let target = filePath;
+  try {
+    const st = fs.statSync(target);
+    if (st.isDirectory()) target = path.join(target, "index.html");
+  } catch (err) {}
+  try {
+    const data = fs.readFileSync(target);
+    const ext = path.extname(target).toLowerCase();
+    res.writeHead(200, { "Content-Type": MIME[ext] || "application/octet-stream", "Cache-Control": "no-cache" });
+    res.end(req.method === "HEAD" ? undefined : data);
+  } catch (err) {
+    sendJson(res, 404, { error: "Not found" });
+  }
 }
 
 function sendJson(res, status, obj, extraHeaders) {

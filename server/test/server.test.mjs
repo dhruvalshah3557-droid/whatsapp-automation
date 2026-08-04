@@ -170,3 +170,16 @@ test("POST /api/send returns 501 for wechat", async () => {
   });
   assert.equal(status, 501);
 });
+
+test("GET / serves the messaging app", async () => {
+  const res = await fetch(`${BASE}/`);
+  assert.equal(res.status, 200);
+  const text = await res.text();
+  assert.match(text, /Colourdiam/);
+  assert.match(text, /<script>/);
+});
+
+test("GET missing static file returns 404", async () => {
+  const res = await fetch(`${BASE}/does-not-exist.js`);
+  assert.equal(res.status, 404);
+});

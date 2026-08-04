@@ -1376,7 +1376,12 @@ const CHAT_KEY = "mc_chat_v2";
 const DEFAULT_SERVER_URL = "https://messaging-webhooks.messaging-webhooks-worker.workers.dev";
 function serverCfg() {
   const c = load(CFG_KEY);
-  return { url: (c.server_url || DEFAULT_SERVER_URL).trim().replace(/\/+$/, ""), key: (c.server_api_key || "").trim() };
+  let url = (c.server_url || "").trim().replace(/\/+$/, "");
+  if (!url && typeof location !== "undefined" && location.origin && !/^(file|about|data):/.test(location.protocol)) {
+    url = location.origin;
+  }
+  if (!url) url = DEFAULT_SERVER_URL;
+  return { url, key: (c.server_api_key || "").trim() };
 }
 async function apiCall(path, opts = {}) {
   const s = serverCfg();
@@ -2421,7 +2426,7 @@ srvKeyInput.addEventListener("input", () => { const c = load(CFG_KEY); c.server_
   urlInput.value = cfg.n8n_url || "https://dhruval.n8n-hub.site";
   apiInput.value = cfg.n8n_api_key || "";
   vtInput.value = cfg.verify_token || "";
-  srvUrlInput.value = cfg.server_url || DEFAULT_SERVER_URL;
+  srvUrlInput.value = serverCfg().url;
   srvKeyInput.value = cfg.server_api_key || "";
   render();
   renderContacts();
