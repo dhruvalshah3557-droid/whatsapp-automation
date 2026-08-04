@@ -53,6 +53,8 @@ body {
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -176,7 +178,9 @@ img, svg { display: block; }
 
 /* ---------- Main ---------- */
 .main {
-  flex: 1; min-width: 0; margin-left: var(--nav-w);
+  flex: 1; min-width: 0; min-height: 0;
+  margin-left: var(--nav-w);
+  padding-top: var(--topbar-h);
   overflow-y: auto; overflow-x: hidden;
   transition: margin-left var(--ease);
   padding-bottom: calc(var(--bottomnav-h) + 28px);
@@ -463,15 +467,107 @@ body.rail-on .main { margin-right: var(--rail-w); }
 .edu-card .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .pill { background: var(--gold-soft); color: var(--gold-deep); border-radius: 999px; padding: 5px 12px; font-size: 12px; font-weight: 600; }
 
-/* ---------- Messages view ---------- */
-.msg-thread { display: flex; flex-direction: column; gap: 10px; padding: 20px 0; }
-.msg-bubble { max-width: 74%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.55; }
-.msg-bubble.in { background: var(--ivory-2); border: 1px solid var(--line); border-bottom-left-radius: 6px; align-self: flex-start; }
-.msg-bubble.out { background: linear-gradient(135deg, #e8cd8a, var(--gold)); color: #fff; border-bottom-right-radius: 6px; align-self: flex-end; }
-.msg-bubble .t { display: block; font-size: 11px; opacity: .7; margin-top: 5px; text-align: right; }
-.msg-composer { display: flex; gap: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
-.msg-composer input { flex: 1; border: 1px solid var(--line-strong); border-radius: 999px; padding: 12px 18px; font-size: 14px; font-family: inherit; outline: none; }
-.msg-composer input:focus { border-color: var(--gold); }
+/* ---------- Messages view (WhatsApp-style) ---------- */
+.wa-gold { --wa-gold: #D4AF37; }
+.wa-shell {
+  display: flex;
+  height: calc(100dvh - var(--topbar-h) - var(--bottomnav-h) - 60px);
+  margin: 14px 28px 26px;
+  background: #fff; border: 1px solid var(--line); border-radius: 18px; overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.wa-list { width: 372px; min-width: 300px; border-right: 1px solid var(--line); display: flex; flex-direction: column; background: #fff; }
+.wa-topbar { display: flex; align-items: center; gap: 4px; padding: 12px 14px 10px; }
+.wa-title { flex: 1; font-family: var(--serif); font-size: 19px; font-weight: 600; color: var(--ink); }
+.wa-icon-btn { width: 38px; height: 38px; border-radius: 50%; background: none; border: none; color: var(--ink-2); display: grid; place-items: center; flex-shrink: 0; transition: background var(--ease); }
+.wa-icon-btn:hover { background: var(--ivory-2); color: var(--ink); }
+.wa-search { position: relative; padding: 4px 14px 10px; }
+.wa-search .wa-sico { position: absolute; left: 28px; top: 50%; transform: translateY(-55%); color: var(--muted); display: grid; pointer-events: none; }
+.wa-search input { width: 100%; border: none; background: var(--ivory); border-radius: 999px; padding: 10px 16px 10px 38px; font-size: 14px; font-family: inherit; outline: none; color: var(--ink); }
+.wa-search input:focus { box-shadow: 0 0 0 2px rgba(182, 138, 62, .28); }
+.wa-list-scroll { flex: 1; overflow-y: auto; min-height: 0; }
+.wa-chat { display: flex; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer; border-bottom: 1px solid rgba(28,26,23,.05); transition: background var(--ease); }
+.wa-chat:hover { background: var(--ivory); }
+.wa-chat.active { background: var(--ivory); }
+.wa-chat.active .wa-name { color: var(--gold-deep); }
+.wa-av { position: relative; width: 52px; height: 52px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: linear-gradient(135deg, #e8cd8a, var(--gold) 60%, var(--gold-deep)); display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 15px; letter-spacing: .02em; }
+.wa-av img { width: 100%; height: 100%; object-fit: cover; }
+.wa-av .online { position: absolute; right: 1px; bottom: 1px; width: 13px; height: 13px; border-radius: 50%; background: #22c55e; border: 2px solid #fff; }
+.wa-chat-main { flex: 1; min-width: 0; }
+.wa-row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.wa-name { font-weight: 600; font-size: 15px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wa-time { font-size: 11.5px; color: var(--muted); flex-shrink: 0; }
+.wa-row2 { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 3px; }
+.wa-prev { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wa-prev.unread { color: var(--ink); font-weight: 600; }
+.wa-pin { margin-right: 3px; opacity: .6; }
+.wa-unread { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: #D4AF37; color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(212,175,55,.4); }
+.wa-empty { text-align: center; color: var(--muted); font-size: 13.5px; padding: 48px 20px; }
+
+/* Thread */
+.wa-thread { flex: 1; min-width: 0; display: flex; flex-direction: column; background: #F6F1E6; position: relative; }
+.wa-thead { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #fff; border-bottom: 1px solid var(--line); }
+.wa-thead .wa-av { width: 42px; height: 42px; font-size: 13px; }
+.wa-back { display: none; }
+.wa-tinfo { flex: 1; min-width: 0; }
+.wa-tname { font-weight: 600; font-size: 15px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wa-tstatus { font-size: 12px; font-weight: 500; color: #16a34a; }
+.wa-tstatus.away { color: var(--muted); font-weight: 400; }
+.wa-msgs { flex: 1; overflow-y: auto; padding: 20px 18px 10px; display: flex; flex-direction: column; gap: 5px; min-height: 0; }
+.wa-msg { max-width: 78%; display: flex; flex-direction: column; }
+.wa-msg.in { align-self: flex-start; align-items: flex-start; }
+.wa-msg.out { align-self: flex-end; align-items: flex-end; }
+.wa-bub { padding: 9px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; position: relative; word-break: break-word; color: var(--ink); }
+.wa-msg.in .wa-bub { background: #fff; border-top-left-radius: 4px; box-shadow: 0 1px 1px rgba(28,26,23,.06); }
+.wa-msg.out .wa-bub { background: linear-gradient(135deg, #D4AF37, #b68a3e); color: #fff; border-top-right-radius: 4px; }
+.wa-meta { display: flex; align-items: center; gap: 4px; font-size: 11px; margin-top: 3px; opacity: .78; }
+.wa-msg.out .wa-meta { justify-content: flex-end; }
+.wa-msg.in .wa-meta { color: var(--muted); }
+.wa-msg.out .wa-meta { color: rgba(255,255,255,.9); }
+.wa-tick { color: #fff; letter-spacing: -2px; font-size: 12px; }
+.wa-tick.read { color: #cde8a6; }
+
+/* Rich message content */
+.wa-img { width: 220px; max-width: 100%; border-radius: 12px; display: block; cursor: zoom-in; }
+.wa-share { min-width: 230px; max-width: 270px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(28,26,23,.08); }
+.wa-msg.out .wa-share { background: #fff; }
+.wa-msg.out .wa-bub .wa-share .nm, .wa-msg.out .wa-bub .wa-share .id, .wa-msg.out .wa-bub .wa-share .pr { color: var(--ink); }
+.wa-share-top { display: flex; gap: 10px; padding: 10px; align-items: center; }
+.wa-share-top img { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+.wa-share-top .ws { min-width: 0; }
+.wa-share-top .nm { display: block; font-weight: 600; font-size: 13px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wa-share-top .id { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.wa-share-bot { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-top: 1px solid var(--line); }
+.wa-share-bot .pr { font-weight: 700; font-size: 14.5px; color: var(--gold-deep); }
+.wa-mini { background: var(--gold-soft); color: var(--gold-deep); border: 1px solid rgba(182,138,62,.3); border-radius: 999px; padding: 6px 13px; font-size: 12px; font-weight: 600; font-family: inherit; }
+.wa-mini:hover { background: #D4AF37; color: #fff; border-color: #D4AF37; }
+.wa-doc { display: flex; align-items: center; gap: 10px; min-width: 240px; max-width: 300px; padding: 6px; }
+.wa-doc .doc-ico { width: 40px; height: 44px; flex-shrink: 0; display: grid; place-items: center; color: #D4AF37; background: rgba(212,175,55,.12); border-radius: 8px; }
+.wa-doc .doc-meta { min-width: 0; flex: 1; }
+.wa-doc .nm { display: block; font-weight: 600; font-size: 13px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wa-doc .id { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.wa-msg.out .wa-doc .nm { color: var(--ink); }
+.wa-msg.out .wa-bub { padding: 6px; }
+.wa-msg.out .wa-doc { background: #fff; border-radius: 12px; }
+
+/* Typing indicator */
+.wa-typing { display: inline-flex; align-items: center; gap: 4px; padding: 12px 16px; }
+.wa-typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: waBlink 1.2s infinite; }
+.wa-typing span:nth-child(2) { animation-delay: .18s; }
+.wa-typing span:nth-child(3) { animation-delay: .36s; }
+@keyframes waBlink { 0%, 60%, 100% { opacity: .25; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-2px); } }
+
+/* Quick actions + composer */
+.wa-quick { display: flex; gap: 8px; padding: 10px 14px; background: #fff; border-top: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+.wa-quick::-webkit-scrollbar { display: none; }
+.wa-qbtn { white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; background: var(--gold-soft); color: var(--gold-deep); border: 1px solid rgba(182,138,62,.28); border-radius: 999px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; font-family: inherit; transition: all var(--ease); }
+.wa-qbtn:hover { background: #D4AF37; color: #fff; border-color: #D4AF37; }
+.wa-composer { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: #fff; border-top: 1px solid var(--line); }
+.wa-composer input { flex: 1; min-width: 0; border: 1px solid var(--line-strong); border-radius: 999px; padding: 11px 18px; font-size: 14px; font-family: inherit; outline: none; color: var(--ink); background: #fff; }
+.wa-composer input:focus { border-color: #D4AF37; box-shadow: 0 0 0 2px rgba(212,175,55,.2); }
+.wa-send { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #D4AF37, #b68a3e); color: #fff; border: none; display: grid; place-items: center; flex-shrink: 0; transition: transform var(--ease); box-shadow: 0 4px 12px rgba(182,138,62,.35); }
+.wa-send:hover { transform: scale(1.06); }
+.wa-send:active { transform: scale(.96); }
 
 /* ---------- Empty state ---------- */
 .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
@@ -616,6 +712,21 @@ body.rail-on .main { margin-right: var(--rail-w); }
   .grid, .grid.g2 { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   .icon-btn { width: 38px; height: 38px; }
 }
+@media (max-width: 900px) {
+  body.msgs-open .topbar { display: none; }
+  body.msgs-open .main { padding-top: 0; }
+  body.msgs-open .sidebar { top: 0; }
+  .wa-shell { height: calc(100dvh - var(--bottomnav-h) - 28px); border-radius: 0; border-left: none; border-right: none; border-bottom: none; box-shadow: none; margin: 0; }
+  .wa-list { width: 100%; min-width: 0; border-right: none; }
+  .wa-thread { display: none; }
+  body.chat-open .wa-list { display: none; }
+  body.chat-open .wa-thread { display: flex; }
+  body.chat-open .bottomnav { display: none; }
+  body.chat-open .wa-shell { height: 100dvh; }
+  body.chat-open .main { padding-bottom: 0; }
+  .wa-back { display: grid; }
+  .wa-msg { max-width: 86%; }
+}
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
@@ -668,18 +779,18 @@ body.rail-on .main { margin-right: var(--rail-w); }
     Home
   </button>
   <button class="bn-item" data-view="explore" onclick="go('explore')">
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15 9-2 4-4 2 2-4 4-2Z"/></svg>
-    Explore
-  </button>
-  <button class="bn-item" data-view="favorites" onclick="go('favorites')">
-    <span class="badge" id="bn-fav">0</span>
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-9.3-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.3 11C19 15.4 12 20 12 20Z"/></svg>
-    Favorites
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9l4-6Z"/><path d="M2 9h20"/><path d="M12 21 8 9l4-6 4 6-4 12"/></svg>
+    Products
   </button>
   <button class="bn-item" data-view="messages" onclick="go('messages')">
     <span class="badge" id="bn-msg">1</span>
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 1 1 16.1-3.8z"/><path d="M8 11h8M8 15h4"/></svg>
     Messages
+  </button>
+  <button class="bn-item" data-view="favorites" onclick="go('favorites')">
+    <span class="badge" id="bn-fav">0</span>
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-9.3-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.3 11C19 15.4 12 20 12 20Z"/></svg>
+    Wishlist
   </button>
   <button class="bn-item" data-view="profile" onclick="go('profile')">
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
@@ -768,7 +879,7 @@ const NAV_GROUPS = [
     title: "Discover",
     items: [
       { v: "home", label: "Home", icon: IC.home },
-      { v: "explore", label: "Explore Diamonds", icon: IC.explore },
+      { v: "explore", label: "Products", icon: IC.explore },
       { v: "newarrivals", label: "New Arrivals", icon: IC.newarr }
     ]
   },
@@ -785,7 +896,7 @@ const NAV_GROUPS = [
   {
     title: "My Account",
     items: [
-      { v: "favorites", label: "Favorites", icon: IC.fav },
+      { v: "favorites", label: "Wishlist", icon: IC.fav },
       { v: "messages", label: "Messages", icon: IC.msg },
       { v: "consultation", label: "Private Consultation", icon: IC.consult },
       { v: "orders", label: "Orders", icon: IC.orders },
@@ -908,6 +1019,9 @@ function updateBadges() {
   document.getElementById("bag-badge").textContent = S.bag.reduce((a, b) => a + b.qty, 0);
   document.getElementById("bn-fav").textContent = S.fav.length;
   document.getElementById("bn-fav").style.display = S.fav.length ? "grid" : "none";
+  const unread = MSGS.reduce((a, c) => a + (c.unread || 0), 0);
+  const bn = document.getElementById("bn-msg");
+  if (bn) { bn.textContent = unread; bn.style.display = unread ? "grid" : "none"; }
 }
 function isFav(id) { return S.fav.includes(id); }
 function toggleFav(id) {
@@ -966,6 +1080,8 @@ function go(v, param) {
   updateRail();
   renderRail();
   updateBadges();
+  if (v === "messages") { msgView = "list"; syncMsgShell(); }
+  else { document.body.classList.remove("msgs-open", "chat-open"); }
 }
 function renderCurrent() { go(VIEW.current, VIEW.param); }
 function skeleton() {
@@ -1337,46 +1453,251 @@ function renderFavorites() {
 
 /* ---------------- Messages ---------------- */
 const MSGS = [
-  { id: "m1", name: "Colour Diam Concierge", unread: 1, time: "10:24", av: "CD", last: "Your request for the Fancy Vivid Pink is being prepared…", thread: [{ who: "them", t: "Good morning. We have reserved the Fancy Vivid Pink Radiant (CD-1024) for your review until Friday.", time: "09:41" }, { who: "me", t: "Thank you! Could you also send the GIA report and video?", time: "09:52" }, { who: "them", t: "Certainly — your request is being prepared now.", time: "10:24" }] },
-  { id: "m2", name: "Private Consultation Team", unread: 0, time: "Yesterday", av: "PC", last: "Your consultation is confirmed for Thursday at 15:00.", thread: [{ who: "them", t: "Your private consultation is confirmed for Thursday at 15:00. A specialist will join you on the call.", time: "Yesterday" }] }
+  { id: "m1", name: "Sarah Williams", avatar: { type: "product", id: "d1" }, online: true, pinned: true, time: "10:24 AM", unread: 2, me: false, last: "Could you send the GIA certificate?", thread: [
+    { who: "them", type: "text", text: "Good morning Sarah. We've reserved a spectacular Fancy Vivid Pink Radiant, 2.04ct, VS1 — GIA certified — just for you.", time: "9:41 AM" },
+    { who: "them", type: "product", id: "d1", text: "Here it is:", time: "9:42 AM" },
+    { who: "me", type: "text", text: "It's beautiful. I'm looking for a fancy pink diamond for an engagement ring.", time: "10:02 AM" },
+    { who: "them", type: "text", text: "This one would be perfect. I can arrange a private viewing at our salon.", time: "10:05 AM" },
+    { who: "me", type: "text", text: "Could you send the GIA certificate?", time: "10:24 AM" }
+  ] },
+  { id: "m2", name: "David Chen", avatar: { type: "initials", text: "DC" }, online: false, pinned: false, time: "Yesterday", unread: 0, me: true, last: "Can you send the GIA certificate?", thread: [
+    { who: "me", type: "text", text: "Good afternoon, could you send the GIA certificate for the Fancy Intense Blue Cushion (CD-2051)?", time: "4:12 PM" },
+    { who: "them", type: "doc", name: "GIA Certificate — CD-2051.pdf", size: "1.4 MB", text: "Here is the GIA report you requested.", time: "4:20 PM" },
+    { who: "me", type: "text", text: "Thank you — and could you share two similar diamonds in the same budget?", time: "4:24 PM" }
+  ] },
+  { id: "m3", name: "Maria Santos", avatar: { type: "initials", text: "MS" }, online: true, pinned: false, time: "Mon", unread: 1, me: false, last: "Thank you! I'll make the payment.", thread: [
+    { who: "them", type: "quote", id: "d5", price: 210000, text: "Reserved for you at this price until Friday:", time: "Mon 11:02 AM" },
+    { who: "them", type: "text", text: "Thank you! I'll make the payment this afternoon.", time: "Mon 11:04 AM" }
+  ] },
+  { id: "m4", name: "Colour Diam Concierge", avatar: { type: "initials", text: "CD" }, online: true, pinned: false, time: "10:15 AM", unread: 0, me: false, last: "Your private consultation is confirmed for Thursday at 15:00.", thread: [
+    { who: "them", type: "text", text: "Your private consultation is confirmed for Thursday at 15:00. A specialist will join you on the call.", time: "10:15 AM" }
+  ] },
+  { id: "m5", name: "Amelia Laurent", avatar: { type: "product", id: "j2" }, online: false, pinned: false, time: "Tue", unread: 0, me: false, last: "I love the necklace — is it available in yellow gold?", thread: [
+    { who: "them", type: "text", text: "I love the necklace — is it available in yellow gold?", time: "Tue 3:40 PM" },
+    { who: "me", type: "product", id: "j2", text: "We also have this one in yellow gold:", time: "Tue 3:45 PM" }
+  ] }
 ];
 let activeMsg = "m1";
+let msgView = "list";
+let msgQuery = "";
+let msgSearchOpen = false;
+let msgFilter = "all";
+
+function isMobile() { return window.matchMedia ? window.matchMedia("(max-width: 900px)").matches : window.innerWidth < 900; }
+function getMsg(id) { return MSGS.find(x => x.id === id); }
+function fmtTime() { return new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); }
+function msgAvatarHTML(c) {
+  const av = c.avatar || { type: "initials", text: c.name.split(" ").map(w => w[0]).join("").slice(0, 2) };
+  let inner = esc(av.text || c.name.slice(0, 2));
+  if (av.type === "product") { const prod = p(av.id); if (prod) inner = `<img src="${productArt(prod)}" alt="">`; }
+  return `<div class="wa-av">${inner}${c.online ? '<span class="online"></span>' : ""}</div>`;
+}
+function syncMsgShell() {
+  const onMsg = VIEW.current === "messages";
+  document.body.classList.toggle("msgs-open", onMsg && isMobile());
+  document.body.classList.toggle("chat-open", onMsg && msgView === "chat" && isMobile());
+}
+function waContent(m) {
+  switch (m.type) {
+    case "product": {
+      const prod = p(m.id); if (!prod) return esc(m.text || "");
+      return `<div class="wa-share">
+        <div class="wa-share-top"><img src="${productArt(prod)}" alt=""><div class="ws"><span class="nm">${esc(prod.name)}</span><span class="id">${esc(prod.stock)} · ${prod.shape} · ${prod.carat}ct</span></div></div>
+        <div class="wa-share-bot"><span class="pr">${fmt(prod.price)}</span><button class="wa-mini" onclick="go('product','${prod.id}')">View</button></div>
+      </div>`;
+    }
+    case "quote": {
+      const prod = p(m.id); if (!prod) return esc(m.text || "");
+      return `<div class="wa-share">
+        <div class="wa-share-top"><img src="${productArt(prod)}" alt=""><div class="ws"><span class="nm">${esc(prod.name)}</span><span class="id">Reserved offer</span></div></div>
+        <div class="wa-share-bot"><span class="pr">${fmt(m.price || prod.price)}</span><button class="wa-mini" onclick="addToBag('${prod.id}');toast('Offer added to bag')">Accept</button></div>
+      </div>`;
+    }
+    case "doc":
+      return `<div class="wa-doc">
+        <span class="doc-ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6"/><path d="M9 13h6M9 17h4"/></svg></span>
+        <span class="doc-meta"><span class="nm">${esc(m.name)}</span><span class="id">${esc(m.size || "PDF document")}</span></span>
+        <button class="wa-mini" onclick="toast('Downloading ' + '${esc(m.name)}')">Download</button>
+      </div>`;
+    case "image": {
+      const prod = p(m.id);
+      return prod ? `<img class="wa-img" src="${productArt(prod)}" alt="${esc(prod.name)}" onclick="quickView('${prod.id}')">` : "";
+    }
+    default:
+      return esc(m.text || "");
+  }
+}
+function waMsgHTML(m) {
+  const out = m.who === "me";
+  return `<div class="wa-msg ${out ? "out" : "in"}">
+    <div class="wa-bub">${waContent(m)}</div>
+    <span class="wa-meta">${esc(m.time || "")}${out ? `<span class="wa-tick${m.read ? " read" : ""}">✓✓</span>` : ""}</span>
+  </div>`;
+}
+function waTypingHTML() {
+  return `<div class="wa-msg in"><div class="wa-bub wa-typing"><span></span><span></span><span></span></div></div>`;
+}
+function waList() {
+  const q = msgQuery.trim().toLowerCase();
+  let chats = MSGS.slice();
+  if (msgFilter === "unread") chats = chats.filter(c => (c.unread || 0) > 0);
+  else if (msgFilter === "pinned") chats = chats.filter(c => c.pinned);
+  if (q) chats = chats.filter(c => (c.name + " " + c.last).toLowerCase().includes(q));
+  chats.sort((a, b) => (a.pinned === b.pinned) ? 0 : (a.pinned ? -1 : 1));
+  return `
+  <div class="wa-topbar">
+    <span class="wa-title">Messages</span>
+    <button class="wa-icon-btn" aria-label="Search" onclick="toggleMsgSearch()">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    </button>
+    <button class="wa-icon-btn" aria-label="Filter" onclick="openMsgFilter()">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 5h16M7 12h10M10 19h4"/></svg>
+    </button>
+  </div>
+  ${msgSearchOpen ? `<div class="wa-search"><span class="wa-sico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><input id="wa-q" placeholder="Search chats" value="${esc(msgQuery)}" oninput="msgQuery=this.value;renderMessages()"></div>` : ""}
+  <div class="wa-list-scroll">
+    ${chats.map(c => `
+      <div class="wa-chat ${activeMsg === c.id && msgView === "chat" ? "active" : ""}" onclick="openMsg('${c.id}')">
+        ${msgAvatarHTML(c)}
+        <div class="wa-chat-main">
+          <div class="wa-row1"><span class="wa-name">${esc(c.name)}</span><span class="wa-time">${esc(c.time)}</span></div>
+          <div class="wa-row2"><span class="wa-prev ${(c.unread || 0) > 0 ? "unread" : ""}">${c.pinned ? '<span class="wa-pin">📌</span>' : ""}${c.me ? "You: " : ""}${esc(c.last)}</span>${(c.unread || 0) > 0 ? `<span class="wa-unread">${c.unread}</span>` : ""}</div>
+        </div>
+      </div>`).join("")}
+    ${chats.length ? "" : `<div class="wa-empty">No conversations found.</div>`}
+  </div>`;
+}
+function waThread(c) {
+  return `
+  <div class="wa-thead">
+    <button class="wa-icon-btn wa-back" aria-label="Back" onclick="backMsg()">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    ${msgAvatarHTML(c)}
+    <div class="wa-tinfo"><div class="wa-tname">${esc(c.name)}</div><div class="wa-tstatus ${c.online ? "" : "away"}">${c.online ? "online" : "last seen recently"}</div></div>
+    <button class="wa-icon-btn" aria-label="Video call" onclick="toast('Starting a private video call…')">
+      <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg>
+    </button>
+    <button class="wa-icon-btn" aria-label="Voice call" onclick="toast('Starting a secure call…')">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L8.1 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.6 2Z"/></svg>
+    </button>
+  </div>
+  <div class="wa-msgs" id="wa-msgs">
+    ${c.thread.map(waMsgHTML).join("")}
+    ${c.typing ? waTypingHTML() : ""}
+  </div>
+  <div class="wa-quick">
+    <button class="wa-qbtn" onclick="sendCert('${c.id}')">📄 Send Certificate</button>
+    <button class="wa-qbtn" onclick="sendSimilar('${c.id}')">💎 Send Similar Diamonds</button>
+    <button class="wa-qbtn" onclick="sendQuote('${c.id}')">💰 Send Quote</button>
+    <button class="wa-qbtn" onclick="bookConsult('${c.id}')">📅 Book Consultation</button>
+  </div>
+  <div class="wa-composer">
+    <button class="wa-icon-btn" aria-label="Attach" onclick="toast('Attach a GIA report, image or video')">
+      <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21.4 11.1-9 9a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.9 1.9 0 0 1-2.6-2.6l7.3-7.3"/></svg>
+    </button>
+    <input id="msg-input" placeholder="Message ${esc(c.name)}" autocomplete="off" onkeydown="if(event.key==='Enter')sendMsg('${c.id}')">
+    <button class="wa-icon-btn" aria-label="Emoji" onclick="toast('Emoji picker coming soon')">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg>
+    </button>
+    <button class="wa-send" aria-label="Send" onclick="sendMsg('${c.id}')">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3.4 20.4 22 12 3.4 3.6l.01 6.5 13 1.9-13 1.9-.01 6.5Z"/></svg>
+    </button>
+  </div>`;
+}
 function renderMessages() {
   const m = document.getElementById("main");
   m.innerHTML = `
-  <div class="page">
-    <div class="page-head"><h1>Messages</h1><p>Private conversations with your Colour Diam specialists.</p></div>
-    <div class="two-col" style="grid-template-columns:minmax(0,380px) minmax(0,1fr)">
-      <div class="list">
-        ${MSGS.map(x => `
-          <div class="list-item ${activeMsg === x.id ? '' : ''}" style="${activeMsg === x.id ? 'border-color:var(--gold);box-shadow:var(--shadow-sm)' : ''}" onclick="activeMsg='${x.id}';renderMessages()">
-            <span class="li-av">${x.av}</span>
-            <span class="li-main"><span class="t">${x.name} ${x.unread ? '<span class="dot gold"></span>' : ""}</span><span class="s">${x.last}</span></span>
-            <span class="li-side"><span class="t">${x.time}</span></span>
-          </div>`).join("")}
-      </div>
-      <div style="background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:0 20px 20px">
-        ${(() => { const c = MSGS.find(x => x.id === activeMsg); return `
-        <div class="msg-thread">
-          ${c.thread.map(b => `<div class="msg-bubble ${b.who === "me" ? "out" : "in"}">${b.t}<span class="t">${b.time}</span></div>`).join("")}
-        </div>
-        <div class="msg-composer">
-          <input id="msg-input" placeholder="Reply to ${esc(c.name)}…">
-          <button class="btn btn-primary btn-sm" onclick="sendMsg('${c.id}')">Send</button>
-        </div>`; })()}
-      </div>
-    </div>
+  <div class="wa-shell">
+    <div class="wa-list">${waList()}</div>
+    <div class="wa-thread">${waThread(getMsg(activeMsg))}</div>
   </div>`;
-  setTimeout(() => { const i = document.getElementById("msg-input"); if (i) i.focus(); }, 50);
+  syncMsgShell();
+  scrollMsgs();
+  setTimeout(() => { const i = document.getElementById("msg-input"); if (i && (msgView === "chat" || !isMobile())) i.focus(); }, 60);
 }
+function scrollMsgs() {
+  requestAnimationFrame(() => { const el = document.getElementById("wa-msgs"); if (el) el.scrollTop = el.scrollHeight; });
+}
+function openMsg(id) {
+  const c = getMsg(id); if (!c) return;
+  activeMsg = id; msgView = "chat"; c.unread = 0;
+  renderMessages(); updateBadges();
+}
+function backMsg() { msgView = "list"; renderMessages(); }
+function toggleMsgSearch() {
+  msgSearchOpen = !msgSearchOpen; renderMessages();
+  if (msgSearchOpen) setTimeout(() => { const i = document.getElementById("wa-q"); if (i) i.focus(); }, 60);
+}
+function openMsgFilter() {
+  openSheet(`
+    <div class="sheet-head"><h3>Filter conversations</h3></div>
+    <div class="f-sheet">
+      <div class="f-group">
+        <h5>Show</h5>
+        <div class="f-opts">
+          ${[["all", "All"], ["unread", "Unread"], ["pinned", "Pinned"]].map(([v, l]) => `<button class="chip ${msgFilter === v ? "active" : ""}" onclick="setMsgFilter('${v}')">${l}</button>`).join("")}
+        </div>
+      </div>
+    </div>`);
+}
+function setMsgFilter(v) { msgFilter = v; closeSheet(); renderMessages(); }
 function sendMsg(id) {
   const inp = document.getElementById("msg-input");
-  const t = inp.value.trim(); if (!t) return;
-  const c = MSGS.find(x => x.id === id);
-  const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  c.thread.push({ who: "me", t, time: now });
-  c.last = t; inp.value = ""; renderMessages();
-  setTimeout(() => { c.thread.push({ who: "them", t: "Thank you — a specialist will respond shortly.", time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }); c.last = "Thank you — a specialist will respond shortly."; renderMessages(); }, 1400);
+  const t = inp ? inp.value.trim() : "";
+  if (!t) return;
+  const c = getMsg(id);
+  const now = fmtTime();
+  c.thread.push({ who: "me", type: "text", text: t, time: now });
+  c.last = t; c.me = true; c.time = now; c.unread = 0;
+  if (inp) inp.value = "";
+  renderMessages(); scrollMsgs();
+  replySoon(id, [{ who: "them", type: "text", text: "Thank you — one of our specialists will be with you shortly." }], 1500);
+}
+function replySoon(id, fromMsgs, delay) {
+  const c = getMsg(id); if (!c) return;
+  c.typing = true;
+  renderMessages(); scrollMsgs();
+  setTimeout(() => {
+    const c2 = getMsg(id); if (!c2) return;
+    c2.typing = false;
+    const now = fmtTime();
+    fromMsgs.forEach(m => { m.time = now; c2.thread.push(m); });
+    c2.last = fromMsgs[fromMsgs.length - 1].text || "Attachment sent";
+    c2.me = false; c2.time = now; c2.unread = 0;
+    renderMessages(); scrollMsgs();
+  }, delay || 1700);
+}
+function targetProduct(id) {
+  const c = getMsg(id); if (!c) return PRODUCTS[0];
+  const m = c.thread.slice().reverse().find(x => (x.type === "product" || x.type === "quote") && x.id);
+  return (m && p(m.id)) || PRODUCTS[0];
+}
+function sendCert(id) {
+  sendMsgText(id, "Please send the GIA certificate and 360° video for CD-1024.");
+  replySoon(id, [
+    { who: "them", type: "doc", name: "GIA Certificate — CD-1024.pdf", size: "1.2 MB", text: "Here is the GIA report." },
+    { who: "them", type: "text", text: "And the 360° video has been added to your gallery." }
+  ], 1800);
+}
+function sendSimilar(id) {
+  const base = targetProduct(id);
+  const cands = PRODUCTS.filter(x => x.type === "diamond" && x.id !== base.id).slice(0, 2);
+  sendMsgText(id, "Could you also share two similar diamonds in the same budget?");
+  replySoon(id, cands.map(x => ({ who: "them", type: "product", id: x.id, text: "Similar option:" })), 1900);
+}
+function sendQuote(id) {
+  const prod = targetProduct(id);
+  sendMsgText(id, "Could you send me your best quote for this stone?");
+  replySoon(id, [{ who: "them", type: "quote", id: prod.id, price: prod.price, text: "Reserved for you at this price until Friday:" }], 1800);
+}
+function bookConsult(id) { go("consultation"); }
+function sendMsgText(id, t) {
+  const c = getMsg(id);
+  const now = fmtTime();
+  c.thread.push({ who: "me", type: "text", text: t, time: now });
+  c.last = t; c.me = true; c.time = now; c.unread = 0;
+  renderMessages(); scrollMsgs();
 }
 
 /* ---------------- Bag / checkout ---------------- */
@@ -1770,7 +2091,7 @@ function updateRail() {
   const on = VIEW.current === "home" || VIEW.current === "product";
   document.body.classList.toggle("rail-on", on && window.innerWidth >= 1440);
 }
-window.addEventListener("resize", () => { updateRail(); if (document.getElementById("rail").innerHTML) renderRail(); });
+window.addEventListener("resize", () => { updateRail(); if (document.getElementById("rail").innerHTML) renderRail(); syncMsgShell(); });
 
 /* ---------------- Init ---------------- */
 renderSidebar();
