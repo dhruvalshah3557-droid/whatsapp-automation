@@ -12,6 +12,8 @@ _None — no pending task right now._
 
 ## History
 
+- [x] 260804: Fix connection in the messaging app (client refresh) — status: finished
+  - Done: bump SW cache to `colourdiam-msg-v9` and config storage to `mc_cfg_v2` so clients drop the stale page/config and pick up the same-origin server URL; verified `/api/events` and `/api/health` reachable via the public preview URL (commit TBD)
 - [x] 260804: Fix connection issue in the messaging app — status: finished
   - Done: webhook server now serves the messaging app + API on one origin (static serving added in `server/index.js`); app defaults `server_url` to the current origin when none is set, so live events/send/test connection work in the preview; added static-serving server tests (commit `e7397cc`)
 - [x] 260804: Remove all mock data from the `messaging` app — status: finished
