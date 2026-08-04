@@ -18,9 +18,40 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: worker
+
+      - name: Push platform secrets to the worker
+        shell: bash
+        run: |
+          if [ -n "$VERIFY_TOKEN" ]; then printf '%s' "$VERIFY_TOKEN" | npx wrangler secret put VERIFY_TOKEN; fi
+          if [ -n "$WHATSAPP_ACCESS_TOKEN" ]; then printf '%s' "$WHATSAPP_ACCESS_TOKEN" | npx wrangler secret put WHATSAPP_ACCESS_TOKEN; fi
+          if [ -n "$WHATSAPP_PHONE_NUMBER_ID" ]; then printf '%s' "$WHATSAPP_PHONE_NUMBER_ID" | npx wrangler secret put WHATSAPP_PHONE_NUMBER_ID; fi
+          if [ -n "$INSTAGRAM_ACCESS_TOKEN" ]; then printf '%s' "$INSTAGRAM_ACCESS_TOKEN" | npx wrangler secret put INSTAGRAM_ACCESS_TOKEN; fi
+          if [ -n "$INSTAGRAM_SENDER_ID" ]; then printf '%s' "$INSTAGRAM_SENDER_ID" | npx wrangler secret put INSTAGRAM_SENDER_ID; fi
+          if [ -n "$FACEBOOK_PAGE_ACCESS_TOKEN" ]; then printf '%s' "$FACEBOOK_PAGE_ACCESS_TOKEN" | npx wrangler secret put FACEBOOK_PAGE_ACCESS_TOKEN; fi
+          if [ -n "$TIKTOK_ACCESS_TOKEN" ]; then printf '%s' "$TIKTOK_ACCESS_TOKEN" | npx wrangler secret put TIKTOK_ACCESS_TOKEN; fi
+          if [ -n "$LINE_CHANNEL_ACCESS_TOKEN" ]; then printf '%s' "$LINE_CHANNEL_ACCESS_TOKEN" | npx wrangler secret put LINE_CHANNEL_ACCESS_TOKEN; fi
+          if [ -n "$WECHAT_TOKEN" ]; then printf '%s' "$WECHAT_TOKEN" | npx wrangler secret put WECHAT_TOKEN; fi
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          VERIFY_TOKEN: ${{ secrets.VERIFY_TOKEN }}
+          WHATSAPP_ACCESS_TOKEN: ${{ secrets.WHATSAPP_ACCESS_TOKEN }}
+          WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.WHATSAPP_PHONE_NUMBER_ID }}
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_SENDER_ID: ${{ secrets.INSTAGRAM_SENDER_ID }}
+          FACEBOOK_PAGE_ACCESS_TOKEN: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN }}
+          TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          WECHAT_TOKEN: ${{ secrets.WECHAT_TOKEN }}
