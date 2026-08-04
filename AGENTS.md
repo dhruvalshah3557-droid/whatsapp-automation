@@ -48,6 +48,20 @@ The repo's `TASKS.md` file is the single source of truth for task status. It let
 2. Find the first pending task (a bullet starting with `- [ ]`).
 3. If a pending task exists, treat it as the active task and continue working on it before accepting new work.
 
+### Monitoring agent (keep checking and fixing)
+
+A self-healing monitor lives in `scripts/monitor.mjs`. Treat it as the standing "agent" that keeps the stack healthy.
+
+- At the start of every session (and before finishing), run:
+
+```bash
+node scripts/monitor.mjs --fix
+```
+
+  It checks the local webhook server, the public preview API, that the service worker never caches `/api` calls, that the served app code is current, and the full test suite. With `--fix` it restarts the server if it is down. Exit code 0 = healthy, 1 = something failed that must be fixed before stopping.
+- If the monitor reports failures, fix them and re-run until `MONITOR OK`.
+- During a live session the monitor can be run in a loop (background terminal) every 60 seconds so issues are caught and auto-healed promptly.
+
 ### When a new task arrives
 
 1. Add a pending entry to `TASKS.md`:
