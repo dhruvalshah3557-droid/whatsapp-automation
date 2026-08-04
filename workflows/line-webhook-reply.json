@@ -12,7 +12,10 @@
       "name": "LINE Events",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1.2,
-      "position": [0, 0]
+      "position": [
+        0,
+        0
+      ]
     },
     {
       "parameters": {
@@ -48,7 +51,10 @@
       "name": "Is inbound text message",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [220, 0]
+      "position": [
+        220,
+        0
+      ]
     },
     {
       "parameters": {
@@ -72,36 +78,35 @@
       "name": "Send LINE Reply",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [440, 0]
+      "position": [
+        440,
+        0
+      ]
     }
   ],
   "connections": {
     "LINE Events": {
-      "Is inbound text message": {
-        "main": [
-          [
-            {
-              "node": "Is inbound text message",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Is inbound text message": [
+        [
+          {
+            "node": "Is inbound text message",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "Is inbound text message": {
-      "Send LINE Reply": {
-        "main": [
-          [
-            {
-              "node": "Send LINE Reply",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          []
-        ]
-      }
+      "Send LINE Reply": [
+        [
+          {
+            "node": "Send LINE Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
     }
   },
   "settings": {

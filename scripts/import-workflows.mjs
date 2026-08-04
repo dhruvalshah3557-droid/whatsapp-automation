@@ -17,6 +17,7 @@ const files = readdirSync(workflowsDir).filter((f) => f.endsWith('.json'));
 
 for (const file of files) {
   const workflow = JSON.parse(readFileSync(join(workflowsDir, file), 'utf8'));
+  delete workflow.active;
   const res = await fetch(`${N8N_URL}/api/v1/workflows`, {
     method: 'POST',
     headers: {

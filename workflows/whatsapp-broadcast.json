@@ -7,7 +7,10 @@
       "name": "Manual Trigger",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [0, 0]
+      "position": [
+        0,
+        0
+      ]
     },
     {
       "parameters": {
@@ -17,7 +20,10 @@
       "name": "Recipients list",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [220, 0]
+      "position": [
+        220,
+        0
+      ]
     },
     {
       "parameters": {
@@ -27,7 +33,10 @@
       "name": "Process each recipient",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 1,
-      "position": [440, 0]
+      "position": [
+        440,
+        0
+      ]
     },
     {
       "parameters": {
@@ -51,55 +60,52 @@
       "name": "Send WhatsApp Broadcast",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [660, 0]
+      "position": [
+        660,
+        0
+      ]
     }
   ],
   "connections": {
     "Manual Trigger": {
-      "Recipients list": {
-        "main": [
-          [
-            {
-              "node": "Recipients list",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Recipients list": [
+        [
+          {
+            "node": "Recipients list",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "Recipients list": {
-      "Process each recipient": {
-        "main": [
-          [
-            {
-              "node": "Process each recipient",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Process each recipient": [
+        [
+          {
+            "node": "Process each recipient",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "Process each recipient": {
-      "Send WhatsApp Broadcast": {
-        "main": [
-          [
-            {
-              "node": "Send WhatsApp Broadcast",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Process each recipient",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Send WhatsApp Broadcast": [
+        [
+          {
+            "node": "Send WhatsApp Broadcast",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Process each recipient",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     }
   },
   "settings": {

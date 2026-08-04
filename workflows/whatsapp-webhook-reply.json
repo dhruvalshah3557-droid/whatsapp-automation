@@ -12,7 +12,10 @@
       "name": "Verify WhatsApp Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1.2,
-      "position": [0, 0]
+      "position": [
+        0,
+        0
+      ]
     },
     {
       "parameters": {
@@ -39,7 +42,10 @@
       "name": "Check verify token",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [220, -60]
+      "position": [
+        220,
+        -60
+      ]
     },
     {
       "parameters": {
@@ -51,7 +57,10 @@
       "name": "Return challenge",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [440, -140]
+      "position": [
+        440,
+        -140
+      ]
     },
     {
       "parameters": {
@@ -63,7 +72,10 @@
       "name": "Reject",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [440, 40]
+      "position": [
+        440,
+        40
+      ]
     },
     {
       "parameters": {
@@ -76,7 +88,10 @@
       "name": "WhatsApp Events",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1.2,
-      "position": [0, 220]
+      "position": [
+        0,
+        220
+      ]
     },
     {
       "parameters": {
@@ -103,7 +118,10 @@
       "name": "Is inbound message",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [220, 220]
+      "position": [
+        220,
+        220
+      ]
     },
     {
       "parameters": {
@@ -130,7 +148,10 @@
       "name": "Is text message",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [440, 220]
+      "position": [
+        440,
+        220
+      ]
     },
     {
       "parameters": {
@@ -154,83 +175,76 @@
       "name": "Send WhatsApp Reply",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [660, 220]
+      "position": [
+        660,
+        220
+      ]
     }
   ],
   "connections": {
     "Verify WhatsApp Webhook": {
-      "Check verify token": {
-        "main": [
-          [
-            {
-              "node": "Check verify token",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Check verify token": [
+        [
+          {
+            "node": "Check verify token",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "Check verify token": {
-      "Return challenge": {
-        "main": [
-          [
-            {
-              "node": "Return challenge",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Reject",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Return challenge": [
+        [
+          {
+            "node": "Return challenge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reject",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "WhatsApp Events": {
-      "Is inbound message": {
-        "main": [
-          [
-            {
-              "node": "Is inbound message",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Is inbound message": [
+        [
+          {
+            "node": "Is inbound message",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "Is inbound message": {
-      "Is text message": {
-        "main": [
-          [
-            {
-              "node": "Is text message",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          []
-        ]
-      }
+      "Is text message": [
+        [
+          {
+            "node": "Is text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
     },
     "Is text message": {
-      "Send WhatsApp Reply": {
-        "main": [
-          [
-            {
-              "node": "Send WhatsApp Reply",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          []
-        ]
-      }
+      "Send WhatsApp Reply": [
+        [
+          {
+            "node": "Send WhatsApp Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
     }
   },
   "settings": {

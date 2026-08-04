@@ -12,7 +12,10 @@
       "name": "TikTok Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1.2,
-      "position": [0, 0]
+      "position": [
+        0,
+        0
+      ]
     },
     {
       "parameters": {
@@ -39,7 +42,10 @@
       "name": "Is verification challenge",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [220, -60]
+      "position": [
+        220,
+        -60
+      ]
     },
     {
       "parameters": {
@@ -51,7 +57,10 @@
       "name": "Return challenge",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [440, -140]
+      "position": [
+        440,
+        -140
+      ]
     },
     {
       "parameters": {
@@ -78,7 +87,10 @@
       "name": "Is inbound message",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [220, 220]
+      "position": [
+        220,
+        220
+      ]
     },
     {
       "parameters": {
@@ -90,7 +102,10 @@
       "name": "Acknowledge",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [440, 300]
+      "position": [
+        440,
+        300
+      ]
     },
     {
       "parameters": {
@@ -114,7 +129,10 @@
       "name": "Send TikTok Reply",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [440, 220]
+      "position": [
+        440,
+        220
+      ]
     },
     {
       "parameters": {
@@ -126,75 +144,70 @@
       "name": "Reply acknowledged",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [660, 220]
+      "position": [
+        660,
+        220
+      ]
     }
   ],
   "connections": {
     "TikTok Webhook": {
-      "Is verification challenge": {
-        "main": [
-          [
-            {
-              "node": "Is verification challenge",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Is verification challenge": [
+        [
+          {
+            "node": "Is verification challenge",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "Is verification challenge": {
-      "Return challenge": {
-        "main": [
-          [
-            {
-              "node": "Return challenge",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Is inbound message",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Return challenge": [
+        [
+          {
+            "node": "Return challenge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is inbound message",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "Is inbound message": {
-      "Send TikTok Reply": {
-        "main": [
-          [
-            {
-              "node": "Send TikTok Reply",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Acknowledge",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Send TikTok Reply": [
+        [
+          {
+            "node": "Send TikTok Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Acknowledge",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "Send TikTok Reply": {
-      "Reply acknowledged": {
-        "main": [
-          [
-            {
-              "node": "Reply acknowledged",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Reply acknowledged": [
+        [
+          {
+            "node": "Reply acknowledged",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     }
   },
   "settings": {

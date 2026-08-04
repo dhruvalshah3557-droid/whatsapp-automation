@@ -12,7 +12,10 @@
       "name": "Verify WeChat Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1.2,
-      "position": [0, -160]
+      "position": [
+        0,
+        -160
+      ]
     },
     {
       "parameters": {
@@ -22,7 +25,10 @@
       "name": "Compute signature",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [220, -160]
+      "position": [
+        220,
+        -160
+      ]
     },
     {
       "parameters": {
@@ -49,7 +55,10 @@
       "name": "Signature valid?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [440, -160]
+      "position": [
+        440,
+        -160
+      ]
     },
     {
       "parameters": {
@@ -61,7 +70,10 @@
       "name": "Return echostr",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [660, -240]
+      "position": [
+        660,
+        -240
+      ]
     },
     {
       "parameters": {
@@ -73,7 +85,10 @@
       "name": "Reject",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [660, -80]
+      "position": [
+        660,
+        -80
+      ]
     },
     {
       "parameters": {
@@ -86,7 +101,10 @@
       "name": "WeChat Events",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1.2,
-      "position": [0, 120]
+      "position": [
+        0,
+        120
+      ]
     },
     {
       "parameters": {
@@ -96,7 +114,10 @@
       "name": "Parse WeChat XML",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [220, 120]
+      "position": [
+        220,
+        120
+      ]
     },
     {
       "parameters": {
@@ -123,7 +144,10 @@
       "name": "Is text message",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [440, 120]
+      "position": [
+        440,
+        120
+      ]
     },
     {
       "parameters": {
@@ -133,7 +157,10 @@
       "name": "Build reply XML",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [660, 40]
+      "position": [
+        660,
+        40
+      ]
     },
     {
       "parameters": {
@@ -145,7 +172,10 @@
       "name": "Return reply",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [880, 40]
+      "position": [
+        880,
+        40
+      ]
     },
     {
       "parameters": {
@@ -157,114 +187,103 @@
       "name": "Acknowledge",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [660, 200]
+      "position": [
+        660,
+        200
+      ]
     }
   ],
   "connections": {
     "Verify WeChat Webhook": {
-      "Compute signature": {
-        "main": [
-          [
-            {
-              "node": "Compute signature",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Compute signature": [
+        [
+          {
+            "node": "Compute signature",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "Compute signature": {
-      "Signature valid?": {
-        "main": [
-          [
-            {
-              "node": "Signature valid?",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Signature valid?": [
+        [
+          {
+            "node": "Signature valid?",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "Signature valid?": {
-      "Return echostr": {
-        "main": [
-          [
-            {
-              "node": "Return echostr",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Reject",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Return echostr": [
+        [
+          {
+            "node": "Return echostr",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reject",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "WeChat Events": {
-      "Parse WeChat XML": {
-        "main": [
-          [
-            {
-              "node": "Parse WeChat XML",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Parse WeChat XML": [
+        [
+          {
+            "node": "Parse WeChat XML",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "Parse WeChat XML": {
-      "Is text message": {
-        "main": [
-          [
-            {
-              "node": "Is text message",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Is text message": [
+        [
+          {
+            "node": "Is text message",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "Is text message": {
-      "Build reply XML": {
-        "main": [
-          [
-            {
-              "node": "Build reply XML",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Acknowledge",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Build reply XML": [
+        [
+          {
+            "node": "Build reply XML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Acknowledge",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     },
     "Build reply XML": {
-      "Return reply": {
-        "main": [
-          [
-            {
-              "node": "Return reply",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "Return reply": [
+        [
+          {
+            "node": "Return reply",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
     }
   },
   "settings": {
