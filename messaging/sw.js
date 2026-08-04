@@ -1,4 +1,4 @@
-const CACHE = "colourdiam-msg-v9";
+const CACHE = "colourdiam-msg-v10";
 const ASSETS = [
   "./",
   "./index.html",
@@ -28,6 +28,15 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
   const isNav = req.mode === "navigate" || req.destination === "document";
+
+  // Never cache API calls so live events are always fetched fresh.
+  if (req.url.includes("/api/")) {
+    event.respondWith(fetch(req).catch(() => new Response(JSON.stringify({ events: [] }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    })));
+    return;
+  }
 
   if (isNav) {
     // Network-first for the page so updates are never stale.
