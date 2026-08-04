@@ -1,10 +1,11 @@
-name: Deploy Dashboard to GitHub Pages
+name: Deploy Apps to GitHub Pages
 
 on:
   push:
     branches: [main]
     paths:
       - dashboard/**
+      - messaging/**
       - .github/workflows/pages.yml
   workflow_dispatch:
 
@@ -27,10 +28,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Prepare Pages artifact
+        run: |
+          mkdir -p pages/messaging
+          cp -r dashboard/* pages/
+          cp -r messaging/* pages/messaging/
+          touch pages/.nojekyll
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dashboard
+          path: ./pages
 
       - name: Deploy to GitHub Pages
         id: deployment
