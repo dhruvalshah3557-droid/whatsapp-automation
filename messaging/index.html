@@ -541,6 +541,58 @@ body {
   border: 2px solid var(--bg-chat);
   box-shadow: 0 0 6px rgba(34,197,94,.6);
 }
+
+/* ===================== 2026 UX POLISH ===================== */
+
+/* Chat bubbles: WhatsApp-style grouping */
+.msg-row { margin-bottom: 2px; }
+.messages .msg-row.new-run:first-child { margin-top: 0; }
+.msg-row.new-run { margin-top: 8px; }
+.msg-row.in .bubble { border-top-left-radius: 10px; }
+.msg-row.out .bubble { border-top-right-radius: 10px; }
+.msg-row.in.run-tail .bubble { border-bottom-left-radius: 4px; }
+.msg-row.out.run-tail .bubble { border-bottom-right-radius: 4px; }
+
+/* Read ticks */
+.ticks { display: inline-flex; align-items: center; margin-left: 5px; vertical-align: -2px; }
+.ticks svg { width: 15px; height: 15px; color: #7ef2c0; }
+.msg-row.out .bubble .ticks.blue svg { color: #53bdeb; }
+
+/* Typing indicator */
+.typing-row { margin: 2px 0; }
+.typing-indicator { display: inline-flex; align-items: center; gap: 4px; padding: 11px 14px; background: var(--in-bubble); border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.typing-indicator span { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: typingBounce 1.2s infinite ease-in-out; }
+.typing-indicator span:nth-child(2) { animation-delay: .15s; }
+.typing-indicator span:nth-child(3) { animation-delay: .3s; }
+@keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: .45; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+/* Chat header back button */
+.ch-header-btn svg { width: 24px; height: 24px; display: block; color: var(--muted); transition: color var(--ease); }
+.ch-header-btn:hover svg { color: var(--text); }
+
+/* Connector progress */
+.progress-row { display: flex; align-items: center; gap: 12px; }
+.progress-bar { flex: 1; height: 8px; border-radius: 999px; background: rgba(255,255,255,.07); overflow: hidden; }
+.progress-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, #2dd36b, #22c55e); box-shadow: 0 0 10px rgba(34,197,94,.5); transition: width .45s cubic-bezier(.4,0,.2,1); }
+.progress-label { font-size: 12px; color: var(--muted); font-weight: 700; white-space: nowrap; }
+
+/* Connector status pill */
+.status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; letter-spacing: .02em; white-space: nowrap; }
+.status-pill .status-dot { width: 8px; height: 8px; flex-shrink: 0; }
+.status-pill.configured { color: var(--green); background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.28); }
+.status-pill.partial { color: var(--amber); background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.28); }
+.status-pill.notset { color: var(--muted); background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); }
+.status-pill.configured .status-dot { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.status-pill.partial .status-dot { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+.status-pill.notset .status-dot { background: #5a6272; }
+
+/* AI quick actions: horizontal scroll on small screens */
+#ai-quick { flex-wrap: nowrap; overflow-x: auto; gap: 6px; padding-bottom: 6px; scrollbar-width: none; }
+#ai-quick::-webkit-scrollbar { display: none; }
+#ai-quick .copy-btn { flex-shrink: 0; }
+
+/* Auto-grow textareas */
+.input-bar textarea { overflow-y: auto; }
 </style>
 </head>
 <body>
@@ -573,11 +625,11 @@ body {
                 <div class="ch-name" id="ch-name"></div>
                 <div class="ch-status" id="ch-status"></div>
               </div>
-              <button class="ch-header-btn" onclick="backToList()">‹</button>
+              <button class="ch-header-btn" onclick="backToList()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
             </div>
             <div class="messages" id="messages"></div>
             <div class="input-bar">
-              <textarea id="msg-input" rows="1" placeholder="Type a message" onkeydown="onKey(event)"></textarea>
+              <textarea id="msg-input" rows="1" placeholder="Type a message" onkeydown="onKey(event)" oninput="autoGrow(this)"></textarea>
               <button class="send-btn" id="send-btn" onclick="sendMsg()" aria-label="Send message"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg></button>
             </div>
           </div>
@@ -612,7 +664,7 @@ body {
 
           <div class="messages" id="ai-messages"></div>
 
-          <div id="ai-quick" class="input-bar" style="flex-wrap:wrap;padding-bottom:6px">
+          <div id="ai-quick" class="input-bar" style="padding-bottom:6px">
             <button class="copy-btn" onclick="aiQuick('set whatsapp token to <PASTE_TOKEN>')">Set WhatsApp token</button>
             <button class="copy-btn" onclick="aiQuick('show status')">Status</button>
             <button class="copy-btn" onclick="aiQuick('show env')">Show .env</button>
@@ -621,7 +673,7 @@ body {
           </div>
 
           <div class="input-bar">
-            <textarea id="ai-input" rows="1" placeholder="Ask the AI to configure something... e.g. set instagram token to X" onkeydown="aiKey(event)"></textarea>
+            <textarea id="ai-input" rows="1" placeholder="Ask the AI to configure something... e.g. set instagram token to X" onkeydown="aiKey(event)" oninput="autoGrow(this)"></textarea>
             <button class="send-btn" id="ai-send-btn" onclick="aiSend()" aria-label="Send message"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg></button>
           </div>
         </div>
@@ -645,6 +697,18 @@ body {
               <div class="full"><label>Verify Token (shared by all platforms)</label><input id="verify-token" type="password" placeholder="change_me_verify_token"></div>
             </div>
             <p class="hint">The verify token is checked when Meta/TikTok verify your webhook URL. Keep the same value everywhere — it must match the token you enter in each platform console.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title"><div class="logo-lg" style="background:#d4af37">2</div><span>Connect Platforms</span></div>
+              <span class="step">STEP 2</span>
+            </div>
+            <div class="progress-row">
+              <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+              <span class="progress-label" id="progress-label">0 of 6 configured</span>
+            </div>
+            <p class="hint">Enter each platform's tokens below. The generated .env updates automatically as you type.</p>
           </div>
 
           <div id="platforms"></div>
@@ -848,17 +912,14 @@ function render() {
   box.innerHTML = PLATFORMS.map((p) => {
     const missing = p.fields.filter(f => !(cfg[f.key] || "").trim()).length;
     const done = missing === 0;
-    const st = done ? "status-online" : "status-pending";
+    const cls = done ? "configured" : (missing === p.fields.length ? "notset" : "partial");
     const lbl = done ? "Configured" : (missing === p.fields.length ? "Not set" : "Partial");
     const border = p.border ? `border:${p.border}` : "";
     return `
     <div class="card">
       <div class="card-head">
         <div class="card-title"><div class="logo-lg" style="background:${p.color};${border}">${p.svg || p.icon}</div><span>${p.name}</span></div>
-        <div style="text-align:right">
-          <div class="status-dot ${st}"></div>
-          <div class="status-label">${lbl}</div>
-        </div>
+        <span class="status-pill ${cls}"><span class="status-dot"></span>${lbl}</span>
       </div>
       <div class="form-row">
         ${p.fields.map(f => `
@@ -876,6 +937,17 @@ function render() {
     </div>`;
   }).join("");
   renderEnv();
+  renderProgress();
+}
+
+function renderProgress() {
+  const cfg = load(CFG_KEY);
+  const total = PLATFORMS.length;
+  const configured = PLATFORMS.filter(p => p.fields.every(f => (cfg[f.key] || "").trim())).length;
+  const fill = document.getElementById("progress-fill");
+  const label = document.getElementById("progress-label");
+  if (fill) fill.style.width = Math.round(configured / total * 100) + "%";
+  if (label) label.textContent = configured + " of " + total + " configured";
 }
 
 function onField(pid, key, value) {
@@ -883,6 +955,7 @@ function onField(pid, key, value) {
   cfg[key] = value;
   save(CFG_KEY, cfg);
   renderEnv();
+  renderProgress();
 }
 
 function renderEnv() {
@@ -1045,6 +1118,11 @@ function timeFmt() {
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+function autoGrow(el) {
+  el.style.height = "auto";
+  el.style.height = Math.min(el.scrollHeight, 120) + "px";
+}
+
 function sendMsg() {
   const input = document.getElementById("msg-input");
   const text = input.value.trim();
@@ -1058,11 +1136,14 @@ function sendMsg() {
   d.activeId = c.id;
   save(CHAT_KEY, d);
   input.value = "";
+  input.style.height = "auto";
   renderContacts();
   renderChat(c);
   scrollBottom();
   if (window.innerWidth > 760) {
+    showTyping();
     setTimeout(() => {
+      hideTyping();
       const d2 = chatData();
       const c2 = d2.contacts.find(x => x.id === c.id);
       if (!c2) return;
@@ -1075,6 +1156,22 @@ function sendMsg() {
       scrollBottom();
     }, 1200);
   }
+}
+
+function showTyping() {
+  const m = document.getElementById("messages");
+  if (m.querySelector(".typing-row")) return;
+  const el = document.createElement("div");
+  el.className = "msg-row in typing-row";
+  el.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+  m.appendChild(el);
+  m.scrollTop = m.scrollHeight;
+}
+
+function hideTyping() {
+  const m = document.getElementById("messages");
+  const el = m.querySelector(".typing-row");
+  if (el) el.remove();
 }
 
 function onKey(e) {
@@ -1140,6 +1237,8 @@ function tryInstallApp() {
   }
 }
 
+const TICKS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12.5 6 17l9-9"/><path d="m11.5 17.5 4 4 8-8"/></svg>';
+
 function renderChat(c) {
   document.getElementById("ch-avatar").textContent = c.initials;
   document.getElementById("ch-avatar").style.background = c.color;
@@ -1147,12 +1246,16 @@ function renderChat(c) {
   document.getElementById("ch-status").textContent = (c.online ? "online" : "offline") + " · " + c.platform;
   const m = document.getElementById("messages");
   let lastDay = "";
-  m.innerHTML = c.messages.map(msg => {
+  m.innerHTML = c.messages.map((msg, i) => {
+    const prev = c.messages[i - 1];
+    const next = c.messages[i + 1];
+    const newRun = !prev || prev.from !== msg.from;
+    const runTail = !next || next.from !== msg.from;
     const d = msg.time === "Now" || /^(\d{1,2}):/.test(msg.time) ? "Today" : (msg.time === "Yesterday" ? "Yesterday" : msg.time);
     const divider = (d !== lastDay) ? `<div class="day-divider"><span>${d}</span></div>` : "";
     lastDay = d;
-    const ticks = msg.from === "me" ? `<span class="ticks"> ✓✓</span>` : "";
-    return `${divider}<div class="msg-row ${msg.from === "me" ? "out" : "in"}"><div class="bubble">${esc(msg.text)}${ticks}<span class="time">${esc(msg.time)}</span></div></div>`;
+    const ticks = msg.from === "me" ? `<span class="ticks blue">${TICKS_SVG}</span>` : "";
+    return `${divider}<div class="msg-row ${msg.from === "me" ? "out" : "in"} ${newRun ? "new-run" : ""} ${runTail ? "run-tail" : ""}"><div class="bubble">${esc(msg.text)}${ticks}<span class="time">${esc(msg.time)}</span></div></div>`;
   }).join("");
   m.scrollTop = m.scrollHeight;
 }
@@ -1386,6 +1489,7 @@ async function aiSend() {
   const text = input.value.trim();
   if (!text) return;
   input.value = "";
+  input.style.height = "auto";
   aiAppend("user", text);
 
   const offline = aiHandleCommand(text);
