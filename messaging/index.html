@@ -667,6 +667,30 @@ body {
 .inbar-btn.recording { background: rgba(239,68,68,.16); color: var(--red); animation: recPulse 1s infinite ease-in-out; }
 .inbar-btn.recording:hover { color: var(--red); }
 @keyframes recPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,.35); } 50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); } }
+
+/* ===================== LIVE SERVER INTEGRATION ===================== */
+
+/* Sidebar connection chip */
+.live-status {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 14px; font-size: 11px; font-weight: 700; color: var(--muted);
+  border-bottom: 1px solid rgba(255,255,255,.04); letter-spacing: .02em;
+}
+.live-status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #5a6272; flex-shrink: 0; }
+.live-status.connected { color: var(--green); }
+.live-status.connected::before { background: var(--green); box-shadow: 0 0 7px var(--green); }
+.live-status.connecting { color: var(--amber); }
+.live-status.connecting::before { background: var(--amber); box-shadow: 0 0 7px var(--amber); }
+.live-status.error { color: var(--red); }
+.live-status.error::before { background: var(--red); box-shadow: 0 0 7px var(--red); }
+
+/* System notices inside chats */
+.msg-row.system { justify-content: center; }
+.msg-row.system .bubble {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+  color: var(--muted); font-size: 12px; text-align: center; border-radius: 12px;
+  max-width: 85%; box-shadow: none;
+}
 </style>
 </head>
 <body>
@@ -684,6 +708,7 @@ body {
       <div class="chats-wrap">
         <aside class="sidebar" id="sidebar">
           <div class="sidebar-search"><input id="search" placeholder="Search chats..." oninput="renderContacts()"></div>
+          <div class="live-status" id="live-status">Live off</div>
           <div class="contact-list" id="contact-list"></div>
         </aside>
         <section class="chat-panel" id="chat-panel">
@@ -766,9 +791,9 @@ body {
 
           <div id="ai-quick" class="input-bar" style="padding-bottom:6px">
             <button class="copy-btn" onclick="aiQuick('set whatsapp token to <PASTE_TOKEN>')">Set WhatsApp token</button>
+            <button class="copy-btn" onclick="aiQuick('check server')">Check server</button>
             <button class="copy-btn" onclick="aiQuick('show status')">Status</button>
             <button class="copy-btn" onclick="aiQuick('show env')">Show .env</button>
-            <button class="copy-btn" onclick="aiQuick('set n8n url to <URL>')">Set n8n URL</button>
             <button class="copy-btn" onclick="aiQuick('help')">Help</button>
           </div>
 
@@ -784,6 +809,20 @@ body {
     <div id="view-connector" class="view">
       <div class="connector-view">
         <div class="connector-inner">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title"><div class="logo-lg" style="background:linear-gradient(135deg,#2dd36b,#0f6b53)">+</div><span>Webhook Server</span></div>
+              <span class="step">LIVE</span>
+            </div>
+            <div class="form-row">
+              <div><label>Server URL</label><input id="server-url" placeholder="https://your-domain or https://messaging-webhooks.xxx.workers.dev"></div>
+              <div><label>Server API Key (optional)</label><input id="server-api-key" type="password" placeholder="API_KEY env if set"></div>
+            </div>
+            <button class="btn btn-ghost" style="width:100%" id="test-server-btn" onclick="testServer()">Test connection</button>
+            <div class="msg" id="server-test-msg"></div>
+            <p class="hint">Enter your deployed webhook server (standalone Node server or Cloudflare Worker). The Chats view then shows live inbound messages from <code>/api/events</code>, and replies are sent through <code>/api/send</code>. Tokens stay on this device.</p>
+          </div>
+
           <div class="card">
             <div class="card-head">
               <div class="card-title"><div class="logo-lg" style="background:#3b82f6">n8n</div><span>n8n Instance</span></div>
@@ -1121,7 +1160,141 @@ function resetAll() {
   document.getElementById("n8n-url").value = "https://dhruval.n8n-hub.site";
   document.getElementById("n8n-api-key").value = "";
   document.getElementById("verify-token").value = "";
+  document.getElementById("server-url").value = "";
+  document.getElementById("server-api-key").value = "";
   render();
+  maybeStartPolling();
+}
+
+/* ---------------- Live server integration ---------------- */
+
+function serverCfg() {
+  const c = load(CFG_KEY);
+  return {
+    url: (c.server_url || "").trim().replace(/\/+$/, ""),
+    key: (c.server_api_key || "").trim(),
+  };
+}
+
+async function apiCall(path, opts = {}) {
+  const s = serverCfg();
+  if (!s.url) throw new Error("Server URL not configured");
+  const headers = { "Content-Type": "application/json" };
+  if (s.key) headers.Authorization = "Bearer " + s.key;
+  const res = await fetch(s.url + path, { ...opts, headers: { ...headers, ...(opts.headers || {}) } });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
+  return data;
+}
+
+let lastEventId = Number(localStorage.getItem("mc_last_event_id") || 0);
+let pollTimer = null;
+
+function setLiveStatus(state) {
+  const el = document.getElementById("live-status");
+  if (!el) return;
+  const map = {
+    connected: ["connected", "Live: connected"],
+    connecting: ["connecting", "Live: connecting..."],
+    error: ["error", "Live: connection error"],
+    off: ["", "Live off"],
+  };
+  const pair = map[state] || map.off;
+  el.className = "live-status " + pair[0];
+  el.textContent = pair[1];
+}
+
+function fmtLiveTime(iso) {
+  try {
+    return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  } catch (e) {
+    return "Now";
+  }
+}
+
+function addLiveEvent(ev) {
+  const d = chatData();
+  if (!d.contacts) d.contacts = JSON.parse(JSON.stringify(SEED));
+  const key = ev.platform + ":" + ev.from;
+  let c = d.contacts.find((x) => x.liveKey === key);
+  const time = fmtLiveTime(ev.time);
+  if (!c) {
+    const meta = PLATFORMS.find((p) => p.id === ev.platform);
+    c = {
+      id: "live-" + key.replace(/[^a-zA-Z0-9]/g, "").slice(0, 32),
+      liveKey: key,
+      name: (meta && meta.name) || ev.platform,
+      platform: (meta && meta.name) || ev.platform,
+      color: (meta && meta.color) || "#8b93a7",
+      initials: ((meta && (meta.icon || ev.platform[0])) || ev.platform[0] || "?").toUpperCase(),
+      online: true,
+      live: true,
+      lastMsg: ev.text,
+      time,
+      unread: d.activeId === c.id ? 0 : 1,
+      messages: [{ from: "them", text: ev.text, time }],
+    };
+    d.contacts.unshift(c);
+  } else {
+    c.messages.push({ from: "them", text: ev.text, time });
+    c.lastMsg = ev.text;
+    c.time = time;
+    c.online = true;
+    if (d.activeId !== c.id) c.unread = (c.unread || 0) + 1;
+  }
+  save(CHAT_KEY, d);
+  renderContacts();
+  if (d.activeId === c.id) renderChat(c);
+}
+
+async function pollEvents() {
+  if (!serverCfg().url) { setLiveStatus("off"); return; }
+  try {
+    const data = await apiCall("/api/events?since=" + lastEventId);
+    const evs = (data.events || []).filter((e) => e.id > lastEventId);
+    for (const ev of evs) {
+      lastEventId = Math.max(lastEventId, ev.id);
+      addLiveEvent(ev);
+    }
+    localStorage.setItem("mc_last_event_id", String(lastEventId));
+    setLiveStatus("connected");
+  } catch (err) {
+    setLiveStatus("error");
+  }
+}
+
+function maybeStartPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  if (!serverCfg().url) { setLiveStatus("off"); return; }
+  setLiveStatus("connecting");
+  pollEvents();
+  pollTimer = setInterval(pollEvents, 5000);
+}
+
+async function testServer() {
+  const btn = document.getElementById("test-server-btn");
+  const msg = document.getElementById("server-test-msg");
+  if (!btn) return;
+  btn.disabled = true;
+  btn.textContent = "Testing...";
+  try {
+    const h = await apiCall("/api/health");
+    msg.className = "msg ok";
+    msg.textContent = "Connected to " + (h.name || "webhook server") + (h.events ? " · " + h.events + " recent events" : "");
+  } catch (err) {
+    msg.className = "msg ok";
+    msg.style.color = "var(--red)";
+    msg.textContent = "Error: " + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Test connection";
+    setTimeout(() => { msg.className = "msg"; msg.style.color = ""; }, 6000);
+  }
+}
+
+async function sendLive(c, text) {
+  const [platform, from] = c.liveKey.split(":");
+  await apiCall("/api/send", { method: "POST", body: JSON.stringify({ platform, to: from, text }) });
 }
 
 /* ---------------- Chats (WhatsApp-like) ---------------- */
@@ -1234,7 +1407,7 @@ function sendMsg() {
   const d = chatData();
   const c = d.contacts.find(x => x.id === (d.activeId || ""));
   if (!c) return;
-  c.messages.push({ from: "me", text, time: timeFmt(), ticks: true });
+  c.messages.push({ from: "me", text, time: timeFmt(), ticks: false });
   c.lastMsg = text;
   c.time = "Now";
   d.activeId = c.id;
@@ -1244,7 +1417,28 @@ function sendMsg() {
   renderContacts();
   renderChat(c);
   scrollBottom();
-  if (window.innerWidth > 760) {
+
+  if (c.liveKey) {
+    sendLive(c, text).then(() => {
+      const d2 = chatData();
+      const c2 = d2.contacts.find((x) => x.id === c.id);
+      if (!c2) return;
+      const last = c2.messages[c2.messages.length - 1];
+      if (last && last.from === "me") last.ticks = true;
+      save(CHAT_KEY, d2);
+      renderContacts();
+      renderChat(c2);
+    }).catch((err) => {
+      const d2 = chatData();
+      const c2 = d2.contacts.find((x) => x.id === c.id);
+      if (!c2) return;
+      c2.messages.push({ from: "system", text: "Failed to send via server: " + err.message, time: timeFmt() });
+      save(CHAT_KEY, d2);
+      renderContacts();
+      renderChat(c2);
+      scrollBottom();
+    });
+  } else if (window.innerWidth > 760) {
     showTyping();
     setTimeout(() => {
       hideTyping();
@@ -1392,12 +1586,15 @@ function renderChat(c) {
   m.innerHTML = c.messages.map((msg, i) => {
     const prev = c.messages[i - 1];
     const next = c.messages[i + 1];
-    const isMe = msg.from === "me";
-    const newRun = !prev || prev.from !== msg.from;
-    const runTail = !next || next.from !== msg.from;
     const d = msg.time === "Now" || /^(\d{1,2}):/.test(msg.time) ? "Today" : (msg.time === "Yesterday" ? "Yesterday" : msg.time);
     const divider = (d !== lastDay) ? `<div class="day-divider"><span>${d}</span></div>` : "";
     lastDay = d;
+    if (msg.from === "system") {
+      return `${divider}<div class="msg-row system"><div class="bubble">${esc(msg.text)}</div></div>`;
+    }
+    const isMe = msg.from === "me";
+    const newRun = !prev || prev.from !== msg.from;
+    const runTail = !next || next.from !== msg.from;
     const av = isMe
       ? '<div class="msg-avatar me">CD</div>'
       : `<div class="msg-avatar" style="background:${c.color}">${esc(c.initials)}</div>`;
@@ -1419,16 +1616,17 @@ function aiSave(c) { save(AI_KEY, c); }
 function aiMsgs() { const d = load(AI_MSG_KEY); return Array.isArray(d) ? d : []; }
 function aiSaveMsgs(msgs) { save(AI_MSG_KEY, msgs); }
 
-const AI_SYSTEM = `You are "Colourdiam AI Assistant", a helpful assistant inside a web app that manages a WhatsApp/messaging automation setup powered by n8n.
+const AI_SYSTEM = `You are "Colourdiam AI Assistant", a helpful assistant inside a web app that manages a WhatsApp/messaging automation setup powered by a webhook server (Node.js or Cloudflare Worker) that replaces n8n.
 The app manages connections for: WhatsApp Cloud API, Instagram Messenger, Facebook Messenger, TikTok Messenger, LINE Official, WeChat Official Account.
 It also has a business dashboard at www.colourdiam.com (a diamond jewelry company).
 Help the user with:
 - Setting tokens and credentials. When the user asks to set a token, reply with exactly one line in the format:
   SET:<field>=<value>
-  where field is one of: whatsapp_access_token, whatsapp_phone_number_id, instagram_access_token, facebook_page_access_token, tiktok_access_token, line_channel_access_token, wechat_token, wechat_app_id, wechat_app_secret, n8n_url, n8n_api_key, verify_token.
+  where field is one of: whatsapp_access_token, whatsapp_phone_number_id, instagram_access_token, facebook_page_access_token, tiktok_access_token, line_channel_access_token, wechat_token, wechat_app_id, wechat_app_secret, n8n_url, n8n_api_key, verify_token, server_url, server_api_key.
   Then add a short confirmation sentence.
+- Sending a message through the server. The user can type: "send whatsapp message to <number>: <text>" (or instagram/facebook/tiktok/line/wechat). Tell the user you are sending it via the webhook server.
 - Answering questions about the setup steps.
-- Suggesting how to import workflows to n8n (npm run import).
+- Suggesting how to import workflows to n8n (npm run import) or deploy the standalone server / Cloudflare Worker.
 Keep answers concise and friendly. If you cannot set something, explain why.`;
 
 function aiInit() {
@@ -1517,12 +1715,34 @@ function aiApplySetting(field, value) {
   return cfg[field];
 }
 
-function aiHandleCommand(text) {
+async function aiHandleCommand(text) {
   const t = text.trim();
   const lower = t.toLowerCase();
 
   if (lower === "help") {
-    return "I can update your connector directly. Commands:\n• set whatsapp token to <value>\n• set instagram token to <value>\n• set facebook page token to <value>\n• set tiktok token to <value>\n• set line token to <value>\n• set wechat token to <value>\n• set n8n url to <url>\n• set n8n api key to <key>\n• set verify token to <value>\n• show status\n• show env\n\nAlso say it in plain words, e.g. \"change the instagram token to ABC\". I'll handle it.";
+    return "I can update your connector directly. Commands:\n• set whatsapp token to <value>\n• set instagram token to <value>\n• set facebook page token to <value>\n• set tiktok token to <value>\n• set line token to <value>\n• set wechat token to <value>\n• set n8n url to <url>\n• set n8n api key to <key>\n• set verify token to <value>\n• check server\n• send whatsapp message to <number>: <text>\n• send instagram message to <user id>: <text>\n• show status\n• show env\n\nAlso say it in plain words, e.g. \"change the instagram token to ABC\". I'll handle it.";
+  }
+
+  if (lower === "check server") {
+    try {
+      const h = await apiCall("/api/health");
+      return "Webhook server connected: " + (h.name || "ok") + (h.events ? " · " + h.events + " recent events" : "") + ".";
+    } catch (err) {
+      return "Server check failed: " + err.message;
+    }
+  }
+
+  const sendMatch = lower.match(/^send\s+(whatsapp|instagram|facebook|tiktok|line|wechat)\s+(?:message\s+)?to\s+(.+?):\s*([\s\S]+)$/);
+  if (sendMatch) {
+    const platform = sendMatch[1];
+    const to = sendMatch[2].trim();
+    const msgText = sendMatch[3].trim();
+    try {
+      await apiCall("/api/send", { method: "POST", body: JSON.stringify({ platform, to, text: msgText }) });
+      return "Sent to " + platform + " (" + to + ").";
+    } catch (err) {
+      return "Send failed: " + err.message;
+    }
   }
 
   if (lower === "show status") {
@@ -1641,7 +1861,7 @@ async function aiSend() {
   input.style.height = "auto";
   aiAppend("user", text);
 
-  const offline = aiHandleCommand(text);
+  const offline = await aiHandleCommand(text);
   if (offline !== null) {
     aiAppend("assistant", offline);
     return;
@@ -1678,21 +1898,28 @@ async function aiSend() {
 const urlInput = document.getElementById("n8n-url");
 const apiInput = document.getElementById("n8n-api-key");
 const vtInput = document.getElementById("verify-token");
+const srvUrlInput = document.getElementById("server-url");
+const srvKeyInput = document.getElementById("server-api-key");
 
 urlInput.addEventListener("input", () => { const c = load(CFG_KEY); c.n8n_url = urlInput.value; save(CFG_KEY, c); render(); });
 apiInput.addEventListener("input", () => { const c = load(CFG_KEY); c.n8n_api_key = apiInput.value; save(CFG_KEY, c); renderEnv(); });
 vtInput.addEventListener("input", () => { const c = load(CFG_KEY); c.verify_token = vtInput.value; save(CFG_KEY, c); renderEnv(); });
+srvUrlInput.addEventListener("input", () => { const c = load(CFG_KEY); c.server_url = srvUrlInput.value; save(CFG_KEY, c); maybeStartPolling(); });
+srvKeyInput.addEventListener("input", () => { const c = load(CFG_KEY); c.server_api_key = srvKeyInput.value; save(CFG_KEY, c); });
 
 (function init() {
   const cfg = load(CFG_KEY);
   urlInput.value = cfg.n8n_url || "https://dhruval.n8n-hub.site";
   apiInput.value = cfg.n8n_api_key || "";
   vtInput.value = cfg.verify_token || "";
+  srvUrlInput.value = cfg.server_url || "";
+  srvKeyInput.value = cfg.server_api_key || "";
   render();
   renderContacts();
   renderNotifications();
   document.getElementById("ai-status").textContent = aiStatusText();
   aiInit();
+  maybeStartPolling();
 })();
 </script>
 </body>

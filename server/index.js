@@ -416,7 +416,10 @@ async function postGraph(endpoint, token, payload) {
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
-    console.error(`Graph API ${endpoint} failed:`, res.status, await res.text());
+    try {
+      const copy = res.clone();
+      console.error(`Graph API ${endpoint} failed:`, res.status, await copy.text());
+    } catch (err) {}
   }
   return res;
 }
