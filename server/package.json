@@ -1,0 +1,15 @@
+{
+  "name": "messaging-webhooks-server",
+  "version": "1.0.0",
+  "description": "Standalone webhook server replacing n8n for WhatsApp, Instagram, Facebook, TikTok, LINE and WeChat auto-replies",
+  "type": "module",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test test/server.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

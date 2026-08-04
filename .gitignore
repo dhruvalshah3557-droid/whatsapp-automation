@@ -1,6 +1,7 @@
 # Secrets - never commit real credentials
 .env
 *.env.local
+server/.env
 
 # Dependencies
 node_modules/
