@@ -14,9 +14,12 @@ const ENV = {
   INSTAGRAM_ACCESS_TOKEN: "ig_token",
   FACEBOOK_PAGE_ACCESS_TOKEN: "fb_token",
   WHATSAPP_ACCESS_TOKEN: "wa_token",
+  WHATSAPP_PHONE_NUMBER_ID: "987654321",
   LINE_CHANNEL_ACCESS_TOKEN: "line_token",
   TIKTOK_ACCESS_TOKEN: "tt_token",
   WECHAT_TOKEN: "wx_token",
+  API_KEY: "test_api_key",
+  EVENTS_FILE: path.join(__dirname, "tmp-events.json"),
 };
 
 let child;
@@ -48,7 +51,8 @@ async function stop() {
 }
 
 async function req(pathname, options = {}) {
-  const res = await fetch(`${BASE}${pathname}`, options);
+  const headers = { Authorization: "Bearer test_api_key", ...(options.headers || {}) };
+  const res = await fetch(`${BASE}${pathname}`, { ...options, headers });
   const text = await res.text();
   return { status: res.status, text, headers: res.headers };
 }
@@ -110,4 +114,59 @@ test("Instagram inbound text gets 200 and echo messages are accepted", async () 
   });
   const { status } = await req("/webhook/instagram-hook", { method: "POST", body });
   assert.equal(status, 200);
+});
+
+test("GET /api/health returns ok", async () => {
+  const { status, text } = await req("/api/health");
+  assert.equal(status, 200);
+  const data = JSON.parse(text);
+  assert.equal(data.ok, true);
+  assert.equal(data.name, "messaging-webhooks");
+});
+
+test("GET /api/events returns recorded inbound events", async () => {
+  const body = JSON.stringify({
+    entry: [{ id: "17841401829934148", messaging: [{ sender: { id: "user123" }, message: { text: "hello" } }] }],
+  });
+  await req("/webhook/instagram-hook", { method: "POST", body });
+  const { status, text } = await req("/api/events");
+  assert.equal(status, 200);
+  const { events } = JSON.parse(text);
+  const match = events.find((e) => e.platform === "instagram" && e.from === "user123" && e.text === "hello");
+  assert.ok(match, "expected instagram event to be recorded");
+});
+
+test("GET /api/events supports since filter", async () => {
+  const { text } = await req("/api/events?since=999999999");
+  const { events } = JSON.parse(text);
+  assert.deepEqual(events, []);
+});
+
+test("GET /api/events rejects missing API key", async () => {
+  const res = await fetch(`${BASE}/api/events`, {
+    headers: { Authorization: "Bearer wrong_key" },
+  });
+  assert.equal(res.status, 401);
+});
+
+test("POST /api/send validates required fields", async () => {
+  const { status, text } = await req("/api/send", { method: "POST", body: JSON.stringify({ platform: "whatsapp" }) });
+  assert.equal(status, 400);
+  assert.match(JSON.parse(text).error, /required/);
+});
+
+test("POST /api/send rejects unknown platform", async () => {
+  const { status } = await req("/api/send", {
+    method: "POST",
+    body: JSON.stringify({ platform: "nope", to: "1", text: "hi" }),
+  });
+  assert.equal(status, 400);
+});
+
+test("POST /api/send returns 501 for wechat", async () => {
+  const { status } = await req("/api/send", {
+    method: "POST",
+    body: JSON.stringify({ platform: "wechat", to: "u", text: "hi" }),
+  });
+  assert.equal(status, 501);
 });

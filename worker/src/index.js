@@ -3,6 +3,10 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
+    if (path.startsWith("/api/")) {
+      return handleApi(request, url, env, ctx);
+    }
+
     const route = matchRoute(path);
     if (!route) {
       return new Response("Not found", { status: 404 });
@@ -19,6 +23,113 @@ export default {
     return new Response("Method not allowed", { status: 405 });
   },
 };
+
+function cors() {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  };
+}
+
+function requireAuth(request, env) {
+  if (!env.API_KEY) return true;
+  const header = request.headers.get("authorization") || "";
+  return header === "Bearer " + env.API_KEY;
+}
+
+async function handleApi(request, url, env, ctx) {
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: cors() });
+  }
+
+  if (url.pathname === "/api/health" && request.method === "GET") {
+    return json({ ok: true, name: "messaging-webhooks" }, 200, cors());
+  }
+
+  if (!requireAuth(request, env)) {
+    return json({ error: "Unauthorized" }, 401, cors());
+  }
+
+  if (url.pathname === "/api/send" && request.method === "POST") {
+    let body;
+    try {
+      body = await request.json();
+    } catch (err) {
+      return json({ error: "Invalid JSON" }, 400, cors());
+    }
+    const result = await apiSend(body, env);
+    return json(result.body, result.status, cors());
+  }
+
+  return json({ error: "Not found" }, 404, cors());
+}
+
+async function apiSend(body, env) {
+  const { platform, to, text } = body || {};
+  if (!platform || !to || !text) {
+    return { status: 400, body: { error: "platform, to and text are required" } };
+  }
+  try {
+    let res;
+    switch (platform) {
+      case "whatsapp": {
+        const phoneNumberId = env.WHATSAPP_PHONE_NUMBER_ID;
+        if (!phoneNumberId) return { status: 400, body: { error: "WHATSAPP_PHONE_NUMBER_ID env not set on the worker" } };
+        res = await postGraph(env, `${phoneNumberId}/messages`, env.WHATSAPP_ACCESS_TOKEN, {
+          messaging_product: "whatsapp",
+          to,
+          type: "text",
+          text: { body: text },
+        });
+        break;
+      }
+      case "instagram": {
+        const senderId = env.INSTAGRAM_SENDER_ID;
+        if (!senderId) return { status: 400, body: { error: "INSTAGRAM_SENDER_ID env not set on the worker" } };
+        res = await postGraph(env, `${senderId}/messages`, env.INSTAGRAM_ACCESS_TOKEN, {
+          recipient: { id: to },
+          message: { text },
+          message_type: "RESPONSE",
+        });
+        break;
+      }
+      case "facebook": {
+        res = await postGraph(env, "me/messages", env.FACEBOOK_PAGE_ACCESS_TOKEN, {
+          recipient: { id: to },
+          message: { text },
+        });
+        break;
+      }
+      case "tiktok": {
+        res = await fetch("https://open.tiktokapis.com/v2/message/send/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${env.TIKTOK_ACCESS_TOKEN}` },
+          body: JSON.stringify({ message_type: "text", text, recipient: { open_id: to } }),
+        });
+        break;
+      }
+      case "line": {
+        res = await fetch("https://api.line.me/v2/bot/message/push", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${env.LINE_CHANNEL_ACCESS_TOKEN}` },
+          body: JSON.stringify({ to, messages: [{ type: "text", text }] }),
+        });
+        break;
+      }
+      case "wechat":
+        return { status: 501, body: { error: "WeChat sending via /api/send is not supported yet (use passive XML replies)" } };
+      default:
+        return { status: 400, body: { error: "Unknown platform" } };
+    }
+    if (!res.ok) {
+      return { status: 502, body: { error: "Platform API rejected the message", detail: await res.text() } };
+    }
+    return { status: 200, body: { ok: true } };
+  } catch (err) {
+    return { status: 500, body: { error: String((err && err.message) || err) } };
+  }
+}
 
 function matchRoute(path) {
   const routes = {
@@ -226,10 +337,10 @@ async function cryptoDigest(algo, text) {
     .join("");
 }
 
-function json(obj, status = 200) {
+function json(obj, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(obj), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...extraHeaders },
   });
 }
 

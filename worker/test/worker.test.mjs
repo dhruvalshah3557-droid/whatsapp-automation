@@ -7,6 +7,7 @@ const env = {
   INSTAGRAM_ACCESS_TOKEN: "ig_token",
   FACEBOOK_PAGE_ACCESS_TOKEN: "fb_token",
   WHATSAPP_ACCESS_TOKEN: "wa_token",
+  WHATSAPP_PHONE_NUMBER_ID: "987654321",
   LINE_CHANNEL_ACCESS_TOKEN: "line_token",
   TIKTOK_ACCESS_TOKEN: "tt_token",
   WECHAT_TOKEN: "wx_token",
@@ -125,4 +126,47 @@ test("WhatsApp inbound text triggers reply with phone_number_id endpoint", async
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test("GET /api/health returns ok", async () => {
+  const res = await call("/api/health");
+  assert.equal(res.status, 200);
+  const data = await res.json();
+  assert.equal(data.ok, true);
+});
+
+test("POST /api/send validates required fields", async () => {
+  const res = await call("/api/send", { method: "POST", body: JSON.stringify({ platform: "whatsapp" }) });
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /required/);
+});
+
+test("POST /api/send sends a WhatsApp message", async () => {
+  const calls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (u, o) => {
+    calls.push({ url: u, body: JSON.parse(o.body) });
+    return new Response("{}", { status: 200 });
+  };
+  try {
+    const res = await call("/api/send", {
+      method: "POST",
+      body: JSON.stringify({ platform: "whatsapp", to: "5511999", text: "hi from app" }),
+    });
+    assert.equal(res.status, 200);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].url, "https://graph.facebook.com/v19.0/987654321/messages");
+    assert.equal(calls[0].body.to, "5511999");
+    assert.equal(calls[0].body.text.body, "hi from app");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("POST /api/send returns 501 for wechat", async () => {
+  const res = await call("/api/send", {
+    method: "POST",
+    body: JSON.stringify({ platform: "wechat", to: "u", text: "hi" }),
+  });
+  assert.equal(res.status, 501);
 });

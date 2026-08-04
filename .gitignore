@@ -9,6 +9,10 @@ node_modules/
 # Logs
 *.log
 
+# Webhook event store (runtime data)
+server/events.json
+server/test/tmp-events.json
+
 # OS files
 .DS_Store
 
