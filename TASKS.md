@@ -13,9 +13,9 @@ _None — no pending task right now._
 ## History
 
 - [x] 260804: Appoint a self-healing monitoring agent — status: finished
-  - Done: created `scripts/monitor.mjs` (checks local server, public preview API, SW `/api` cache guard, served app freshness, full test suite; `--fix` restarts a down server); documented the monitoring duty in `AGENTS.md` so every session runs it; started a 60s background monitor loop (commit TBD)
+  - Done: created `scripts/monitor.mjs` (checks local server, public preview API, SW `/api` cache guard, served app freshness, full test suite; `--fix` restarts a down server); documented the monitoring duty in `AGENTS.md` so every session runs it; started a 60s background monitor loop (commit `ddaa4f5`)
 - [x] 260804: Connect Facebook and Instagram webhooks — status: finished (server side)
-  - Done: restarted preview server with `VERIFY_TOKEN=change_me_verify_token`; verified Instagram and Facebook webhook handshake returns the challenge through the live preview URL; pushed a Facebook test message (event 4). Remaining: user must paste real Instagram/Facebook tokens in the app's Connector view (see commit TBD)
+  - Done: restarted preview server with `VERIFY_TOKEN=change_me_verify_token`; verified Instagram and Facebook webhook handshake returns the challenge through the live preview URL; pushed a Facebook test message (event 4). Remaining: user must paste real Instagram/Facebook tokens in the app's Connector view (commit `ddaa4f5`)
 - [x] 260804: Fix chats not syncing in the messaging app — status: finished
   - Done: service worker was cache-first for `/api/*` and served a stale empty events list to the poller; made API requests network-only and bumped SW to `colourdiam-msg-v10`; pushed 3 demo inbound events (instagram/whatsapp/line) through the live server to verify the sync pipeline (commit `0b45839`)
 - [x] 260804: Fix connection in the messaging app (client refresh) — status: finished
