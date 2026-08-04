@@ -186,7 +186,7 @@ test("key functions are defined", () => {
   const required = [
     "t", "setLang", "applyI18n", "switchView", "setFilter", "toggleShowArchived", "openChat",
     "backToList", "renderTabBadge", "renderContacts", "renderChat", "renderChatWithSearch",
-    "toggleChatSearch", "loadOlder", "sendMsg", "showTyping", "hideTyping", "toggleEmoji",
+    "toggleChatSearch", "sendMsg", "showTyping", "hideTyping", "toggleEmoji",
     "insertEmoji", "toggleReplies", "insertReply", "addReply", "handleFiles", "openLightbox",
     "micTap", "togglePin", "toggleStar", "markUnread", "toggleArchive", "toggleBlock",
     "openDrawer", "closeDrawer", "renderDrawer", "saveCustomer", "addTag", "removeTag",

@@ -917,7 +917,7 @@ const I18N = {
     story: "Story", chat: "Chat",
     catalogue: "Catalogue", price: "Price", stock: "Stock", buy: "Send to customer", sent_product: "Product sent in chat",
     status_pending: "Pending", status_processing: "Processing", status_paid: "Paid", status_shipped: "Shipped", status_delivered: "Delivered", status_cancelled: "Cancelled",
-    no_customers: "No customers yet", no_orders: "No orders yet",
+    no_customers: "No customers yet", no_orders: "No orders yet", no_products: "No products yet",
     ai_name: "Colourdiam AI Assistant", ai_status: "Ready — updates your connector directly",
     ai_api_base: "API Base URL", ai_model: "Model", ai_api_key: "API Key (stored only on this device)",
     ai_save: "Save Settings", ai_hint: "Optional. Without a key the bot still works in offline mode using built-in commands. Your key is saved only in this browser and sent only to the API base URL you enter.",
@@ -975,7 +975,7 @@ const I18N = {
     story: "动态", chat: "聊天",
     catalogue: "产品目录", price: "价格", stock: "库存", buy: "发送给客户", sent_product: "产品已发送到聊天",
     status_pending: "待处理", status_processing: "处理中", status_paid: "已付款", status_shipped: "已发货", status_delivered: "已送达", status_cancelled: "已取消",
-    no_customers: "暂无客户", no_orders: "暂无订单",
+    no_customers: "暂无客户", no_orders: "暂无订单", no_products: "暂无商品",
     ai_name: "Colourdiam AI 助手", ai_status: "就绪 — 直接更新你的连接器",
     ai_api_base: "API 基础地址", ai_model: "模型", ai_api_key: "API 密钥（仅存储在本设备）",
     ai_save: "保存设置", ai_hint: "可选。没有密钥时，机器人仍可通过内置命令离线工作。你的密钥仅保存在此浏览器中，且只发送到你填写的 API 基础地址。",
@@ -1033,7 +1033,7 @@ const I18N = {
     story: "สตอรี่", chat: "แชท",
     catalogue: "แคตตาล็อก", price: "ราคา", stock: "สต็อก", buy: "ส่งให้ลูกค้า", sent_product: "ส่งสินค้าในแชทแล้ว",
     status_pending: "รอดำเนินการ", status_processing: "กำลังดำเนินการ", status_paid: "ชำระแล้ว", status_shipped: "จัดส่งแล้ว", status_delivered: "ถึงมือแล้ว", status_cancelled: "ยกเลิก",
-    no_customers: "ยังไม่มีลูกค้า", no_orders: "ยังไม่มีคำสั่งซื้อ",
+    no_customers: "ยังไม่มีลูกค้า", no_orders: "ยังไม่มีคำสั่งซื้อ", no_products: "ยังไม่มีสินค้า",
     ai_name: "ผู้ช่วย Colourdiam AI", ai_status: "พร้อม — อัปเดตคอนเนกเตอร์ของคุณโดยตรง",
     ai_api_base: "API Base URL", ai_model: "โมเดล", ai_api_key: "API Key (เก็บไว้ในอุปกรณ์นี้เท่านั้น)",
     ai_save: "บันทึกการตั้งค่า", ai_hint: "ไม่บังคับ หากไม่มีคีย์บอทจะยังทำงานในโหมดออฟไลน์ด้วยคำสั่งในตัว คีย์ของคุณบันทึกเฉพาะในเบราว์เซอร์นี้และส่งไปยัง API base URL ที่คุณกรอกเท่านั้น",
@@ -1372,7 +1372,7 @@ function resetAll() {
 
 /* ==================== Live server integration ==================== */
 const CFG_KEY = "mc_cfg_v1";
-const CHAT_KEY = "mc_chat_v1";
+const CHAT_KEY = "mc_chat_v2";
 const DEFAULT_SERVER_URL = "https://messaging-webhooks.messaging-webhooks-worker.workers.dev";
 function serverCfg() {
   const c = load(CFG_KEY);
@@ -1477,18 +1477,11 @@ async function sendLive(c, text) {
 
 /* ==================== Business data ==================== */
 const AGENTS = ["Dhruval", "Aria", "Ken", "Sofia"];
-const PRODUCTS = [
-  { id: "p1", name: "Fancy Vivid Pink Radiant", category: "Engagement Ring", price: 385000, carat: "1.20", color: "#f3c6d2", emoji: "💗", stock: 1 },
-  { id: "p2", name: "Yellow Diamond Pendant", category: "Pendant", price: 128000, carat: "0.85", color: "#f0e0ae", emoji: "💛", stock: 2 },
-  { id: "p3", name: "Blue Diamond Solitaire", category: "Solitaire Ring", price: 560000, carat: "0.62", color: "#bcd4f0", emoji: "💙", stock: 1 },
-  { id: "p4", name: "Brown Diamond Bracelet", category: "Bracelet", price: 96000, carat: "1.40", color: "#e3c9ab", emoji: "🤎", stock: 3 },
-  { id: "p5", name: "Emerald Cut Champagne Diamond", category: "Loose Stone", price: 214000, carat: "1.05", color: "#eadfbe", emoji: "💎", stock: 1 },
-  { id: "p6", name: "White Gold Stud Earrings", category: "Earrings", price: 58000, carat: "0.50", color: "#dde2e8", emoji: "🤍", stock: 5 }
-];
+const PRODUCTS = [];
 const REPLIES_KEY = "mc_replies_v1";
 function savedReplies() {
   const d = load(REPLIES_KEY);
-  const def = ["Thanks for reaching out to Colourdiam! A consultant will reply shortly.", "We can arrange a video call to show you the piece in detail.", "Do you have a budget range in mind?"];
+  const def = [];
   return Array.isArray(d.list) && d.list.length ? d.list : def;
 }
 function saveReplies(list) { save(REPLIES_KEY, { list }); }
@@ -1511,79 +1504,8 @@ function dayLabel(k) {
   return k;
 }
 
-/* Seed chats */
-const SEED = [
-  { id: "priya", name: "Priya M.", platform: "WhatsApp", platformId: "whatsapp", color: "#e4405f", initials: "PM",
-    online: true, pinned: true, starred: true, unread: 2, time: "10:42",
-    tags: ["VIP", "Bridal"], notes: "Wants 1.2ct fancy pink. Send GIA report.", assignee: "Aria", followUp: "2026-08-06",
-    orders: [ { id: "CD-1001", status: "shipped", items: "1.2ct Fancy Pink Radiant", total: 385000, date: "2026-07-28" } ],
-    lastMsg: "The ring exceeded photos, the color is even more vivid!",
-    messages: [
-      { from: "them", type: "product", text: "This is the pink diamond I'm considering — what do you think?", time: "09:20", date: iso(-36000000), productId: "p1" },
-      { from: "them", type: "text", text: "Hi! I saw the pink diamond ring on your site, it's gorgeous.", time: "09:58", date: iso(-35400000) },
-      { from: "me", type: "text", text: "Thank you! That's a 1.2ct fancy pink, GIA certified. Shipping to Singapore was smooth for a client last week.", time: "10:05", date: iso(-35000000), ticks: 2 },
-      { from: "them", type: "image", text: "Here is the setting mockup ✨", time: "10:31", date: iso(-1800000), src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='240'%3E%3Crect width='320' height='240' fill='%23f3c6d2'/%3E%3Ctext x='160' y='130' font-size='64' text-anchor='middle'%3E%F0%9F%92%8D%3C/text%3E%3C/svg%3E" },
-      { from: "them", type: "text", text: "The ring exceeded photos, the color is even more vivid!", time: "10:42", date: iso(-1500000) }
-    ] },
-  { id: "james", name: "James Carter", platform: "WhatsApp", platformId: "whatsapp", color: "#25d366", initials: "JC",
-    online: false, pinned: false, starred: true, unread: 0, time: "Yesterday",
-    tags: ["Returning"], notes: "", assignee: "Ken", followUp: "",
-    orders: [ { id: "CD-0998", status: "delivered", items: "Yellow Diamond Pendant", total: 128000, date: "2026-07-21" } ],
-    lastMsg: "The certification paperwork gave me total peace of mind.",
-    messages: [
-      { from: "them", type: "text", text: "Bought a yellow diamond pendant as an anniversary gift. My wife hasn't taken it off since!", time: "Yesterday", date: iso(-90000000) },
-      { from: "me", type: "text", text: "Wonderful to hear! The certification paperwork gave me total peace of mind.", time: "Yesterday", date: iso(-89000000), ticks: 2 },
-      { from: "them", type: "doc", text: "Certification paperwork.pdf", fname: "GIA-2241558900.pdf", fsize: "1.2 MB", time: "Yesterday", date: iso(-88000000) },
-      { from: "them", type: "link", text: "", url: "https://www.colourdiam.com/pieces/yellow-diamond-pendant", title: "Yellow Diamond Pendant — Colourdiam", desc: "A sunlit celebration of colour. GIA certified, responsibly sourced.", time: "Yesterday", date: iso(-87000000) }
-    ] },
-  { id: "natcha", name: "Natcha S.", platform: "Instagram", platformId: "instagram", color: "#3b82f6", initials: "NS",
-    online: true, pinned: false, starred: false, unread: 1, time: "09:15",
-    tags: ["Leads"], notes: "Prefers LINE for follow-up.", assignee: "Sofia", followUp: "2026-08-05",
-    orders: [],
-    lastMsg: "Someone actually walked me through clarity over a video call!",
-    messages: [
-      { from: "them", type: "voice", text: "", audio: "https://cdn.colourdiam.com/sample-voice.mp3", duration: "0:18", time: "09:15", date: iso(-2400000) },
-      { from: "them", type: "text", text: "What stood out was the personal attention — someone actually walked me through clarity and cut differences over a video call before I committed to my earrings.", time: "09:15", date: iso(-2350000) }
-    ] },
-  { id: "david", name: "David Lindqvist", platform: "Facebook", platformId: "facebook", color: "#0866ff", initials: "DL",
-    online: false, pinned: false, starred: true, unread: 0, time: "Tue",
-    tags: ["Collector"], notes: "", assignee: "Dhruval", followUp: "",
-    orders: [ { id: "CD-0991", status: "paid", items: "Emerald Cut Champagne Diamond", total: 214000, date: "2026-07-14" } ],
-    lastMsg: "Will be back for a blue diamond next.",
-    messages: [
-      { from: "them", type: "text", text: "Colour Diam's GIA certs matched exactly what was described. Will be back for a blue diamond next.", time: "Tue", date: iso(-40000000) },
-      { from: "me", type: "text", text: "We'll keep you first in line for blue diamonds, David!", time: "Tue", date: iso(-39000000), ticks: 1 }
-    ] },
-  { id: "ananya", name: "Ananya R.", platform: "TikTok", platformId: "tiktok", color: "#8b8172", initials: "AR",
-    online: true, pinned: true, starred: false, unread: 0, time: "11:02",
-    tags: ["Bridal"], notes: "Custom design — progress photos needed.", assignee: "Aria", followUp: "2026-08-09",
-    orders: [ { id: "CD-1005", status: "processing", items: "Custom Engagement Ring", total: 268000, date: "2026-08-01" } ],
-    lastMsg: "The custom design process took about three weeks.",
-    messages: [
-      { from: "them", type: "story", text: "Behind the scenes of your ring being set 💍", time: "10:58", date: iso(-720000) },
-      { from: "them", type: "text", text: "The custom design process for my engagement ring took about three weeks start to finish. They sent progress photos at each stage, which I really appreciated.", time: "11:02", date: iso(-600000) },
-      { from: "me", type: "text", text: "So glad you loved the progress updates!", time: "11:08", date: iso(-400000), ticks: 2 }
-    ] },
-  { id: "michael", name: "Michael Tan", platform: "LINE", platformId: "line", color: "#06c755", initials: "MT",
-    online: false, pinned: false, starred: false, unread: 0, time: "Yesterday",
-    tags: [], notes: "", assignee: "Ken", followUp: "",
-    orders: [ { id: "CD-0999", status: "delivered", items: "Brown Diamond Bracelet", total: 96000, date: "2026-07-22" } ],
-    lastMsg: "Arrived beautifully packaged and right on schedule.",
-    messages: [
-      { from: "them", type: "text", text: "Ordered a bracelet for my mother's birthday — arrived beautifully packaged and right on schedule. The brown diamond setting is exactly the warm tone we wanted.", time: "Yesterday", date: iso(-92000000) },
-      { from: "me", type: "text", text: "Happy birthday to your mother! Enjoy the bracelet.", time: "Yesterday", date: iso(-91000000), ticks: 2 }
-    ] },
-  { id: "sofia", name: "Sofia Laurent", platform: "WeChat", platformId: "wechat", color: "#07c160", initials: "SL",
-    online: true, pinned: false, starred: false, archived: true, unread: 0, time: "Mon",
-    tags: ["Archive"], notes: "Asked about sourcing — follow up when new stock lands.", assignee: "Dhruval", followUp: "",
-    orders: [],
-    lastMsg: "Please let me know when new blue diamonds arrive.",
-    messages: [
-      { from: "them", type: "text", text: "Please let me know when new blue diamonds arrive.", time: "Mon", date: iso(-120000000) },
-      { from: "me", type: "text", text: "Absolutely — I've added you to the waitlist.", time: "Mon", date: iso(-119000000), ticks: 2 }
-    ] }
-];
-function iso(offsetMs) { return new Date(Date.now() + offsetMs).toISOString(); }
+/* Seed data removed — app starts with an empty contact list */
+
 
 /* ==================== Chats ==================== */
 let chatFilter = "all";
@@ -1592,7 +1514,7 @@ let chatSearchQ = "";
 
 function chatData() {
   const d = load(CHAT_KEY);
-  if (!d.contacts) d.contacts = JSON.parse(JSON.stringify(SEED));
+  if (!d.contacts) d.contacts = [];
   for (const c of d.contacts) {
     if (!Array.isArray(c.messages)) c.messages = [];
     c.messages = c.messages.filter(m => m && m !== null);
@@ -1756,7 +1678,7 @@ function renderChat(c) {
   const m = document.getElementById("messages");
   let lastKey = "";
   let prev = null;
-  let html = `<div class="load-older-wrap"><button class="load-older" onclick="loadOlder('${c.id}')">${t("load_older")}</button></div>`;
+  let html = "";
   c.messages.forEach((msg) => {
     const k = dayKey(msg);
     const divider = (k !== lastKey) ? `<div class="day-divider"><span>${dayLabel(k)}</span></div>` : "";
@@ -1821,25 +1743,8 @@ function renderChatAll() {
   setLiveStatus(lastLiveState || "off");
 }
 
-const OLDER_POOL = [
-  { from: "them", type: "text", text: "Do you ship internationally with insurance?", time: "09:10" },
-  { from: "me", type: "text", text: "Yes — fully insured, door-to-door, with a signed courier.", time: "09:11", ticks: 2 },
-  { from: "them", type: "text", text: "What paperwork do I get with the stone?", time: "09:12" },
-  { from: "me", type: "text", text: "GIA report, invoice and Colourdiam certificate of authenticity.", time: "09:13", ticks: 2 },
-  { from: "them", type: "text", text: "Perfect, that's exactly what I needed to know.", time: "09:14" }
-];
-function loadOlder(id) {
-  const d = chatData();
-  const c = d.contacts.find(x => x.id === id);
-  if (!c) return;
-  const batch = OLDER_POOL.map(o => ({ ...o, time: "09:0" + Math.floor(Math.random() * 9), date: iso(-86400000) }));
-  c.messages = batch.concat(c.messages);
-  save(CHAT_KEY, d);
-  renderChat(c);
-  const m = document.getElementById("messages");
-  m.scrollTop = 0;
-  toastMsg(t("load_older"));
-}
+/* Older-message pool removed — no mock history */
+
 
 /* ---------------- Composer ---------------- */
 function sendMsg() {
@@ -2209,6 +2114,7 @@ async function toggleTranslate(contactId, msgIdx) {
 /* ---------------- Product catalogue ---------------- */
 function renderProducts() {
   const list = document.getElementById("products-list");
+  if (!PRODUCTS.length) { list.innerHTML = `<div class="empty-state"><div class="big">💎</div><p>${t("no_products")}</p></div>`; return; }
   list.innerHTML = PRODUCTS.map(p => `
     <div class="product-card">
       <div class="pc-media" style="background:${p.color}">${p.emoji}</div>
