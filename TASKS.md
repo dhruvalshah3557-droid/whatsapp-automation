@@ -12,6 +12,8 @@ _None — no pending task right now._
 
 ## History
 
+- [x] 260804: Fix chats not syncing in the messaging app — status: finished
+  - Done: service worker was cache-first for `/api/*` and served a stale empty events list to the poller; made API requests network-only and bumped SW to `colourdiam-msg-v10`; pushed 3 demo inbound events (instagram/whatsapp/line) through the live server to verify the sync pipeline (commit `0b45839`)
 - [x] 260804: Fix connection in the messaging app (client refresh) — status: finished
   - Done: bump SW cache to `colourdiam-msg-v9` and config storage to `mc_cfg_v2` so clients drop the stale page/config and pick up the same-origin server URL; verified `/api/events` and `/api/health` reachable via the public preview URL (commit `9829f08`)
 - [x] 260804: Fix connection issue in the messaging app — status: finished
