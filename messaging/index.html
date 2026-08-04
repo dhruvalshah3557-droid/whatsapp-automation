@@ -1357,7 +1357,17 @@ const SEED = [
 ];
 
 function chatData() {
-  return load(CHAT_KEY);
+  const d = load(CHAT_KEY);
+  if (!d.contacts) d.contacts = JSON.parse(JSON.stringify(SEED));
+  for (const c of d.contacts) {
+    if (!Array.isArray(c.messages)) c.messages = [];
+    c.messages = c.messages.filter((m) => m && typeof m.text === "string");
+    if (!c.id) c.id = "c" + Math.random().toString(36).slice(2, 8);
+    if (!c.initials) c.initials = String(c.name || "?").slice(0, 2).toUpperCase();
+    if (!c.color) c.color = "#8b93a7";
+    if (!c.platform) c.platform = "Messenger";
+  }
+  return d;
 }
 
 function openChat(id) {
