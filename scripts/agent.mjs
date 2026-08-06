@@ -144,7 +144,7 @@ async function checkServedAssets() {
     const swVersion = (sw.match(/colourdiam-msg-v\d+/) || [])[0] || "none";
     report("SW version served", swVersion !== "none", swVersion);
     report("API not cached by SW", sw.includes('req.url.includes("/api/")'), "");
-    report("app code current", idx.includes("mc_cfg_v2"), "index.html has latest config key");
+    report("app code current", idx.includes("mc_cfg_v3"), "index.html has latest config key");
     return true;
   } catch (err) {
     report("served assets", false, err.message);

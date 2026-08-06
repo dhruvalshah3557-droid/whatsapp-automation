@@ -1283,9 +1283,13 @@ function platformBadge(pid) {
   return "";
 }
 
+function webhookHost() {
+  return serverCfg().url.replace(/\/$/, "");
+}
 function render() {
   const cfg = load(CFG_KEY);
   const n8nHost = (cfg.n8n_url || "https://dhruval.n8n-hub.site").replace(/\/$/, "");
+  const whHost = webhookHost();
   const box = document.getElementById("platforms");
   box.innerHTML = PLATFORMS.map((p) => {
     const missing = p.fields.filter(f => !(cfg[f.key] || "").trim()).length;
@@ -1306,7 +1310,7 @@ function render() {
             <input id="in-${p.id}-${f.key}" type="${f.type}" placeholder="${f.ph}" value="${esc(cfg[f.key] || "")}" oninput="onField('${p.id}','${f.key}',this.value)">
           </div>`).join("")}
       </div>
-      <div class="webhook-box"><code>${n8nHost}${p.path}</code><button class="copy-btn" onclick="copyText(this,'${n8nHost}${p.path}')" data-i18n="copy_url">${t("copy_url")}</button></div>
+      <div class="webhook-box"><code>${whHost}${p.path}</code><button class="copy-btn" onclick="copyText(this,'${whHost}${p.path}')" data-i18n="copy_url">${t("copy_url")}</button></div>
       <p class="hint">${p.subscribe}</p>
       <details class="details">
         <summary>${t("setup_steps")}</summary>
@@ -1338,6 +1342,7 @@ function renderEnv() {
   const host = (cfg.n8n_url || "https://dhruval.n8n-hub.site").replace(/\/$/, "");
   const env = [
     "# n8n connection", `N8N_URL=${host}`, `N8N_API_KEY=${cfg.n8n_api_key || "your_n8n_api_key"}`,
+    "", "# Webhook server", `SERVER_URL=${webhookHost()}`,
     "", "# Meta verification token", `META_VERIFY_TOKEN=${cfg.verify_token || "change_me_verify_token"}`,
     "", "# WhatsApp Cloud API", `WHATSAPP_ACCESS_TOKEN=${cfg.whatsapp_access_token || "change_me_whatsapp_token"}`, `WHATSAPP_PHONE_NUMBER_ID=${cfg.whatsapp_phone_number_id || "change_me_phone_number_id"}`,
     "", "# Instagram Messenger", `INSTAGRAM_ACCESS_TOKEN=${cfg.instagram_access_token || "change_me_instagram_token"}`,
@@ -1371,7 +1376,7 @@ function resetAll() {
 }
 
 /* ==================== Live server integration ==================== */
-const CFG_KEY = "mc_cfg_v2";
+const CFG_KEY = "mc_cfg_v3";
 const CHAT_KEY = "mc_chat_v2";
 const DEFAULT_SERVER_URL = "https://messaging-webhooks.messaging-webhooks-worker.workers.dev";
 function serverCfg() {
@@ -2290,7 +2295,7 @@ async function aiHandleCommand(text) {
     const cfg = load(CFG_KEY);
     const host = (cfg.n8n_url || "https://dhruval.n8n-hub.site").replace(/\/$/, "");
     return [
-      `N8N_URL=${host}`, `N8N_API_KEY=${cfg.n8n_api_key || "your_n8n_api_key"}`, `META_VERIFY_TOKEN=${cfg.verify_token || "change_me_verify_token"}`,
+      `N8N_URL=${host}`, `N8N_API_KEY=${cfg.n8n_api_key || "your_n8n_api_key"}`, `SERVER_URL=${webhookHost()}`, `META_VERIFY_TOKEN=${cfg.verify_token || "change_me_verify_token"}`,
       `WHATSAPP_ACCESS_TOKEN=${cfg.whatsapp_access_token || "change_me_whatsapp_token"}`, `WHATSAPP_PHONE_NUMBER_ID=${cfg.whatsapp_phone_number_id || "change_me_phone_number_id"}`,
       `INSTAGRAM_ACCESS_TOKEN=${cfg.instagram_access_token || "change_me_instagram_token"}`, `FACEBOOK_PAGE_ACCESS_TOKEN=${cfg.facebook_page_access_token || "change_me_facebook_page_token"}`,
       `TIKTOK_ACCESS_TOKEN=${cfg.tiktok_access_token || "change_me_tiktok_token"}`, `LINE_CHANNEL_ACCESS_TOKEN=${cfg.line_channel_access_token || "change_me_line_token"}`,
