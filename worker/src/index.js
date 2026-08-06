@@ -8,19 +8,21 @@ export default {
     }
 
     const route = matchRoute(path);
-    if (!route) {
-      return new Response("Not found", { status: 404 });
+    if (route) {
+      if (request.method === "GET" && route.verify) {
+        return route.verify(request, url, env);
+      }
+      if (request.method === "POST" && route.receive) {
+        return route.receive(request, url, env, ctx);
+      }
+      return new Response("Method not allowed", { status: 405 });
     }
 
-    if (request.method === "GET" && route.verify) {
-      return route.verify(request, url, env);
+    // Serve the messaging app static assets on the same origin.
+    if (env.ASSETS) {
+      return env.ASSETS.fetch(request);
     }
-
-    if (request.method === "POST" && route.receive) {
-      return route.receive(request, url, env, ctx);
-    }
-
-    return new Response("Method not allowed", { status: 405 });
+    return new Response("Not found", { status: 404 });
   },
 };
 
@@ -44,11 +46,20 @@ async function handleApi(request, url, env, ctx) {
   }
 
   if (url.pathname === "/api/health" && request.method === "GET") {
-    return json({ ok: true, name: "messaging-webhooks" }, 200, cors());
+    const count = await eventCount(env);
+    return json({ ok: true, name: "messaging-webhooks", events: count }, 200, cors());
   }
 
   if (!requireAuth(request, env)) {
     return json({ error: "Unauthorized" }, 401, cors());
+  }
+
+  if (url.pathname === "/api/events" && request.method === "GET") {
+    const since = Number(url.searchParams.get("since") || 0);
+    const platform = url.searchParams.get("platform");
+    const all = await getEvents(env);
+    const list = all.filter((e) => e.id > since && (!platform || e.platform === platform));
+    return json({ events: list }, 200, cors());
   }
 
   if (url.pathname === "/api/send" && request.method === "POST") {
@@ -63,6 +74,37 @@ async function handleApi(request, url, env, ctx) {
   }
 
   return json({ error: "Not found" }, 404, cors());
+}
+
+const EVENTS_KEY = "events";
+
+async function getEvents(env) {
+  try {
+    if (!env.EVENTS) return [];
+    const raw = await env.EVENTS.get(EVENTS_KEY, { type: "text" });
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}
+
+async function eventCount(env) {
+  return (await getEvents(env)).length;
+}
+
+async function recordEvent(env, platform, from, text) {
+  try {
+    if (!env.EVENTS) return;
+    const events = await getEvents(env);
+    const id = events.length ? events[events.length - 1].id + 1 : 1;
+    events.push({ id, platform, from, text, time: new Date().toISOString() });
+    const trimmed = events.length > 200 ? events.slice(-200) : events;
+    await env.EVENTS.put(EVENTS_KEY, JSON.stringify(trimmed));
+  } catch (err) {
+    console.error("recordEvent failed:", err && err.message);
+  }
 }
 
 async function apiSend(body, env) {
@@ -180,6 +222,7 @@ const handlers = {
     if (!msg.text) {
       return json({});
     }
+    await recordEvent(env, "instagram", messaging.sender.id, msg.text);
     ctx.waitUntil(
       postGraph(env, `${entry.id}/messages`, env.INSTAGRAM_ACCESS_TOKEN, {
         recipient: { id: messaging.sender.id },
@@ -201,6 +244,7 @@ const handlers = {
     if (!msg.text) {
       return json({});
     }
+    await recordEvent(env, "facebook", messaging.sender.id, msg.text);
     ctx.waitUntil(
       postGraph(env, "me/messages", env.FACEBOOK_PAGE_ACCESS_TOKEN, {
         recipient: { id: messaging.sender.id },
@@ -224,6 +268,7 @@ const handlers = {
     if (message.type !== "text") {
       return json({});
     }
+    await recordEvent(env, "whatsapp", message.from, (message.text && message.text.body) || "");
     ctx.waitUntil(
       postGraph(env, `${value.metadata.phone_number_id}/messages`, env.WHATSAPP_ACCESS_TOKEN, {
         messaging_product: "whatsapp",
@@ -242,6 +287,7 @@ const handlers = {
       return json({});
     }
     const event = events[0];
+    await recordEvent(env, "line", (event.source && event.source.userId) || "", event.message.text);
     ctx.waitUntil(
       fetch("https://api.line.me/v2/bot/message/reply", {
         method: "POST",
@@ -268,6 +314,8 @@ const handlers = {
     if (!message || !sender) {
       return json({});
     }
+    const text = typeof message === "string" ? message : (message && message.text) || "";
+    await recordEvent(env, "tiktok", sender.open_id, text);
     ctx.waitUntil(
       fetch("https://open.tiktokapis.com/v2/message/send/", {
         method: "POST",
@@ -291,6 +339,7 @@ const handlers = {
     if (parsed.msgType !== "text") {
       return textResponse("success");
     }
+    await recordEvent(env, "wechat", parsed.from, parsed.content);
     const reply =
       "<xml>" +
       "<ToUserName><![CDATA[" + parsed.from + "]]></ToUserName>" +

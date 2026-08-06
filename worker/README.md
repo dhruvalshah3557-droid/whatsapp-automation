@@ -1,16 +1,21 @@
 # Serverless webhook server (replaces n8n)
 
-A Cloudflare Worker that does everything the n8n workflows did, without n8n:
+A Cloudflare Worker that does everything the n8n workflows did, without n8n —
+and serves the messaging app on the same origin so one URL is the whole product:
 
+- **Messaging app** — serves `messaging/` at `/` (Chats + Connector views)
 - **WhatsApp Cloud API** — `/webhook/whatsapp-hook`
 - **Instagram Messenger** — `/webhook/instagram-hook`
 - **Facebook Messenger** — `/webhook/facebook-hook`
 - **TikTok Messenger** — `/webhook/tiktok-hook`
 - **LINE Official** — `/webhook/line-hook`
 - **WeChat Official Account** — `/webhook/wechat-hook`
+- **Live API** — `/api/health`, `/api/events` (KV-backed), `/api/send`
 
 Each route answers the platform's webhook verification and auto-replies to
-inbound text messages by calling the platform API directly.
+inbound text messages by calling the platform API directly. Inbound messages
+are stored in a Cloudflare KV namespace (`EVENTS`) and served back to the app
+through `/api/events`.
 
 ## Deploy to Cloudflare
 
@@ -34,20 +39,11 @@ wrangler secret put TIKTOK_ACCESS_TOKEN
 wrangler secret put WECHAT_TOKEN
 ```
 
-Optional: override the default reply texts:
+3. Create the KV namespace (used by `/api/events`), then deploy:
 
 ```bash
-wrangler secret put INSTAGRAM_REPLY_TEXT
-wrangler secret put FACEBOOK_REPLY_TEXT
-wrangler secret put WHATSAPP_REPLY_TEXT
-wrangler secret put LINE_REPLY_TEXT
-wrangler secret put TIKTOK_REPLY_TEXT
-wrangler secret put WECHAT_REPLY_TEXT
-```
-
-3. Deploy:
-
-```bash
+wrangler kv namespace create EVENTS
+# paste the returned id into wrangler.toml's [[kv_namespaces]] block
 wrangler deploy
 ```
 
@@ -63,6 +59,13 @@ You get a URL like `https://messaging-webhooks.<your-subdomain>.workers.dev`.
 | TikTok | `https://messaging-webhooks.<subdomain>.workers.dev/webhook/tiktok-hook` |
 | LINE | `https://messaging-webhooks.<subdomain>.workers.dev/webhook/line-hook` |
 | WeChat | `https://messaging-webhooks.<subdomain>.workers.dev/webhook/wechat-hook` |
+
+## Use the messaging app against the worker
+
+Open `https://messaging-webhooks.<subdomain>.workers.dev/` in a browser. The
+app auto-detects the current origin as the Server URL, so the Chats view polls
+`/api/events` and replies go through `/api/send` on the same origin. No extra
+configuration needed.
 
 Verify token for Meta apps: the value you set for `VERIFY_TOKEN`. For WeChat,
 the `WECHAT_TOKEN` is your WeChat server Token.

@@ -15,6 +15,14 @@ const env = {
 
 const ctx = { waitUntil: (p) => p };
 
+function mockKV() {
+  let store = {};
+  return {
+    get: async (k) => store[k] || null,
+    put: async (k, v) => { store[k] = v; },
+  };
+}
+
 async function call(path, options = {}, extraEnv = {}) {
   const req = new Request(`http://example.com${path}`, options);
   return worker.fetch(req, { ...env, ...extraEnv }, ctx);
@@ -169,4 +177,44 @@ test("POST /api/send returns 501 for wechat", async () => {
     body: JSON.stringify({ platform: "wechat", to: "u", text: "hi" }),
   });
   assert.equal(res.status, 501);
+});
+
+test("GET /api/events returns recorded inbound events from KV", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response("{}", { status: 200 });
+  try {
+    const kv = mockKV();
+    const body = JSON.stringify({
+      entry: [{ id: "17841401829934148", messaging: [{ sender: { id: "user123" }, message: { text: "hello" } }] }],
+    });
+    await call("/webhook/instagram-hook", { method: "POST", body }, { EVENTS: kv });
+    const res = await call("/api/events", {}, { EVENTS: kv });
+    assert.equal(res.status, 200);
+    const { events } = await res.json();
+    assert.ok(events.some((e) => e.platform === "instagram" && e.from === "user123" && e.text === "hello"));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("GET /api/events supports since filter", async () => {
+  const kv = mockKV();
+  await kv.put("events", JSON.stringify([{ id: 7, platform: "facebook", from: "u1", text: "hi", time: "t" }]));
+  const res = await call("/api/events?since=7", {}, { EVENTS: kv });
+  assert.equal(res.status, 200);
+  assert.deepEqual((await res.json()).events, []);
+});
+
+test("GET /api/events returns empty when no KV bound", async () => {
+  const res = await call("/api/events");
+  assert.equal(res.status, 200);
+  assert.deepEqual((await res.json()).events, []);
+});
+
+test("GET /api/health reports event count", async () => {
+  const kv = mockKV();
+  await kv.put("events", JSON.stringify([{ id: 1 }, { id: 2 }]));
+  const res = await call("/api/health", {}, { EVENTS: kv });
+  assert.equal(res.status, 200);
+  assert.equal((await res.json()).events, 2);
 });

@@ -23,6 +23,31 @@ jobs:
         with:
           node-version: 20
 
+      - name: Create KV namespace if first deploy
+        id: kv-setup
+        shell: bash
+        run: |
+          if grep -q "KV_PLACEHOLDER" wrangler.toml; then
+            ID=$(npx wrangler kv namespace list --json 2>/dev/null | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const a=JSON.parse(d);const m=a.find(x=>x.title==='EVENTS');console.log(m?m.id:'');}catch(e){console.log('');}})")
+            if [ -z "$ID" ]; then
+              echo "Creating EVENTS KV namespace..."
+              OUT=$(npx wrangler kv namespace create EVENTS)
+              ID=$(echo "$OUT" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+            fi
+            if [ -z "$ID" ]; then
+              echo "Failed to create KV namespace"
+              exit 1
+            fi
+            sed -i "s/KV_PLACEHOLDER/$ID/" wrangler.toml
+            echo "kv_created=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "kv_created=false" >> "$GITHUB_OUTPUT"
+          fi
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:

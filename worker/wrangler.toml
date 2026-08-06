@@ -1,3 +1,15 @@
 name = "messaging-webhooks"
 main = "src/index.js"
 compatibility_date = "2026-08-04"
+
+# KV namespace used to store inbound events for the /api/events feed.
+# The deploy workflow replaces KV_PLACEHOLDER with a real namespace id on first deploy.
+[[kv_namespaces]]
+binding = "EVENTS"
+id = "KV_PLACEHOLDER"
+
+# Serve the messaging app (same origin as the API/webhooks) so one URL does everything.
+[assets]
+directory = "../messaging"
+not_found_handling = "single-page-application"
+run_worker_first = true
