@@ -82,6 +82,12 @@ jobs:
           if [ -n "$FEDEX_API_KEY" ]; then printf '%s' "$FEDEX_API_KEY" | npx wrangler secret put FEDEX_API_KEY; fi
           if [ -n "$FEDEX_API_SECRET" ]; then printf '%s' "$FEDEX_API_SECRET" | npx wrangler secret put FEDEX_API_SECRET; fi
           if [ -n "$DHL_API_KEY" ]; then printf '%s' "$DHL_API_KEY" | npx wrangler secret put DHL_API_KEY; fi
+          if [ -n "$FTP_HOST" ]; then printf '%s' "$FTP_HOST" | npx wrangler secret put FTP_HOST; fi
+          if [ -n "$FTP_PORT" ]; then printf '%s' "$FTP_PORT" | npx wrangler secret put FTP_PORT; fi
+          if [ -n "$FTP_USER" ]; then printf '%s' "$FTP_USER" | npx wrangler secret put FTP_USER; fi
+          if [ -n "$FTP_PASS" ]; then printf '%s' "$FTP_PASS" | npx wrangler secret put FTP_PASS; fi
+          if [ -n "$FTP_BASE_URL" ]; then printf '%s' "$FTP_BASE_URL" | npx wrangler secret put FTP_BASE_URL; fi
+          if [ -n "$FTP_REMOTE_ROOT" ]; then printf '%s' "$FTP_REMOTE_ROOT" | npx wrangler secret put FTP_REMOTE_ROOT; fi
         working-directory: worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -101,3 +107,9 @@ jobs:
           FEDEX_API_KEY: ${{ secrets.FEDEX_API_KEY }}
           FEDEX_API_SECRET: ${{ secrets.FEDEX_API_SECRET }}
           DHL_API_KEY: ${{ secrets.DHL_API_KEY }}
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+          FTP_BASE_URL: ${{ secrets.FTP_BASE_URL }}
+          FTP_REMOTE_ROOT: ${{ secrets.FTP_REMOTE_ROOT }}

@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ftpList, ftpStore, ftpMkdirs } from "./ftp.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -54,6 +55,56 @@ const COLOURDIAM_SEARCH = "https://www.colourdiam.com/Home/SearchProduct?SubMenu
 const PRODUCT_CACHE_TTL = 10 * 60 * 1000;
 let productsCache = { at: 0, list: [] };
 
+const MEDIA_CONFIG_FILE = env.MEDIA_CONFIG_FILE || path.join(__dirname, "media-config.json");
+let mediaConfig = loadMediaConfig();
+
+function loadMediaConfig() {
+  let file = {};
+  try {
+    if (fs.existsSync(MEDIA_CONFIG_FILE)) {
+      const parsed = JSON.parse(fs.readFileSync(MEDIA_CONFIG_FILE, "utf8"));
+      if (parsed && typeof parsed === "object") file = parsed;
+    }
+  } catch (err) {
+    console.error("could not load media-config.json:", err.message);
+  }
+  return {
+    host: String(file.host || env.FTP_HOST || "").trim(),
+    port: Number(file.port || env.FTP_PORT || 21),
+    user: String(file.user || env.FTP_USER || "").trim(),
+    pass: String(file.pass || env.FTP_PASS || ""),
+    baseUrl: String(file.baseUrl || env.FTP_BASE_URL || "").trim().replace(/\/+$/, ""),
+    remoteRoot: String(file.remoteRoot || env.FTP_REMOTE_ROOT || "").trim().replace(/^\/+|\/+$/g, ""),
+  };
+}
+
+function saveMediaConfig(cfg) {
+  mediaConfig = cfg;
+  try {
+    fs.writeFileSync(MEDIA_CONFIG_FILE, JSON.stringify(cfg, null, 2));
+  } catch (err) {
+    console.error("could not save media-config.json:", err.message);
+  }
+}
+
+function mediaConfigView(cfg, source) {
+  return {
+    configured: !!(cfg.host && cfg.user && cfg.pass),
+    host: cfg.host,
+    port: cfg.port,
+    user: cfg.user,
+    hasPassword: !!cfg.pass,
+    baseUrl: cfg.baseUrl,
+    remoteRoot: cfg.remoteRoot,
+    source,
+  };
+}
+
+function productImgBase() {
+  if (mediaConfig.baseUrl) return mediaConfig.baseUrl;
+  return env.FTP_BASE_URL ? String(env.FTP_BASE_URL).trim().replace(/\/+$/, "") : "https://www.colourdiam.com";
+}
+
 const COLOUR_EMOJI = {
   yellow: "💛", green: "💚", pink: "💗", blue: "💙", brown: "🤎", white: "🤍",
   gray: "🩶", grey: "🩶", orange: "🧡", red: "❤️", violet: "💜", purple: "💜",
@@ -71,7 +122,7 @@ function colourDiamondMeta(name) {
   for (const key of Object.keys(COLOUR_EMOJI)) {
     if (lower.includes(key)) { found = key; break; }
   }
-  return { emoji: COLOUR_EMOJI[found] || "💎", bg: COLOUR_BG[found] || "#f3ead7" };
+  return { emoji: COLOUR_EMOJI[found] || "💎", bg: COLOUR_BG[found] || "#f3ead7", colorName: found || "white" };
 }
 
 function parseColourdiamCarat(name) {
@@ -93,7 +144,8 @@ function normalizeColourdiamProduct(p) {
     stock: "In stock",
     emoji: meta.emoji,
     color: meta.bg,
-    img: p.ImgPath ? "https://www.colourdiam.com" + p.ImgPath : null,
+    colorName: meta.colorName,
+    img: p.ImgPath ? productImgBase() + p.ImgPath : null,
   };
 }
 
@@ -240,6 +292,12 @@ async function handleApi(req, res, url) {
     return;
   }
 
+  if (url.pathname === "/api/media/config" && req.method === "GET") {
+    const source = fs.existsSync(MEDIA_CONFIG_FILE) ? "file" : (env.FTP_HOST || env.FTP_BASE_URL ? "env" : "none");
+    sendJson(res, 200, mediaConfigView(mediaConfig, source), corsHeaders());
+    return;
+  }
+
   if (url.pathname === "/api/llm" && req.method === "POST") {
     const raw = await readBody(req);
     let body;
@@ -256,6 +314,56 @@ async function handleApi(req, res, url) {
 
   if (!requireAuth(req)) {
     sendJson(res, 401, { error: "Unauthorized" }, corsHeaders());
+    return;
+  }
+
+  if (url.pathname === "/api/media/config" && req.method === "POST") {
+    const raw = await readBody(req);
+    let body;
+    try {
+      body = JSON.parse(raw);
+    } catch (err) {
+      sendJson(res, 400, { error: "Invalid JSON" }, corsHeaders());
+      return;
+    }
+    const next = {
+      host: String(body.host || "").trim(),
+      port: Number(body.port || 21),
+      user: String(body.user || "").trim(),
+      pass: String(body.pass || ""),
+      baseUrl: String(body.baseUrl || "").trim().replace(/\/+$/, ""),
+      remoteRoot: String(body.remoteRoot || "").trim().replace(/^\/+|\/+$/g, ""),
+    };
+    if (!next.pass) next.pass = mediaConfig.pass;
+    saveMediaConfig(next);
+    sendJson(res, 200, mediaConfigView(mediaConfig, "file"), corsHeaders());
+    return;
+  }
+
+  if (url.pathname === "/api/media/test" && req.method === "POST") {
+    const raw = await readBody(req);
+    let body;
+    try {
+      body = JSON.parse(raw);
+    } catch (err) {
+      sendJson(res, 400, { error: "Invalid JSON" }, corsHeaders());
+      return;
+    }
+    const result = await apiMediaTest(body);
+    sendJson(res, result.status, result.body, corsHeaders());
+    return;
+  }
+
+  if (url.pathname === "/api/media/list" && req.method === "GET") {
+    const productId = String(url.searchParams.get("productId") || "");
+    const result = await apiMediaList(productId);
+    sendJson(res, result.status, result.body, corsHeaders());
+    return;
+  }
+
+  if (url.pathname === "/api/media/upload" && req.method === "POST") {
+    const result = await apiMediaUpload(req);
+    sendJson(res, result.status, result.body, corsHeaders());
     return;
   }
 
@@ -408,6 +516,147 @@ async function trackDHL(trackingNumber) {
       lastScan: latest ? latest.timestamp : null,
     },
   };
+}
+
+function sanitizeMediaName(name) {
+  return String(name || "media.bin")
+    .replace(/\\/g, "/")
+    .split("/").pop()
+    .replace(/^\s+|\s+$/g, "")
+    .replace(/[\x00-\x1f<>:"|?*]/g, "")
+    .slice(0, 120) || "media.bin";
+}
+
+function parseListEntry(line) {
+  const m = String(line).match(/^([d-])[rwxStTs-]{9}\s+\d+\s+\S+\s+\S+\s+(\d+)\s+(\S+\s+\d+\s+[\d:]+)\s+(.+)$/);
+  if (!m) return null;
+  return { dir: m[1] === "d", size: Number(m[2]), date: m[3], name: m[4] };
+}
+
+async function apiMediaTest(body) {
+  const cfg = {
+    host: String((body && body.host) || mediaConfig.host || "").trim(),
+    port: Number((body && body.port) || mediaConfig.port || 21),
+    user: String((body && body.user) || mediaConfig.user || "").trim(),
+    pass: String((body && body.pass) || mediaConfig.pass || ""),
+  };
+  if (!cfg.host || !cfg.user || !cfg.pass) {
+    return { status: 400, body: { error: "FTP not configured — set host, user and password" } };
+  }
+  try {
+    const listing = await ftpList(cfg, "/");
+    const entries = String(listing).split(/\r?\n/).filter(Boolean);
+    return {
+      status: 200,
+      body: {
+        ok: true,
+        host: cfg.host,
+        message: `Connected to ${cfg.host} (${entries.length} entries in /)`,
+        entries: entries.slice(0, 20),
+      },
+    };
+  } catch (err) {
+    return { status: 502, body: { error: "FTP test failed: " + String((err && err.message) || err) } };
+  }
+}
+
+async function apiMediaList(productId) {
+  if (!mediaConfig.host || !mediaConfig.user || !mediaConfig.pass) {
+    return { status: 400, body: { error: "FTP not configured on the server" } };
+  }
+  if (!productId) {
+    return { status: 400, body: { error: "productId is required" } };
+  }
+  const remoteDir = [mediaConfig.remoteRoot, productId].filter(Boolean).join("/") || "/";
+  try {
+    const listing = await ftpList(mediaConfig, remoteDir);
+    const files = String(listing)
+      .split(/\r?\n/)
+      .map(parseListEntry)
+      .filter((f) => f && !f.dir && !f.name.startsWith("."));
+    const items = files.map((f) => ({
+      name: f.name,
+      size: f.size,
+      url: [mediaConfig.baseUrl, remoteDir, f.name].filter(Boolean).join("/"),
+    }));
+    return { status: 200, body: { ok: true, productId, files: items } };
+  } catch (err) {
+    return { status: 502, body: { error: "FTP listing failed: " + String((err && err.message) || err) } };
+  }
+}
+
+function parseMultipart(raw, contentType) {
+  const m = String(contentType || "").match(/boundary=(?:"([^"]+)"|([^;]+))/i);
+  const boundary = (m && (m[1] || m[2])) || "";
+  const delim = Buffer.from("--" + boundary);
+  const buf = Buffer.isBuffer(raw) ? raw : Buffer.from(raw);
+  const parts = [];
+  let pos = 0;
+  for (;;) {
+    const idx = buf.indexOf(delim, pos);
+    if (idx === -1) break;
+    let start = idx + delim.length;
+    if (buf[start] === 0x2d && buf[start + 1] === 0x2d) break;
+    if (buf[start] === 0x0d && buf[start + 1] === 0x0a) start += 2;
+    const headerEnd = buf.indexOf(Buffer.from("\r\n\r\n"), start);
+    if (headerEnd === -1) break;
+    const bodyEnd = buf.indexOf(Buffer.from("\r\n" + delim), headerEnd + 4);
+    if (bodyEnd === -1) break;
+    const headers = {};
+    for (const line of buf.slice(start, headerEnd).toString("utf8").split("\r\n")) {
+      const ci = line.indexOf(":");
+      if (ci !== -1) headers[line.slice(0, ci).trim().toLowerCase()] = line.slice(ci + 1).trim();
+    }
+    const disposition = headers["content-disposition"] || "";
+    const name = (disposition.match(/name="([^"]*)"/) || [])[1] || "";
+    const filename = (disposition.match(/filename="([^"]*)"/) || [])[1] || "";
+    parts.push({ name, filename, type: headers["content-type"] || "", data: buf.slice(headerEnd + 4, bodyEnd) });
+    pos = bodyEnd + 2 + delim.length;
+  }
+  return parts;
+}
+
+async function apiMediaUpload(req) {
+  if (!mediaConfig.host || !mediaConfig.user || !mediaConfig.pass) {
+    return { status: 400, body: { error: "FTP not configured on the server (save it via /api/media/config or set FTP_* env vars)" } };
+  }
+  const contentType = req.headers["content-type"] || "";
+  if (!contentType.includes("multipart/form-data")) {
+    return { status: 400, body: { error: "multipart/form-data is required" } };
+  }
+  const raw = await readBodyBuffer(req);
+  const parts = parseMultipart(raw, contentType);
+  const productId = String((parts.find((p) => p.name === "productId") || {}).data || "").trim();
+  const files = parts.filter((p) => p.filename);
+  if (!productId) return { status: 400, body: { error: "productId is required" } };
+  if (!files.length) return { status: 400, body: { error: "no file provided" } };
+  const uploaded = [];
+  for (const f of files) {
+    const name = sanitizeMediaName(f.filename);
+    const remoteDir = [mediaConfig.remoteRoot, productId].filter(Boolean).join("/");
+    const remotePath = [remoteDir, name].filter(Boolean).join("/");
+    try {
+      if (remoteDir) await ftpMkdirs(mediaConfig, remoteDir);
+      await ftpStore(mediaConfig, remotePath, f.data);
+    } catch (err) {
+      return { status: 502, body: { error: "FTP upload failed: " + String((err && err.message) || err) } };
+    }
+    uploaded.push({
+      name,
+      path: remotePath,
+      url: [mediaConfig.baseUrl, remoteDir, name].filter(Boolean).join("/"),
+    });
+  }
+  return { status: 200, body: { ok: true, productId, files: uploaded } };
+}
+
+async function readBodyBuffer(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", () => resolve(Buffer.concat(chunks)));
+    req.on("error", reject);
+  });
 }
 
 async function apiSend(body) {

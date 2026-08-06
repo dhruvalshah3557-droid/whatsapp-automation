@@ -453,7 +453,17 @@ input, textarea, select { font-family: inherit; }
 .customer-card .cc-btn { margin-top: 10px; width: 100%; background: var(--gold-soft); border: 1px solid var(--gold); color: var(--gold-deep); font-weight: 700; padding: 8px; border-radius: 10px; font-size: 12.5px; }
 .customer-card .cc-btn:hover { background: var(--gold); color: #fff; }
 
-.product-card .pc-media { height: 150px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-size: 52px; box-shadow: inset 0 0 40px rgba(0,0,0,.06); }
+.product-card .pc-media { height: 150px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-size: 52px; box-shadow: inset 0 0 40px rgba(0,0,0,.06); position: relative; overflow: hidden; }
+.product-card .pc-media .pc-upload { position: absolute; right: 8px; bottom: 8px; width: 34px; height: 34px; border-radius: 50%; border: none; background: rgba(0,0,0,.55); color: #fff; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,.3); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); transition: transform var(--ease), background var(--ease); }
+.product-card .pc-media .pc-upload:hover { background: rgba(184,148,58,.9); transform: scale(1.08); }
+.product-card .pc-media .pc-media-mark { position: absolute; left: 8px; bottom: 8px; font-size: 14px; background: rgba(255,255,255,.85); border-radius: 8px; padding: 2px 6px; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+.prod-filter { margin-bottom: 12px; }
+.prod-filter .pf-search { width: 100%; }
+.prod-filter .pf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-top: 8px; }
+.prod-filter select { width: 100%; background: var(--bg-2); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 11px; font-size: 13px; outline: none; transition: all var(--ease); }
+.prod-filter select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,148,58,.14); }
+.prod-filter .pf-clear { background: var(--card); border: 1px solid var(--border); color: var(--gold-deep); font-weight: 700; padding: 10px 12px; border-radius: 11px; font-size: 13px; cursor: pointer; transition: all var(--ease); }
+.prod-filter .pf-clear:hover { border-color: var(--gold); }
 .product-card .pc-name { font-weight: 700; font-size: 14px; line-height: 1.3; }
 .product-card .pc-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
 .product-card .pc-bot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
@@ -727,6 +737,35 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
     <div id="view-products" class="view">
       <div class="feed-wrap"><div class="feed-inner">
         <div class="feed-header"><h2 data-i18n="catalogue">Catalogue</h2></div>
+        <div class="prod-filter">
+          <input id="pf-search" type="search" placeholder="Search products..." data-i18n-ph="prod_search" oninput="renderProducts()">
+          <div class="pf-grid">
+            <select id="pf-category" title="Category" data-i18n-title="prod_category" onchange="renderProducts()"></select>
+            <select id="pf-color" title="Color" data-i18n-title="prod_color" onchange="renderProducts()"></select>
+            <select id="pf-carat" title="Carat" data-i18n-title="prod_carat" onchange="renderProducts()">
+              <option value="" data-i18n="filter_any">Any</option>
+              <option value="u05" data-i18n="carat_u05">≤ 0.5 ct</option>
+              <option value="05-1" data-i18n="carat_05_1">0.5 – 1 ct</option>
+              <option value="1-2" data-i18n="carat_1_2">1 – 2 ct</option>
+              <option value="2up" data-i18n="carat_2up">≥ 2 ct</option>
+            </select>
+            <select id="pf-price" title="Price" data-i18n-title="prod_price" onchange="renderProducts()">
+              <option value="" data-i18n="filter_any">Any</option>
+              <option value="u1k" data-i18n="price_u1k">Under $1,000</option>
+              <option value="1k-5k" data-i18n="price_1k5k">$1,000 – $4,999</option>
+              <option value="5k-10k" data-i18n="price_5k10k">$5,000 – $9,999</option>
+              <option value="10kup" data-i18n="price_10kup">$10,000+</option>
+            </select>
+            <select id="pf-sort" title="Sort" data-i18n-title="prod_sort" onchange="renderProducts()">
+              <option value="" data-i18n="sort_featured">Featured</option>
+              <option value="price_asc" data-i18n="sort_price_asc">Price: low → high</option>
+              <option value="price_desc" data-i18n="sort_price_desc">Price: high → low</option>
+              <option value="carat_asc" data-i18n="sort_carat_asc">Carat: low → high</option>
+              <option value="name_az" data-i18n="sort_name_az">Name A–Z</option>
+            </select>
+            <button class="pf-clear" onclick="clearProductFilters()" data-i18n="filter_clear">Clear filters</button>
+          </div>
+        </div>
         <div class="grid-2" id="products-list"></div>
       </div></div>
     </div>
@@ -806,6 +845,32 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
           <button class="btn btn-ghost" style="width:100%" id="test-server-btn" onclick="testServer()" data-i18n="conn_test">Test connection</button>
           <div class="msg" id="server-test-msg"></div>
           <p class="hint" data-i18n="conn_hint">Enter your deployed webhook server (standalone Node server or Cloudflare Worker). The Chats view then shows live inbound messages from /api/events, and replies are sent through /api/send. Tokens stay on this device.</p>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><div class="logo-lg" style="background:#c2410c">🖼</div><span data-i18n="ftp_title">FTP Media Storage</span></div>
+            <span class="status-pill notset" id="ftp-status"><span class="status-dot"></span><span id="ftp-status-txt"></span></span>
+          </div>
+          <div class="form-row">
+            <div><label data-i18n="ftp_host">FTP Host</label><input id="ftp-host" placeholder="ftp.example.com" autocomplete="off"></div>
+            <div><label data-i18n="ftp_port">Port</label><input id="ftp-port" inputmode="numeric" placeholder="21" autocomplete="off"></div>
+          </div>
+          <div class="form-row">
+            <div><label data-i18n="ftp_user">Username</label><input id="ftp-user" autocomplete="off"></div>
+            <div><label data-i18n="ftp_pass">Password</label><input id="ftp-pass" type="password" autocomplete="off"></div>
+          </div>
+          <div class="form-row">
+            <div><label data-i18n="ftp_base">Public Base URL</label><input id="ftp-base" placeholder="https://files.example.com" autocomplete="off"></div>
+            <div><label data-i18n="ftp_root">Remote Root</label><input id="ftp-root" placeholder="public_html/media" autocomplete="off"></div>
+          </div>
+          <div class="form-row" style="grid-template-columns:repeat(3,1fr)">
+            <div><button class="btn btn-ghost" id="ftp-load-btn" onclick="ftpLoad()" data-i18n="ftp_load">Load</button></div>
+            <div><button class="btn btn-ghost" id="ftp-save-btn" onclick="ftpSave()" data-i18n="ftp_save">Save</button></div>
+            <div><button class="btn" id="ftp-test-btn" onclick="ftpTest()" data-i18n="ftp_test">Test connection</button></div>
+          </div>
+          <div class="msg" id="ftp-msg"></div>
+          <p class="hint" data-i18n="ftp_hint">Upload product media to an FTP host (cPanel, hosting or a CDN-adjacent FTP). The Public Base URL builds the image links shown in the catalogue.</p>
+          <p class="hint" id="ftp-worker-hint" style="display:none" data-i18n="ftp_worker_hint">On the Cloudflare Worker the FTP config comes from worker secrets / GitHub Actions secrets (FTP_HOST, FTP_USER, FTP_PASS, FTP_BASE_URL). Saving is only available on the standalone server.</p>
         </div>
         <div class="card">
           <div class="card-head"><div class="card-title"><div class="logo-lg" style="background:#3f6fb5">n8n</div><span data-i18n="conn_n8n">n8n Instance</span></div><span class="step">STEP 1</span></div>
@@ -965,7 +1030,19 @@ const I18N = {
     sec_failed: "Could not verify — please try again or skip for this session.",
     sec_enabled: "Biometric unlock enabled", sec_disabled: "Biometric unlock disabled",
     err_no_chat: "No chats found", lang_label: "Language",
-    uploaded: "Image attached", drop_hint: "Drop files to attach"
+    uploaded: "Image attached", drop_hint: "Drop files to attach",
+    prod_search: "Search products...", prod_category: "Category", prod_color: "Color", prod_carat: "Carat", prod_price: "Price", prod_sort: "Sort",
+    filter_any: "Any", filter_clear: "Clear filters",
+    carat_u05: "≤ 0.5 ct", carat_05_1: "0.5 – 1 ct", carat_1_2: "1 – 2 ct", carat_2up: "≥ 2 ct",
+    price_u1k: "Under $1,000", price_1k5k: "$1,000 – $4,999", price_5k10k: "$5,000 – $9,999", price_10kup: "$10,000+",
+    sort_featured: "Featured", sort_price_asc: "Price: low → high", sort_price_desc: "Price: high → low", sort_carat_asc: "Carat: low → high", sort_name_az: "Name A–Z",
+    upload_media: "Upload media", media_uploading: "Uploading…", media_uploaded: "Media uploaded", media_error: "Upload failed",
+    ftp_title: "FTP Media Storage", ftp_host: "FTP Host", ftp_port: "Port", ftp_user: "Username", ftp_pass: "Password", ftp_base: "Public Base URL", ftp_root: "Remote Root",
+    ftp_load: "Load", ftp_save: "Save", ftp_test: "Test connection", ftp_testing: "Testing…",
+    ftp_saved: "FTP config saved", ftp_loaded: "FTP config loaded", ftp_ok: "Connected", ftp_error: "FTP error",
+    ftp_configured: "FTP configured", ftp_not_configured: "FTP not configured",
+    ftp_hint: "Upload product media to an FTP host (cPanel, hosting or a CDN-adjacent FTP). The Public Base URL builds the image links shown in the catalogue.",
+    ftp_worker_hint: "On the Cloudflare Worker the FTP config comes from worker secrets / GitHub Actions secrets (FTP_HOST, FTP_USER, FTP_PASS, FTP_BASE_URL). Saving is only available on the standalone server."
   },
   zh: {
     messaging: "消息", lock: "锁定应用", language: "语言",
@@ -1026,7 +1103,19 @@ const I18N = {
     sec_failed: "无法验证——请重试或选择本次跳过。",
     sec_enabled: "已启用生物识别解锁", sec_disabled: "已停用生物识别解锁",
     err_no_chat: "未找到聊天", lang_label: "语言",
-    uploaded: "图片已附加", drop_hint: "拖放文件以附加"
+    uploaded: "图片已附加", drop_hint: "拖放文件以附加",
+    prod_search: "搜索产品...", prod_category: "类别", prod_color: "颜色", prod_carat: "克拉", prod_price: "价格", prod_sort: "排序",
+    filter_any: "全部", filter_clear: "清除筛选",
+    carat_u05: "≤ 0.5 克拉", carat_05_1: "0.5 – 1 克拉", carat_1_2: "1 – 2 克拉", carat_2up: "≥ 2 克拉",
+    price_u1k: "低于 $1,000", price_1k5k: "$1,000 – $4,999", price_5k10k: "$5,000 – $9,999", price_10kup: "$10,000+",
+    sort_featured: "推荐", sort_price_asc: "价格：从低到高", sort_price_desc: "价格：从高到低", sort_carat_asc: "克拉：从低到高", sort_name_az: "名称 A–Z",
+    upload_media: "上传媒体", media_uploading: "正在上传…", media_uploaded: "媒体已上传", media_error: "上传失败",
+    ftp_title: "FTP 媒体存储", ftp_host: "FTP 主机", ftp_port: "端口", ftp_user: "用户名", ftp_pass: "密码", ftp_base: "公开基础 URL", ftp_root: "远程根目录",
+    ftp_load: "加载", ftp_save: "保存", ftp_test: "测试连接", ftp_testing: "正在测试…",
+    ftp_saved: "FTP 配置已保存", ftp_loaded: "FTP 配置已加载", ftp_ok: "已连接", ftp_error: "FTP 错误",
+    ftp_configured: "FTP 已配置", ftp_not_configured: "FTP 未配置",
+    ftp_hint: "将产品媒体上传到 FTP 主机（cPanel、主机托管或靠近 CDN 的 FTP）。公开基础 URL 用于构建目录中显示的图片链接。",
+    ftp_worker_hint: "在 Cloudflare Worker 上，FTP 配置来自 worker 密钥 / GitHub Actions 密钥（FTP_HOST、FTP_USER、FTP_PASS、FTP_BASE_URL）。只有独立服务器支持从应用保存。"
   },
   th: {
     messaging: "ข้อความ", lock: "ล็อกแอป", language: "ภาษา",
@@ -1087,7 +1176,19 @@ const I18N = {
     sec_failed: "ไม่สามารถยืนยันได้ — โปรดลองอีกครั้งหรือข้ามในครั้งนี้",
     sec_enabled: "เปิดใช้การปลดล็อกด้วยไบโอเมตริกแล้ว", sec_disabled: "ปิดการปลดล็อกด้วยไบโอเมตริกแล้ว",
     err_no_chat: "ไม่พบแชท", lang_label: "ภาษา",
-    uploaded: "แนบรูปภาพแล้ว", drop_hint: "ลากไฟล์เพื่อแนบ"
+    uploaded: "แนบรูปภาพแล้ว", drop_hint: "ลากไฟล์เพื่อแนบ",
+    prod_search: "ค้นหาสินค้า...", prod_category: "หมวดหมู่", prod_color: "สี", prod_carat: "กะรัต", prod_price: "ราคา", prod_sort: "จัดเรียง",
+    filter_any: "ทั้งหมด", filter_clear: "ล้างตัวกรอง",
+    carat_u05: "≤ 0.5 กะรัต", carat_05_1: "0.5 – 1 กะรัต", carat_1_2: "1 – 2 กะรัต", carat_2up: "≥ 2 กะรัต",
+    price_u1k: "ต่ำกว่า $1,000", price_1k5k: "$1,000 – $4,999", price_5k10k: "$5,000 – $9,999", price_10kup: "$10,000+",
+    sort_featured: "แนะนำ", sort_price_asc: "ราคา: ต่ำ → สูง", sort_price_desc: "ราคา: สูง → ต่ำ", sort_carat_asc: "กะรัต: ต่ำ → สูง", sort_name_az: "ชื่อ A–Z",
+    upload_media: "อัปโหลดสื่อ", media_uploading: "กำลังอัปโหลด…", media_uploaded: "อัปโหลดสื่อแล้ว", media_error: "อัปโหลดล้มเหลว",
+    ftp_title: "ที่เก็บสื่อ FTP", ftp_host: "FTP Host", ftp_port: "พอร์ต", ftp_user: "ชื่อผู้ใช้", ftp_pass: "รหัสผ่าน", ftp_base: "Public Base URL", ftp_root: "Remote Root",
+    ftp_load: "โหลด", ftp_save: "บันทึก", ftp_test: "ทดสอบการเชื่อมต่อ", ftp_testing: "กำลังทดสอบ…",
+    ftp_saved: "บันทึกการตั้งค่า FTP แล้ว", ftp_loaded: "โหลดการตั้งค่า FTP แล้ว", ftp_ok: "เชื่อมต่อแล้ว", ftp_error: "ข้อผิดพลาด FTP",
+    ftp_configured: "ตั้งค่า FTP แล้ว", ftp_not_configured: "ยังไม่ได้ตั้งค่า FTP",
+    ftp_hint: "อัปโหลดสื่อสินค้าไปยัง FTP host (cPanel โฮสติ้ง หรือ FTP ที่ใกล้ CDN) Public Base URL ใช้สร้างลิงก์รูปภาพที่แสดงในแคตตาล็อก",
+    ftp_worker_hint: "บน Cloudflare Worker การตั้งค่า FTP มาจาก worker secrets / GitHub Actions secrets (FTP_HOST, FTP_USER, FTP_PASS, FTP_BASE_URL) การบันทึกทำได้เฉพาะบนเซิร์ฟเวอร์สแตนด์อโลนเท่านั้น"
   }
 };
 function t(k) {
@@ -1392,6 +1493,80 @@ function resetAll() {
   ids.forEach(([id, v]) => { const el = document.getElementById(id); if (el) el.value = v; });
   render();
   maybeStartPolling();
+}
+
+/* ==================== FTP media config ==================== */
+function setFtpMsg(cls, text) {
+  const m = document.getElementById("ftp-msg");
+  if (!m) return;
+  m.className = "msg " + cls;
+  m.textContent = text;
+}
+function setFtpStatus(ok) {
+  const st = document.getElementById("ftp-status");
+  const txt = document.getElementById("ftp-status-txt");
+  if (!st || !txt) return;
+  st.className = "status-pill " + (ok ? "configured" : "notset");
+  txt.textContent = ok ? t("ftp_configured") : t("ftp_not_configured");
+}
+function ftpFillForm(c) {
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  set("ftp-host", c.host || "");
+  set("ftp-port", c.port || 21);
+  set("ftp-user", c.user || "");
+  set("ftp-pass", c.hasPassword ? "" : "");
+  set("ftp-base", c.baseUrl || "");
+  set("ftp-root", c.remoteRoot || "");
+}
+function ftpFormBody() {
+  return {
+    host: (document.getElementById("ftp-host") ? document.getElementById("ftp-host").value : "").trim(),
+    port: Number(document.getElementById("ftp-port") ? document.getElementById("ftp-port").value : 21) || 21,
+    user: (document.getElementById("ftp-user") ? document.getElementById("ftp-user").value : "").trim(),
+    pass: (document.getElementById("ftp-pass") ? document.getElementById("ftp-pass").value : "").trim(),
+    baseUrl: (document.getElementById("ftp-base") ? document.getElementById("ftp-base").value : "").trim(),
+    remoteRoot: (document.getElementById("ftp-root") ? document.getElementById("ftp-root").value : "").trim(),
+  };
+}
+async function ftpLoad() {
+  try {
+    const c = await apiCall("/api/media/config");
+    ftpFillForm(c);
+    setFtpStatus(c.configured);
+    setFtpMsg("ok", t("ftp_loaded"));
+    const wh = document.getElementById("ftp-worker-hint");
+    if (wh) wh.style.display = c.workerOnly ? "block" : "none";
+  } catch (err) {
+    setFtpMsg("bad", "Error: " + (err.message || err));
+  }
+}
+async function ftpSave() {
+  try {
+    const c = await apiCall("/api/media/config", { method: "POST", body: JSON.stringify(ftpFormBody()) });
+    setFtpStatus(c.configured);
+    setFtpMsg("ok", t("ftp_saved"));
+    const wh = document.getElementById("ftp-worker-hint");
+    if (wh) wh.style.display = "none";
+  } catch (err) {
+    setFtpMsg("bad", "Error: " + (err.message || err));
+  }
+}
+async function ftpTest() {
+  const btn = document.getElementById("ftp-test-btn");
+  if (!btn) return;
+  btn.disabled = true;
+  const prev = btn.textContent;
+  btn.textContent = t("ftp_testing");
+  try {
+    const c = await apiCall("/api/media/test", { method: "POST", body: JSON.stringify(ftpFormBody()) });
+    setFtpStatus(c.ok);
+    setFtpMsg("ok", c.message || (t("ftp_ok") + " " + (c.host || "")));
+  } catch (err) {
+    setFtpMsg("bad", "Error: " + (err.message || err));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = prev;
+  }
 }
 
 /* ==================== Live server integration ==================== */
@@ -2163,20 +2338,123 @@ async function toggleTranslate(contactId, msgIdx) {
 }
 
 /* ---------------- Product catalogue ---------------- */
-function renderProducts() {
-  const list = document.getElementById("products-list");
-  if (!list) return;
-  if (!PRODUCTS.length) { list.innerHTML = `<div class="empty-state"><div class="big">💎</div><p>${t("no_products")}</p></div>`; return; }
-  list.innerHTML = PRODUCTS.map(p => `
+const MEDIA_KEY = "mc_media_v1";
+function productMedia(pid) { return (load(MEDIA_KEY) || {})[pid] || null; }
+function productFilterValues() {
+  const g = (id) => { const el = document.getElementById(id); return el ? el.value || "" : ""; };
+  return { q: g("pf-search").toLowerCase(), category: g("pf-category"), color: g("pf-color"), carat: g("pf-carat"), price: g("pf-price"), sort: g("pf-sort") };
+}
+function caratInRange(carat, range) {
+  const c = Number(carat || 0);
+  if (range === "u05") return c <= 0.5;
+  if (range === "05-1") return c > 0.5 && c <= 1;
+  if (range === "1-2") return c > 1 && c <= 2;
+  if (range === "2up") return c > 2;
+  return true;
+}
+function priceInRange(price, range) {
+  const p = Number(price || 0);
+  if (range === "u1k") return p < 1000;
+  if (range === "1k-5k") return p >= 1000 && p < 5000;
+  if (range === "5k-10k") return p >= 5000 && p < 10000;
+  if (range === "10kup") return p >= 10000;
+  return true;
+}
+function sortProducts(arr, sort) {
+  if (sort === "price_asc") arr.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+  else if (sort === "price_desc") arr.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+  else if (sort === "carat_asc") arr.sort((a, b) => Number(a.carat || 0) - Number(b.carat || 0));
+  else if (sort === "name_az") arr.sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+}
+function populateProductFilters() {
+  const catSel = document.getElementById("pf-category");
+  const colSel = document.getElementById("pf-color");
+  if (!catSel || !colSel) return;
+  const cats = [...new Set(PRODUCTS.map((p) => p.category).filter(Boolean))].sort();
+  const cols = [...new Set(PRODUCTS.map((p) => p.colorName).filter(Boolean))].sort();
+  if (catSel.dataset.last !== cats.join("|")) {
+    catSel.dataset.last = cats.join("|");
+    catSel.innerHTML = `<option value="">${t("filter_any")}</option>` + cats.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  }
+  if (colSel.dataset.last !== cols.join("|")) {
+    colSel.dataset.last = cols.join("|");
+    colSel.innerHTML = `<option value="">${t("filter_any")}</option>` + cols.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  }
+}
+function clearProductFilters() {
+  ["pf-search", "pf-category", "pf-color", "pf-carat", "pf-price", "pf-sort"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  renderProducts();
+}
+function productCardHtml(p) {
+  const media = productMedia(p.id);
+  const imgSrc = (media && media.url) || p.img;
+  const mediaMark = media ? `<span class="pc-media-mark" title="${esc(p.name)}">🖼</span>` : "";
+  return `
     <div class="product-card">
-      <div class="pc-media" style="background:${p.color}">${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:12px">` : p.emoji}</div>
+      <div class="pc-media" style="background:${p.color}">${imgSrc ? `<img src="${esc(imgSrc)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:12px">` : p.emoji}${mediaMark}<button class="pc-upload" title="${t("upload_media")}" onclick="uploadProductMedia('${esc(p.id)}')">📷</button></div>
       <div class="pc-name">${esc(p.name)}</div>
       <div class="pc-sub">${esc(p.category)} · ${esc(p.carat)}ct</div>
       <div class="pc-bot">
         <div><div class="pc-price">$${Number(p.price).toLocaleString()}</div><div class="pc-stock">${t("stock")}: ${esc(p.stock)}</div></div>
         <button class="pc-btn" onclick="sendProduct('${esc(p.id)}')">${t("buy")}</button>
       </div>
-    </div>`).join("");
+    </div>`;
+}
+function renderProducts() {
+  const list = document.getElementById("products-list");
+  if (!list) return;
+  if (!PRODUCTS.length) { list.innerHTML = `<div class="empty-state"><div class="big">💎</div><p>${t("no_products")}</p></div>`; return; }
+  populateProductFilters();
+  const f = productFilterValues();
+  let arr = PRODUCTS.filter(p => {
+    if (f.q && !(p.name || "").toLowerCase().includes(f.q)) return false;
+    if (f.category && p.category !== f.category) return false;
+    if (f.color && p.colorName !== f.color) return false;
+    if (f.carat && !caratInRange(p.carat, f.carat)) return false;
+    if (f.price && !priceInRange(p.price, f.price)) return false;
+    return true;
+  });
+  sortProducts(arr, f.sort);
+  if (!arr.length) { list.innerHTML = `<div class="empty-state"><div class="big">💎</div><p>${t("no_products")}</p></div>`; return; }
+  list.innerHTML = arr.map(productCardHtml).join("");
+}
+async function uploadProductFiles(pid, files) {
+  const s = serverCfg();
+  toastMsg(t("media_uploading"));
+  try {
+    const fd = new FormData();
+    fd.append("productId", pid);
+    for (const f of files) fd.append("files", f, f.name || "media.jpg");
+    const headers = {};
+    if (s.key) headers.Authorization = "Bearer " + s.key;
+    const res = await fetch(s.url + "/api/media/upload", { method: "POST", headers, body: fd });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
+    const first = data.files && data.files[0];
+    if (first) {
+      const m = load(MEDIA_KEY);
+      m[pid] = { url: first.url, name: first.name, time: Date.now() };
+      save(MEDIA_KEY, m);
+    }
+    renderProducts();
+    toastMsg(t("media_uploaded"));
+  } catch (err) {
+    toastMsg(t("media_error") + ": " + (err.message || err));
+  }
+}
+function uploadProductMedia(pid) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.multiple = true;
+  input.onchange = () => {
+    const files = Array.from(input.files || []);
+    if (files.length) uploadProductFiles(pid, files);
+  };
+  input.click();
 }
 function sendProduct(pid) {
   const p = productById(pid);
@@ -2562,6 +2840,7 @@ srvKeyInput.addEventListener("input", () => { const c = load(CFG_KEY); c.server_
   render();
   renderContacts();
   renderTabBadge();
+  ftpLoad();
   const st = document.getElementById("ai-status");
   const aic = aiLoad();
   st.dataset.mode = aic.base && aic.key ? "ai_on" : "ai_off";

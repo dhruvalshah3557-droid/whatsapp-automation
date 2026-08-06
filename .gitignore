@@ -13,6 +13,10 @@ node_modules/
 server/events.json
 server/test/tmp-events.json
 
+# FTP media config saved from the app (contains FTP credentials)
+server/media-config.json
+server/test/tmp-media-config.json
+
 # OS files
 .DS_Store
 

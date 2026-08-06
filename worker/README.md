@@ -39,6 +39,18 @@ wrangler secret put TIKTOK_ACCESS_TOKEN
 wrangler secret put WECHAT_TOKEN
 ```
 
+Optional FTP media storage (drives the product-image rewrite in `/api/products`
+via `FTP_BASE_URL`):
+
+```bash
+wrangler secret put FTP_HOST
+wrangler secret put FTP_USER
+wrangler secret put FTP_PASS
+wrangler secret put FTP_BASE_URL   # public base for uploaded product photos
+# optional: wrangler secret put FTP_PORT (default 21)
+# optional: wrangler secret put FTP_REMOTE_ROOT (default empty)
+```
+
 3. Create the KV namespace (used by `/api/events`), then deploy:
 
 ```bash

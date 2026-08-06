@@ -3,6 +3,7 @@ import assert from "node:assert";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import net from "node:net";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = 3456;
@@ -20,6 +21,7 @@ const ENV = {
   WECHAT_TOKEN: "wx_token",
   API_KEY: "test_api_key",
   EVENTS_FILE: path.join(__dirname, "tmp-events.json"),
+  MEDIA_CONFIG_FILE: path.join(__dirname, "tmp-media-config.json"),
 };
 
 let child;
@@ -58,6 +60,8 @@ async function req(pathname, options = {}) {
 }
 
 test.before(async () => {
+  const { writeFileSync } = await import("node:fs");
+  writeFileSync(ENV.MEDIA_CONFIG_FILE, "{}");
   await start();
 });
 
@@ -295,5 +299,169 @@ test("POST /api/llm proxies to an OpenAI-compatible endpoint when configured", a
     llmServer.kill("SIGTERM");
     await new Promise((resolve) => llmServer.on("exit", resolve));
     await new Promise((resolve) => mockLlm.close(resolve));
+  }
+});
+
+/* ---------------- FTP media endpoints ---------------- */
+
+test("GET /api/media/config returns the config shape", async () => {
+  const { status, text } = await req("/api/media/config");
+  assert.equal(status, 200);
+  const data = JSON.parse(text);
+  assert.equal(typeof data.configured, "boolean");
+  assert.equal(typeof data.host, "string");
+  assert.equal(typeof data.port, "number");
+  assert.equal(typeof data.hasPassword, "boolean");
+});
+
+test("POST /api/media/test returns 400 when FTP is not configured", async () => {
+  const { status, text } = await req("/api/media/test", { method: "POST", body: JSON.stringify({}) });
+  assert.equal(status, 400);
+  assert.match(JSON.parse(text).error, /not configured/i);
+});
+
+test("POST /api/media/config saves and masks the password", async () => {
+  const { status, text } = await req("/api/media/config", {
+    method: "POST",
+    body: JSON.stringify({ host: "ftp.example.com", port: 21, user: "demo", pass: "secret123", baseUrl: "https://files.example.com", remoteRoot: "media" }),
+  });
+  assert.equal(status, 200);
+  const data = JSON.parse(text);
+  assert.equal(data.configured, true);
+  assert.equal(data.host, "ftp.example.com");
+  assert.equal(data.hasPassword, true);
+  assert.ok(!("pass" in data) || data.pass === undefined, "password must not be returned");
+  const again = await req("/api/media/config");
+  const saved = JSON.parse(again.text);
+  assert.equal(saved.host, "ftp.example.com");
+  assert.equal(saved.baseUrl, "https://files.example.com");
+});
+
+test("POST /api/media/upload rejects non-multipart payloads", async () => {
+  const { status, text } = await req("/api/media/upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ productId: "1003" }),
+  });
+  assert.equal(status, 400);
+  assert.match(JSON.parse(text).error, /multipart/i);
+});
+
+test("POST /api/media/upload returns 400 without a productId", async () => {
+  const boundary = "----testboundary123";
+  const body = Buffer.from(
+    `--${boundary}\r\nContent-Disposition: form-data; name="files"; filename="a.jpg"\r\nContent-Type: image/jpeg\r\n\r\nFAKEIMG\r\n--${boundary}--\r\n`
+  );
+  const { status, text } = await req("/api/media/upload", {
+    method: "POST",
+    headers: { "Content-Type": `multipart/form-data; boundary=${boundary}` },
+    body,
+  });
+  assert.equal(status, 400);
+  assert.match(JSON.parse(text).error, /productId/);
+});
+
+/* ---------------- Minimal FTP client against a fake FTP server ---------------- */
+
+function startFakeFtp() {
+  const listings = {
+    "/": "total 2\ndrwxr-xr-x 2 ftp ftp 4096 Jul 01 10:00 Product\n-rw-r--r-- 1 ftp ftp 1234 Jul 01 10:00 hello.jpg\n",
+  };
+  const dataServers = [];
+  const srv = net.createServer((sock) => {
+    sock.write("220 FakeFTP ready\r\n");
+    let dataSock = null;
+    sock.on("data", async (d) => {
+      const line = d.toString().trim();
+      const cmd = line.split(" ")[0].toUpperCase();
+      if (cmd === "USER") sock.write("331 need password\r\n");
+      else if (cmd === "PASS") sock.write("230 logged in\r\n");
+      else if (cmd === "TYPE") sock.write("200 Type set\r\n");
+      else if (cmd === "PASV") {
+        const dataServer = net.createServer((ds) => {
+          dataSock = ds;
+        });
+        dataServers.push(dataServer);
+        await new Promise((r) => dataServer.listen(0, "127.0.0.1", r));
+        const p = dataServer.address().port;
+        sock.write(`227 Entering Passive Mode (127,0,0,1,${Math.floor(p / 256)},${p % 256})\r\n`);
+      } else if (cmd === "LIST") {
+        sock.write("150 Here comes the listing\r\n");
+        const path = line.split(/\s+/)[1] || "/";
+        if (dataSock) {
+          dataSock.write(listings[path] || listings["/"]);
+          dataSock.end();
+        }
+        sock.write("226 Directory send OK\r\n");
+      } else if (cmd === "MKD") {
+        sock.write("257 \"/new\" created\r\n");
+      } else if (cmd === "STOR") {
+        sock.write("150 Ok to send data\r\n");
+        if (dataSock) {
+          dataSock.on("data", () => {});
+          dataSock.on("end", () => sock.write("226 Transfer complete\r\n"));
+        }
+      } else if (cmd === "QUIT") {
+        sock.write("221 bye\r\n");
+        sock.end();
+      } else {
+        sock.write("200 OK\r\n");
+      }
+    });
+  });
+  return new Promise((resolve) => {
+    srv.listen(0, "127.0.0.1", () => resolve({
+      port: srv.address().port,
+      close: () => new Promise((r) => {
+        srv.close(() => {
+          for (const ds of dataServers) ds.close();
+          r();
+        });
+      }),
+    }));
+  });
+}
+
+test("FTP client connects, lists and stores against a fake FTP server", async () => {
+  const fake = await startFakeFtp();
+  try {
+    const { ftpList, ftpStore, ftpMkdirs } = await import("../ftp.js");
+    const cfg = { host: "127.0.0.1", port: fake.port, user: "demo", pass: "secret" };
+
+    const listing = await ftpList(cfg, "/");
+    assert.match(listing, /hello\.jpg/);
+    assert.match(listing, /Product/);
+
+    await ftpMkdirs(cfg, "media/1003");
+    await ftpStore(cfg, "media/1003/a.jpg", Buffer.from("IMG"));
+
+    assert.ok(true, "store + mkdirs completed without throwing");
+  } finally {
+    fake.close();
+  }
+});
+
+test("FTP client throws when the host refuses the connection", async () => {
+  const { ftpList } = await import("../ftp.js");
+  await assert.rejects(
+    () => ftpList({ host: "127.0.0.1", port: 1, user: "demo", pass: "secret" }, "/"),
+    /ECONNREFUSED|FTP connection/i
+  );
+});
+
+test("POST /api/media/test works end-to-end against the fake FTP server", async () => {
+  const fake = await startFakeFtp();
+  try {
+    const { status, text } = await req("/api/media/test", {
+      method: "POST",
+      body: JSON.stringify({ host: "127.0.0.1", port: fake.port, user: "demo", pass: "secret" }),
+    });
+    assert.equal(status, 200);
+    const data = JSON.parse(text);
+    assert.equal(data.ok, true);
+    assert.match(data.message, /Connected to 127\.0\.0\.1/);
+    assert.ok(Array.isArray(data.entries));
+  } finally {
+    fake.close();
   }
 });

@@ -59,6 +59,27 @@ async function handleApi(request, url, env, ctx) {
     }
   }
 
+  if (url.pathname === "/api/media/config") {
+    const pass = env.FTP_PASS || "";
+    const cfg = {
+      configured: !!(env.FTP_HOST && env.FTP_USER && pass),
+      host: env.FTP_HOST || "",
+      port: Number(env.FTP_PORT || 21),
+      user: env.FTP_USER || "",
+      hasPassword: !!pass,
+      baseUrl: (env.FTP_BASE_URL || "").trim().replace(/\/+$/, ""),
+      remoteRoot: (env.FTP_REMOTE_ROOT || "").trim().replace(/^\/+|\/+$/g, ""),
+      source: "env",
+    };
+    if (request.method === "GET") {
+      return json(cfg, 200, cors());
+    }
+    return json({
+      error: "FTP config is set via worker secrets/env on Cloudflare — save it with the standalone server instead",
+      configured: cfg.configured,
+    }, 501, cors());
+  }
+
   if (url.pathname === "/api/llm" && request.method === "POST") {
     let body;
     try {
@@ -129,7 +150,11 @@ function colourDiamondMeta(name) {
   for (const key of Object.keys(COLOUR_EMOJI)) {
     if (lower.includes(key)) { found = key; break; }
   }
-  return { emoji: COLOUR_EMOJI[found] || "💎", bg: COLOUR_BG[found] || "#f3ead7" };
+  return { emoji: COLOUR_EMOJI[found] || "💎", bg: COLOUR_BG[found] || "#f3ead7", colorName: found || "white" };
+}
+
+function productImgBase(env) {
+  return (env.FTP_BASE_URL || "").trim().replace(/\/+$/, "") || "https://www.colourdiam.com";
 }
 
 function parseColourdiamCarat(name) {
@@ -137,7 +162,7 @@ function parseColourdiamCarat(name) {
   return m ? m[1] : "";
 }
 
-function normalizeColourdiamProduct(p) {
+function normalizeColourdiamProduct(p, env) {
   const name = String(p.ProdName || "").trim();
   const meta = colourDiamondMeta(name);
   const carat = parseColourdiamCarat(name);
@@ -151,7 +176,8 @@ function normalizeColourdiamProduct(p) {
     stock: "In stock",
     emoji: meta.emoji,
     color: meta.bg,
-    img: p.ImgPath ? "https://www.colourdiam.com" + p.ImgPath : null,
+    colorName: meta.colorName,
+    img: p.ImgPath ? productImgBase(env) + p.ImgPath : null,
   };
 }
 
@@ -166,7 +192,7 @@ async function fetchColourdiamProducts(env) {
   if (!res.ok) throw new Error("ColourDiam API HTTP " + res.status);
   const data = await res.json();
   const raw = Array.isArray(data.searchProductsList) ? data.searchProductsList : [];
-  const list = raw.map(normalizeColourdiamProduct).filter((p) => p.name);
+  const list = raw.map((p) => normalizeColourdiamProduct(p, env)).filter((p) => p.name);
   env._productsCache = { at: now, list };
   return list;
 }

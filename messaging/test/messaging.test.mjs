@@ -136,6 +136,22 @@ test("i18n has en/zh/th with identical key sets", () => {
   assert.deepEqual(keys("th"), en, "th keys match en");
 });
 
+test("i18n contains the FTP and product-filter keys in every language", () => {
+  const I18N = i18nTable();
+  const newKeys = [
+    "ftp_title", "ftp_host", "ftp_port", "ftp_user", "ftp_pass", "ftp_base", "ftp_root",
+    "ftp_load", "ftp_save", "ftp_test", "ftp_hint", "ftp_worker_hint", "ftp_ok", "ftp_error",
+    "ftp_testing", "ftp_saved", "ftp_loaded", "ftp_configured", "ftp_not_configured",
+    "prod_search", "prod_category", "prod_color", "prod_carat", "prod_price", "prod_sort",
+    "filter_any", "filter_clear", "upload_media", "media_uploading", "media_uploaded", "media_error",
+  ];
+  for (const lang of ["en", "zh", "th"]) {
+    for (const key of newKeys) {
+      assert.ok(I18N[lang][key] !== undefined, `key "${key}" missing in ${lang}`);
+    }
+  }
+});
+
 test("every data-i18n* attribute maps to an existing key", () => {
   const I18N = i18nTable();
   const re = /\bdata-i18n(?:-ph|-title)?="([^"]+)"/g;
@@ -176,6 +192,10 @@ test("required HTML element ids exist", () => {
     "progress-label", "platforms", "env-out", "msg", "tab-msg-badge", "toast-msg", "lightbox",
     "lightbox-img", "lock-screen", "lock-hint", "lock-fab", "lock-skip-btn", "file-input",
     "settings-lang", "reply-input",
+    "pf-search", "pf-category", "pf-color", "pf-carat", "pf-price", "pf-sort",
+    "ftp-host", "ftp-port", "ftp-user", "ftp-pass", "ftp-base", "ftp-root",
+    "ftp-load-btn", "ftp-save-btn", "ftp-test-btn", "ftp-status", "ftp-status-txt",
+    "ftp-msg", "ftp-worker-hint",
   ];
   for (const id of ids) {
     assert.ok(new RegExp(`id=["']${id}["']`).test(html), `missing element id: ${id}`);
@@ -195,6 +215,10 @@ test("key functions are defined", () => {
     "aiHandleCommand", "renderSettingsPanel", "render", "renderProgress", "renderEnv",
     "pollEvents", "testServer", "setupTouchId", "removeTouchId", "verifyTouchId", "lockApp",
     "tryUnlock", "skipLock", "tryInstallApp", "aiRefreshStatus", "allOrders", "trackOrder", "setTracking", "trackingRowHtml",
+    "productMedia", "productFilterValues", "caratInRange", "priceInRange", "sortProducts",
+    "populateProductFilters", "clearProductFilters", "productCardHtml", "uploadProductFiles",
+    "uploadProductMedia", "ftpFillForm", "ftpFormBody", "ftpLoad", "ftpSave", "ftpTest",
+    "setFtpMsg", "setFtpStatus",
   ];
   for (const fn of required) {
     assert.ok(sandbox.run(`typeof ${fn} === 'function'`), `function missing: ${fn}`);

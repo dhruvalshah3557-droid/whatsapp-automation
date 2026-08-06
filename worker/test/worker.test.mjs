@@ -443,3 +443,63 @@ test("GET /api/health reports ai configured", async () => {
   assert.equal(res.status, 200);
   assert.equal((await res.json()).ai, true);
 });
+
+test("GET /api/media/config reflects env FTP settings and masks the password", async () => {
+  const res = await call("/api/media/config", {}, {
+    FTP_HOST: "ftp.example.com",
+    FTP_PORT: "2121",
+    FTP_USER: "demo",
+    FTP_PASS: "secret123",
+    FTP_BASE_URL: "https://files.example.com/",
+    FTP_REMOTE_ROOT: "/media/",
+  });
+  assert.equal(res.status, 200);
+  const cfg = await res.json();
+  assert.equal(cfg.configured, true);
+  assert.equal(cfg.host, "ftp.example.com");
+  assert.equal(cfg.port, 2121);
+  assert.equal(cfg.user, "demo");
+  assert.equal(cfg.hasPassword, true);
+  assert.equal(cfg.baseUrl, "https://files.example.com");
+  assert.equal(cfg.remoteRoot, "media");
+  assert.equal(cfg.source, "env");
+  assert.ok(!("pass" in cfg) || cfg.pass === undefined, "password must not be returned");
+});
+
+test("GET /api/media/config reports unconfigured without FTP env", async () => {
+  const res = await call("/api/media/config", {}, {});
+  assert.equal(res.status, 200);
+  const cfg = await res.json();
+  assert.equal(cfg.configured, false);
+  assert.equal(cfg.hasPassword, false);
+  assert.equal(cfg.host, "");
+});
+
+test("POST /api/media/config returns 501 because worker config comes from secrets", async () => {
+  const res = await call("/api/media/config", {
+    method: "POST",
+    body: JSON.stringify({ host: "ftp.example.com", user: "demo", pass: "x" }),
+  }, { FTP_HOST: "ftp.example.com", FTP_USER: "demo", FTP_PASS: "x" });
+  assert.equal(res.status, 501);
+  const data = await res.json();
+  assert.match(data.error, /worker secrets/i);
+});
+
+test("GET /api/products rewrites image URLs to FTP_BASE_URL when set", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    return new Response(JSON.stringify({
+      searchProductsList: [
+        { ProdId: "1003", ProdName: "Fancy Yellow 1.05 SI1 18K 4.072 gm", OldPrice: 17825, NewPrice: 17825, ImgPath: "/Product/Jewellery/1003/CENTER.jpg" },
+      ],
+    }), { status: 200, headers: { "Content-Type": "application/json" } });
+  };
+  try {
+    const res = await call("/api/products", {}, { FTP_BASE_URL: "https://cdn.example.com/media/" });
+    assert.equal(res.status, 200);
+    const { products } = await res.json();
+    assert.equal(products[0].img, "https://cdn.example.com/media/Product/Jewellery/1003/CENTER.jpg");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
