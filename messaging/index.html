@@ -454,8 +454,6 @@ input, textarea, select { font-family: inherit; }
 .customer-card .cc-btn:hover { background: var(--gold); color: #fff; }
 
 .product-card .pc-media { height: 150px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-size: 52px; box-shadow: inset 0 0 40px rgba(0,0,0,.06); position: relative; overflow: hidden; }
-.product-card .pc-media .pc-upload { position: absolute; right: 8px; bottom: 8px; width: 34px; height: 34px; border-radius: 50%; border: none; background: rgba(0,0,0,.55); color: #fff; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,.3); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); transition: transform var(--ease), background var(--ease); }
-.product-card .pc-media .pc-upload:hover { background: rgba(184,148,58,.9); transform: scale(1.08); }
 .product-card .pc-media .pc-media-mark { position: absolute; left: 8px; bottom: 8px; font-size: 14px; background: rgba(255,255,255,.85); border-radius: 8px; padding: 2px 6px; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
 .prod-filter { margin-bottom: 12px; }
 .prod-filter .pf-search { width: 100%; }
@@ -2394,7 +2392,7 @@ function productCardHtml(p) {
   const mediaMark = media ? `<span class="pc-media-mark" title="${esc(p.name)}">🖼</span>` : "";
   return `
     <div class="product-card">
-      <div class="pc-media" style="background:${p.color}">${imgSrc ? `<img src="${esc(imgSrc)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:12px">` : p.emoji}${mediaMark}<button class="pc-upload" title="${t("upload_media")}" onclick="uploadProductMedia('${esc(p.id)}')">📷</button></div>
+      <div class="pc-media" style="background:${p.color}">${imgSrc ? `<img src="${esc(imgSrc)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:12px">` : p.emoji}${mediaMark}</div>
       <div class="pc-name">${esc(p.name)}</div>
       <div class="pc-sub">${esc(p.category)} · ${esc(p.carat)}ct</div>
       <div class="pc-bot">
