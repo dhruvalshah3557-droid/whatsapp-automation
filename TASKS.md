@@ -12,6 +12,8 @@ _None — no pending task right now._
 
 ## History
 
+- [x] 260806: Upgrade Cloudflare Worker to a full replacement server — status: finished
+  - Done: worker now serves the messaging app via an ASSETS binding, stores inbound events in a KV namespace (`EVENTS`, created idempotently via Cloudflare REST API in the deploy workflow), and exposes `/api/events`; all six webhook handlers record events; 17 worker tests + 39 total pass; verified live: app 200, `/api/events` returns recorded events, event push recorded (commit `0ac4975`)
 - [x] 260806: Appoint an auto-solving standing agent — status: finished
   - Done: created `scripts/agent.mjs` (continuous self-healing loop: checks server, preview API, Meta webhook handshakes, SW cache guard, served app freshness, test suite every 60s; auto-restarts the server and kills stale port processes; logs to `logs/agent.log`); updated `scripts/monitor.mjs` preview URL to the current live host; documented the agent in `AGENTS.md`; started it in a background terminal (terminal `term_1786003652958_1`)
 - [x] 260804: Appoint a self-healing monitoring agent — status: finished
