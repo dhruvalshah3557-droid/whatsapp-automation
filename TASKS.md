@@ -8,6 +8,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260806: Keep a standing check-and-fix agent running — status: finished
+  - Done: started `scripts/agent.mjs` in a background terminal (`term_1786038809642_1`, interval 60s); it runs the full health suite every cycle (server, preview API, Meta webhook handshakes, SW cache guard, served app freshness, 73 tests) and auto-heals (restarts server, kills stale port process); first cycle `AGENT OK`; logs to `logs/agent.log` and the terminal log.
+
 - [x] 260806: FTP media storage for the products catalogue — status: finished
   - Done: minimal FTP client in `server/ftp.js` (node:net only, no deps) for LIST/STOR/MKDIRS; server `/api/media/*` endpoints (config GET/POST with password masking, test-connection, list, multipart upload) storing to `server/media-config.json` (git-ignored) with `FTP_*` env fallback; product image URLs rewrite to `FTP_BASE_URL` when set else Colourdiam fallback; worker `/api/media/config` GET (env/secrets only) + POST 501; FTP config card in the Connector view, product filter bar (search/category/color/carat/price/sort), per-product media upload with localStorage overrides (`mc_media_v1`), en/zh/th i18n, SW bumped to `colourdiam-msg-v15`; FTP_* vars documented in `.env.example` / `server/.env.example` / `worker/.dev.vars.example` / `worker/README.md` and wired into `worker-deploy.yml`; new tests (server 32, worker 34, messaging 7 = 73 total) and MONITOR OK.
 
