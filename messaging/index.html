@@ -736,6 +736,7 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
         <div class="feed-header"><h2 data-i18n="settings_title">Settings</h2></div>
         <div id="settings-panel"></div>
         <div class="menu-list">
+          <button class="menu-item" onclick="switchView('products')"><span class="m-ico">💎</span><span data-i18n="m_products">Products</span></button>
           <button class="menu-item" onclick="switchView('ai')"><span class="m-ico">✦</span><span data-i18n="m_ai">AI Assistant</span></button>
           <button class="menu-item" onclick="switchView('connector')"><span class="m-ico">🔌</span><span data-i18n="m_connector">Connector settings</span></button>
           <button class="menu-item" onclick="tryInstallApp()"><span class="m-ico">⬇</span><span data-i18n="m_install">Install app</span></button>
@@ -924,7 +925,7 @@ const I18N = {
     ai_q_token: "Set WhatsApp token", ai_q_check: "Check server", ai_q_status: "Status", ai_q_env: "Show .env", ai_q_help: "Help",
     ai_ask: "Ask the AI to configure something... e.g. set instagram token to X",
     ai_on: "Connected — AI mode on", ai_off: "Ready — offline mode (commands only)", ai_thinking: "Thinking…",
-    m_ai: "AI Assistant", m_connector: "Connector settings", m_install: "Install app", m_website: "Website",
+    m_products: "Products", m_ai: "AI Assistant", m_connector: "Connector settings", m_install: "Install app", m_website: "Website",
     menu_foot: "Colourdiam Messaging · config stays on this device",
     conn_webhook: "Webhook Server", conn_server_url: "Server URL", conn_server_key: "Server API Key (optional)",
     conn_test: "Test connection", conn_testing: "Testing...",
@@ -982,7 +983,7 @@ const I18N = {
     ai_q_token: "设置 WhatsApp 令牌", ai_q_check: "检查服务器", ai_q_status: "状态", ai_q_env: "显示 .env", ai_q_help: "帮助",
     ai_ask: "让 AI 配置某些内容... 例如将 instagram token 设置为 X",
     ai_on: "已连接 — AI 模式开启", ai_off: "就绪 — 离线模式（仅命令）", ai_thinking: "思考中…",
-    m_ai: "AI 助手", m_connector: "连接器设置", m_install: "安装应用", m_website: "网站",
+    m_products: "产品", m_ai: "AI 助手", m_connector: "连接器设置", m_install: "安装应用", m_website: "网站",
     menu_foot: "Colourdiam 消息 · 配置保存在本设备",
     conn_webhook: "Webhook 服务器", conn_server_url: "服务器地址", conn_server_key: "服务器 API 密钥（可选）",
     conn_test: "测试连接", conn_testing: "测试中...",
@@ -1040,7 +1041,7 @@ const I18N = {
     ai_q_token: "ตั้งค่า WhatsApp token", ai_q_check: "ตรวจเซิร์ฟเวอร์", ai_q_status: "สถานะ", ai_q_env: "แสดง .env", ai_q_help: "ช่วยเหลือ",
     ai_ask: "ถามให้ AI ตั้งค่าบางอย่าง... เช่น set instagram token to X",
     ai_on: "เชื่อมต่อแล้ว — โหมด AI เปิด", ai_off: "พร้อม — โหมดออฟไลน์ (คำสั่งเท่านั้น)", ai_thinking: "กำลังคิด…",
-    m_ai: "ผู้ช่วย AI", m_connector: "ตั้งค่าคอนเนกเตอร์", m_install: "ติดตั้งแอป", m_website: "เว็บไซต์",
+    m_products: "สินค้า", m_ai: "ผู้ช่วย AI", m_connector: "ตั้งค่าคอนเนกเตอร์", m_install: "ติดตั้งแอป", m_website: "เว็บไซต์",
     menu_foot: "Colourdiam Messaging · กำหนดค่าเก็บในอุปกรณ์นี้",
     conn_webhook: "เว็บฮุคเซิร์ฟเวอร์", conn_server_url: "Server URL", conn_server_key: "Server API Key (ไม่บังคับ)",
     conn_test: "ทดสอบการเชื่อมต่อ", conn_testing: "กำลังทดสอบ...",
