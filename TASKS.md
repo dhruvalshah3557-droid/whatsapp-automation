@@ -8,7 +8,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
-_None — no pending task right now._
+- [ ] 260806: Fix worker VERIFY_TOKEN + tokens, point Meta webhooks at worker — status: pending
+  - Blocked on user: (1) set `VERIFY_TOKEN` GitHub secret to `change_me_verify_token` (or provide the desired value) so the worker handshake passes — currently returns "Verification failed"; (2) regenerate a valid Facebook Page token (current one is invalid/expired); (3) provide a valid Instagram access token.
+  - Once tokens are available: update `/workspace/server/.env` (local preview) + GitHub Actions secrets (worker deploy), then point Meta webhook callbacks at `https://messaging-webhooks.messaging-webhooks-worker.workers.dev/webhook/facebook-hook` and `.../webhook/instagram-hook`, verify handshakes + event flow, and mark this task finished.
 
 ## History
 
