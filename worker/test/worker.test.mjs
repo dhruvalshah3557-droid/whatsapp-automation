@@ -250,6 +250,75 @@ test("GET /api/products proxies and normalizes ColourDiam catalogue", async () =
   }
 });
 
+test("POST /api/track validates required fields", async () => {
+  const res = await call("/api/track", { method: "POST", body: JSON.stringify({ carrier: "fedex" }) });
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /required/);
+});
+
+test("POST /api/track rejects unknown carrier", async () => {
+  const res = await call("/api/track", {
+    method: "POST",
+    body: JSON.stringify({ carrier: "ups", trackingNumber: "123" }),
+  });
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /carrier/);
+});
+
+test("POST /api/track fedex reports missing worker keys", async () => {
+  const res = await call("/api/track", {
+    method: "POST",
+    body: JSON.stringify({ carrier: "fedex", trackingNumber: "999999999999" }),
+  });
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /FEDEX_API_KEY/);
+});
+
+test("POST /api/track fedex returns normalized status", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (u, o) => {
+    if (String(u).endsWith("/oauth/token")) {
+      return new Response(JSON.stringify({ access_token: "tok123" }), { status: 200 });
+    }
+    return new Response(
+      JSON.stringify({
+        output: {
+          completeTrackResults: [
+            {
+              trackResults: [
+                {
+                  latestStatusDetail: { code: "DE", description: "Delivered" },
+                  scanEvents: [
+                    { scanDateTime: "2026-08-01T10:00:00", scanLocation: { city: "Bangkok", countryName: "Thailand" } },
+                    { scanDateTime: "2026-08-02T12:00:00", scanLocation: { city: "New York", countryName: "US" } },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      }),
+      { status: 200 }
+    );
+  };
+  try {
+    const res = await call(
+      "/api/track",
+      { method: "POST", body: JSON.stringify({ carrier: "fedex", trackingNumber: "999999999999" }) },
+      { FEDEX_API_KEY: "k", FEDEX_API_SECRET: "s" }
+    );
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.carrier, "fedex");
+    assert.equal(data.status, "Delivered");
+    assert.equal(data.delivered, false);
+    assert.equal(data.scanCount, 2);
+    assert.equal(data.lastScan, "2026-08-02T12:00:00");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("GET /api/products returns 502 when ColourDiam is unreachable", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => { throw new Error("network down"); };
@@ -293,6 +362,48 @@ test("POST /api/llm proxies to OpenAI-compatible endpoint", async () => {
   }
 });
 
+test("POST /api/track dhl reports missing worker key", async () => {
+  const res = await call("/api/track", {
+    method: "POST",
+    body: JSON.stringify({ carrier: "dhl", trackingNumber: "9999999999" }),
+  });
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /DHL_API_KEY/);
+});
+
+test("POST /api/track dhl returns normalized status", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () =>
+    new Response(
+      JSON.stringify({
+        shipments: [
+          {
+            events: [
+              { timestamp: "2026-08-01T09:00:00", description: "Shipment picked up" },
+              { timestamp: "2026-08-03T11:00:00", description: "Delivered", location: { address: { addressLocality: "Berlin" } } },
+            ],
+          },
+        ],
+      }),
+      { status: 200 }
+    );
+  try {
+    const res = await call(
+      "/api/track",
+      { method: "POST", body: JSON.stringify({ carrier: "dhl", trackingNumber: "9999999999" }) },
+      { DHL_API_KEY: "dhlkey" }
+    );
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.carrier, "dhl");
+    assert.equal(data.status, "Delivered");
+    assert.equal(data.delivered, true);
+    assert.equal(data.location, "Berlin");
+    assert.equal(data.scanCount, 2);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
 test("POST /api/llm appends /chat/completions when base URL is a host", async () => {
   const calls = [];
   const originalFetch = globalThis.fetch;

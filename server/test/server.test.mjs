@@ -171,6 +171,39 @@ test("POST /api/send returns 501 for wechat", async () => {
   assert.equal(status, 501);
 });
 
+test("POST /api/track validates required fields", async () => {
+  const { status, text } = await req("/api/track", { method: "POST", body: JSON.stringify({ carrier: "fedex" }) });
+  assert.equal(status, 400);
+  assert.match(JSON.parse(text).error, /required/);
+});
+
+test("POST /api/track rejects unknown carrier", async () => {
+  const { status, text } = await req("/api/track", {
+    method: "POST",
+    body: JSON.stringify({ carrier: "ups", trackingNumber: "123" }),
+  });
+  assert.equal(status, 400);
+  assert.match(JSON.parse(text).error, /carrier/);
+});
+
+test("POST /api/track fedex reports missing server keys", async () => {
+  const { status, text } = await req("/api/track", {
+    method: "POST",
+    body: JSON.stringify({ carrier: "fedex", trackingNumber: "999999999999" }),
+  });
+  assert.equal(status, 400);
+  assert.match(JSON.parse(text).error, /FEDEX_API_KEY/);
+});
+
+test("POST /api/track dhl reports missing server key", async () => {
+  const { status, text } = await req("/api/track", {
+    method: "POST",
+    body: JSON.stringify({ carrier: "dhl", trackingNumber: "9999999999" }),
+  });
+  assert.equal(status, 400);
+  assert.match(JSON.parse(text).error, /DHL_API_KEY/);
+});
+
 test("GET / serves the messaging app", async () => {
   const res = await fetch(`${BASE}/`);
   assert.equal(res.status, 200);

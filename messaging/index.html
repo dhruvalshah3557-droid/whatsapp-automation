@@ -425,6 +425,15 @@ input, textarea, select { font-family: inherit; }
 .dw-order .o-items { font-size: 12px; color: var(--text-soft); margin-top: 4px; }
 .dw-order .o-total { font-weight: 800; color: var(--gold-deep); font-size: 13px; margin-top: 4px; }
 
+/* ---------------- Package tracking ---------------- */
+.trk-set, .trk-line { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.trk-set select, .trk-set input { font-size: 12px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--text); }
+.trk-set input { flex: 1; min-width: 120px; }
+.trk-btn { font-size: 11.5px; font-weight: 700; padding: 5px 12px; border-radius: 999px; border: none; cursor: pointer; background: linear-gradient(135deg, #d4af37, #b8860b); color: #fff; white-space: nowrap; }
+.trk-btn:hover { filter: brightness(1.06); }
+.trk-meta { font-size: 11px; color: var(--text-soft); }
+.trk-status { font-size: 11.5px; font-weight: 700; color: var(--green); }
+
 /* ---------------- Customers / Products / Orders / Settings views ---------------- */
 .feed-wrap { flex: 1; overflow-y: auto; background: var(--bg); }
 .feed-inner { max-width: 1000px; margin: 0 auto; padding: clamp(12px, 2.4vw, 26px); }
@@ -919,6 +928,9 @@ const I18N = {
     catalogue: "Catalogue", price: "Price", stock: "Stock", buy: "Send to customer", sent_product: "Product sent in chat",
     status_pending: "Pending", status_processing: "Processing", status_paid: "Paid", status_shipped: "Shipped", status_delivered: "Delivered", status_cancelled: "Cancelled",
     no_customers: "No customers yet", no_orders: "No orders yet", no_products: "No products yet",
+    tracking: "Tracking", track: "Track", carrier: "Carrier", tracking_number: "Tracking number",
+    tracking_fedex: "FedEx", tracking_dhl: "DHL", no_tracking: "Add a tracking number to follow this shipment",
+    tracking_set: "Tracking saved", tracking_loading: "Tracking…", tracking_error: "Tracking error",
     ai_name: "Colourdiam AI Assistant", ai_status: "Ready — updates your connector directly",
     ai_api_base: "API Base URL", ai_model: "Model", ai_api_key: "API Key (stored only on this device)",
     ai_save: "Save Settings", ai_hint: "Optional. Without a key the bot still works in offline mode using built-in commands. Your key is saved only in this browser and sent only to the API base URL you enter.",
@@ -977,6 +989,9 @@ const I18N = {
     catalogue: "产品目录", price: "价格", stock: "库存", buy: "发送给客户", sent_product: "产品已发送到聊天",
     status_pending: "待处理", status_processing: "处理中", status_paid: "已付款", status_shipped: "已发货", status_delivered: "已送达", status_cancelled: "已取消",
     no_customers: "暂无客户", no_orders: "暂无订单", no_products: "暂无商品",
+    tracking: "物流跟踪", track: "跟踪", carrier: "承运商", tracking_number: "运单号",
+    tracking_fedex: "FedEx", tracking_dhl: "DHL", no_tracking: "添加运单号即可跟踪此包裹",
+    tracking_set: "跟踪信息已保存", tracking_loading: "正在跟踪…", tracking_error: "跟踪出错",
     ai_name: "Colourdiam AI 助手", ai_status: "就绪 — 直接更新你的连接器",
     ai_api_base: "API 基础地址", ai_model: "模型", ai_api_key: "API 密钥（仅存储在本设备）",
     ai_save: "保存设置", ai_hint: "可选。没有密钥时，机器人仍可通过内置命令离线工作。你的密钥仅保存在此浏览器中，且只发送到你填写的 API 基础地址。",
@@ -1035,6 +1050,9 @@ const I18N = {
     catalogue: "แคตตาล็อก", price: "ราคา", stock: "สต็อก", buy: "ส่งให้ลูกค้า", sent_product: "ส่งสินค้าในแชทแล้ว",
     status_pending: "รอดำเนินการ", status_processing: "กำลังดำเนินการ", status_paid: "ชำระแล้ว", status_shipped: "จัดส่งแล้ว", status_delivered: "ถึงมือแล้ว", status_cancelled: "ยกเลิก",
     no_customers: "ยังไม่มีลูกค้า", no_orders: "ยังไม่มีคำสั่งซื้อ", no_products: "ยังไม่มีสินค้า",
+    tracking: "ติดตามพัสดุ", track: "ติดตาม", carrier: "ผู้ให้บริการขนส่ง", tracking_number: "เลขพัสดุ",
+    tracking_fedex: "FedEx", tracking_dhl: "DHL", no_tracking: "เพิ่มเลขพัสดุเพื่อติดตามสินค้าชิ้นนี้",
+    tracking_set: "บันทึกการติดตามแล้ว", tracking_loading: "กำลังติดตาม…", tracking_error: "เกิดข้อผิดพลาด",
     ai_name: "ผู้ช่วย Colourdiam AI", ai_status: "พร้อม — อัปเดตคอนเนกเตอร์ของคุณโดยตรง",
     ai_api_base: "API Base URL", ai_model: "โมเดล", ai_api_key: "API Key (เก็บไว้ในอุปกรณ์นี้เท่านั้น)",
     ai_save: "บันทึกการตั้งค่า", ai_hint: "ไม่บังคับ หากไม่มีคีย์บอทจะยังทำงานในโหมดออฟไลน์ด้วยคำสั่งในตัว คีย์ของคุณบันทึกเฉพาะในเบราว์เซอร์นี้และส่งไปยัง API base URL ที่คุณกรอกเท่านั้น",
@@ -2044,6 +2062,7 @@ function renderDrawer(c) {
             <div class="o-top"><span class="o-id">#${esc(o.id)}</span><span class="o-status ${esc(o.status)}">${orderStatusTxt(o.status)}</span></div>
             <div class="o-items">${esc(o.items)}</div>
             <div class="o-total">$${Number(o.total).toLocaleString()}</div>
+            ${trackingRowHtml({ ...o, contactId: c.id })}
           </div>`).join("") : `<p class="hint">${t("no_orders")}</p>`}
       </div>
     </div>`;
@@ -2196,9 +2215,61 @@ function renderCustomers() {
 function allOrders() {
   const d = chatData();
   const out = [];
-  d.contacts.forEach(c => (c.orders || []).forEach(o => out.push({ ...o, customer: c.name, color: c.color, initials: c.initials })));
+  d.contacts.forEach(c => (c.orders || []).forEach(o => out.push({ ...o, contactId: c.id, customer: c.name, color: c.color, initials: c.initials })));
   out.sort((a, b) => String(b.id).localeCompare(String(a.id)));
   return out;
+}
+function trackingRowHtml(o) {
+  if (!o.tracking || !o.tracking.number) {
+    return `
+      <div class="trk-set">
+        <select id="trk-carrier-${esc(o.id)}">
+          <option value="fedex">${t("tracking_fedex")}</option>
+          <option value="dhl">${t("tracking_dhl")}</option>
+        </select>
+        <input id="trk-num-${esc(o.id)}" placeholder="${t("tracking_number")}">
+        <button class="trk-btn" onclick="setTracking('${esc(o.contactId)}','${esc(o.id)}')">${t("tracking_set")}</button>
+      </div>`;
+  }
+  const st = o.trackingStatus || "";
+  return `
+    <div class="trk-line">
+      <span class="trk-meta">${t("carrier")}: ${o.tracking.carrier === "dhl" ? t("tracking_dhl") : t("tracking_fedex")} · ${esc(o.tracking.number)}</span>
+      <span class="trk-status">${esc(st)}</span>
+      <button class="trk-btn" onclick="trackOrder('${esc(o.contactId)}','${esc(o.id)}')">${t("track")}</button>
+    </div>`;
+}
+async function trackOrder(contactId, orderId) {
+  const d = chatData();
+  const c = d.contacts.find(x => x.id === contactId);
+  const o = c && c.orders.find(x => String(x.id) === String(orderId));
+  if (!o || !o.tracking || !o.tracking.number) return;
+  o.trackingStatus = t("tracking_loading");
+  save(CHAT_KEY, d); renderOrders();
+  if (d.activeId === contactId) renderDrawer(c);
+  try {
+    const data = await apiCall("/api/track", { method: "POST", body: JSON.stringify({ carrier: o.tracking.carrier, trackingNumber: o.tracking.number }) });
+    o.trackingStatus = data.status + (data.delivered ? " ✓" : "") + (data.lastScan ? " · " + data.lastScan.replace("T", " ").slice(0, 16) : "");
+    o.trackingDetail = data;
+  } catch (err) {
+    o.trackingStatus = t("tracking_error") + ": " + (err.message || err);
+  }
+  save(CHAT_KEY, d); renderOrders();
+  if (d.activeId === contactId) renderDrawer(c);
+}
+function setTracking(contactId, orderId) {
+  const d = chatData();
+  const c = d.contacts.find(x => x.id === contactId);
+  const o = c && c.orders.find(x => String(x.id) === String(orderId));
+  if (!o) return;
+  const carrier = document.getElementById("trk-carrier-" + orderId).value;
+  const number = document.getElementById("trk-num-" + orderId).value.trim();
+  if (!number) return;
+  o.tracking = { carrier, number };
+  o.trackingStatus = "";
+  save(CHAT_KEY, d); renderOrders();
+  if (d.activeId === contactId) renderDrawer(c);
+  toastMsg(t("tracking_set"));
 }
 function renderOrders() {
   const list = document.getElementById("orders-list");
@@ -2216,6 +2287,7 @@ function renderOrders() {
         <div class="o-total">$${Number(o.total).toLocaleString()}</div>
         <div class="o-date">${esc(o.date)}</div>
       </div>
+      ${trackingRowHtml(o)}
     </div>`).join("") + `</div>`;
   list.innerHTML += `<div class="empty-state" style="display:none"></div>`;
 }

@@ -281,6 +281,20 @@ async function handleApi(req, res, url) {
     return;
   }
 
+  if (url.pathname === "/api/track" && req.method === "POST") {
+    const raw = await readBody(req);
+    let body;
+    try {
+      body = JSON.parse(raw);
+    } catch (err) {
+      sendJson(res, 400, { error: "Invalid JSON" }, corsHeaders());
+      return;
+    }
+    const result = await apiTrack(body);
+    sendJson(res, result.status, result.body, corsHeaders());
+    return;
+  }
+
   sendJson(res, 404, { error: "Not found" }, corsHeaders());
 }
 
@@ -305,6 +319,95 @@ async function apiLlm(body) {
   const data = await res.json();
   const text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || "";
   return { status: 200, body: { text } };
+}
+
+async function apiTrack(body) {
+  const { carrier, trackingNumber } = body || {};
+  if (!carrier || !trackingNumber) {
+    return { status: 400, body: { error: "carrier and trackingNumber are required" } };
+  }
+  try {
+    if (carrier === "fedex") return await trackFedEx(trackingNumber);
+    if (carrier === "dhl") return await trackDHL(trackingNumber);
+    return { status: 400, body: { error: "Unsupported carrier (use fedex or dhl)" } };
+  } catch (err) {
+    return { status: 502, body: { error: "Tracking lookup failed: " + String((err && err.message) || err) } };
+  }
+}
+
+async function trackFedEx(trackingNumber) {
+  if (!env.FEDEX_API_KEY || !env.FEDEX_API_SECRET) {
+    return { status: 400, body: { error: "FEDEX_API_KEY and FEDEX_API_SECRET env not set on the server" } };
+  }
+  const tokenRes = await fetch("https://apis.fedex.com/oauth/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `grant_type=client_credentials&client_id=${encodeURIComponent(env.FEDEX_API_KEY)}&client_secret=${encodeURIComponent(env.FEDEX_API_SECRET)}`,
+  });
+  if (!tokenRes.ok) return { status: 502, body: { error: "FedEx auth failed: HTTP " + tokenRes.status } };
+  const token = (await tokenRes.json()).access_token;
+  const trackRes = await fetch("https://apis.fedex.com/track/v1/trackingnumbers", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token, "X-locale": "en_US" },
+    body: JSON.stringify({
+      trackingInfo: [{ trackingNumberInfo: { trackingNumber } }],
+      includeDetailedScans: true,
+    }),
+  });
+  if (!trackRes.ok) return { status: 502, body: { error: "FedEx track failed: HTTP " + trackRes.status } };
+  const data = await trackRes.json();
+  const t = data.output && data.output.completeTrackResults && data.output.completeTrackResults[0]
+    && data.output.completeTrackResults[0].trackResults && data.output.completeTrackResults[0].trackResults[0];
+  if (!t) return { status: 404, body: { error: "No tracking data found" } };
+  const detail = t.latestStatusDetail || {};
+  const scans = t.scanEvents || [];
+  const latest = scans[scans.length - 1] || null;
+  const loc = latest && latest.scanLocation
+    ? [latest.scanLocation.city, latest.scanLocation.countryName].filter(Boolean).join(", ")
+    : "";
+  return {
+    status: 200,
+    body: {
+      carrier: "fedex",
+      trackingNumber,
+      status: detail.description || detail.statusByLocale || "Unknown",
+      delivered: String(detail.code) === "DL",
+      location: loc,
+      scanCount: scans.length,
+      lastScan: latest ? latest.scanDateTime : null,
+    },
+  };
+}
+
+async function trackDHL(trackingNumber) {
+  if (!env.DHL_API_KEY) {
+    return { status: 400, body: { error: "DHL_API_KEY env not set on the server" } };
+  }
+  const res = await fetch(`https://api-eu.dhl.com/track/shipments?trackingNumber=${encodeURIComponent(trackingNumber)}`, {
+    headers: { "DHL-API-Key": env.DHL_API_KEY },
+  });
+  if (!res.ok) return { status: 502, body: { error: "DHL track failed: HTTP " + res.status } };
+  const data = await res.json();
+  const shipment = data.shipments && data.shipments[0];
+  if (!shipment) return { status: 404, body: { error: "No tracking data found" } };
+  const events = shipment.events || [];
+  const latest = events[events.length - 1] || null;
+  const statusTxt = latest ? latest.description || latest.statusCode || "Unknown" : "Unknown";
+  const loc = latest && latest.location
+    ? (latest.location.address && latest.location.address.addressLocality) || latest.location.rawLocation || ""
+    : "";
+  return {
+    status: 200,
+    body: {
+      carrier: "dhl",
+      trackingNumber,
+      status: statusTxt,
+      delivered: /delivered/i.test(statusTxt),
+      location: loc,
+      scanCount: events.length,
+      lastScan: latest ? latest.timestamp : null,
+    },
+  };
 }
 
 async function apiSend(body) {
