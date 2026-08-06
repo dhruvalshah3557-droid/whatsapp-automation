@@ -23,15 +23,20 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install wrangler
+        shell: bash
+        run: npm install -g wrangler
+
       - name: Create KV namespace if first deploy
         id: kv-setup
         shell: bash
         run: |
           if grep -q "KV_PLACEHOLDER" wrangler.toml; then
-            ID=$(npx wrangler kv namespace list --json 2>/dev/null | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const a=JSON.parse(d);const m=a.find(x=>x.title==='EVENTS');console.log(m?m.id:'');}catch(e){console.log('');}})")
+            ID=$(wrangler kv namespace list --json | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const a=JSON.parse(d);const m=a.find(x=>x.title==='EVENTS');console.log(m?m.id:'');}catch(e){console.log('');}})")
             if [ -z "$ID" ]; then
               echo "Creating EVENTS KV namespace..."
-              OUT=$(npx wrangler kv namespace create EVENTS)
+              OUT=$(wrangler kv namespace create EVENTS)
+              echo "$OUT"
               ID=$(echo "$OUT" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
             fi
             if [ -z "$ID" ]; then
@@ -58,15 +63,15 @@ jobs:
       - name: Push platform secrets to the worker
         shell: bash
         run: |
-          if [ -n "$VERIFY_TOKEN" ]; then printf '%s' "$VERIFY_TOKEN" | npx wrangler secret put VERIFY_TOKEN; fi
-          if [ -n "$WHATSAPP_ACCESS_TOKEN" ]; then printf '%s' "$WHATSAPP_ACCESS_TOKEN" | npx wrangler secret put WHATSAPP_ACCESS_TOKEN; fi
-          if [ -n "$WHATSAPP_PHONE_NUMBER_ID" ]; then printf '%s' "$WHATSAPP_PHONE_NUMBER_ID" | npx wrangler secret put WHATSAPP_PHONE_NUMBER_ID; fi
-          if [ -n "$INSTAGRAM_ACCESS_TOKEN" ]; then printf '%s' "$INSTAGRAM_ACCESS_TOKEN" | npx wrangler secret put INSTAGRAM_ACCESS_TOKEN; fi
-          if [ -n "$INSTAGRAM_SENDER_ID" ]; then printf '%s' "$INSTAGRAM_SENDER_ID" | npx wrangler secret put INSTAGRAM_SENDER_ID; fi
-          if [ -n "$FACEBOOK_PAGE_ACCESS_TOKEN" ]; then printf '%s' "$FACEBOOK_PAGE_ACCESS_TOKEN" | npx wrangler secret put FACEBOOK_PAGE_ACCESS_TOKEN; fi
-          if [ -n "$TIKTOK_ACCESS_TOKEN" ]; then printf '%s' "$TIKTOK_ACCESS_TOKEN" | npx wrangler secret put TIKTOK_ACCESS_TOKEN; fi
-          if [ -n "$LINE_CHANNEL_ACCESS_TOKEN" ]; then printf '%s' "$LINE_CHANNEL_ACCESS_TOKEN" | npx wrangler secret put LINE_CHANNEL_ACCESS_TOKEN; fi
-          if [ -n "$WECHAT_TOKEN" ]; then printf '%s' "$WECHAT_TOKEN" | npx wrangler secret put WECHAT_TOKEN; fi
+          if [ -n "$VERIFY_TOKEN" ]; then printf '%s' "$VERIFY_TOKEN" | wrangler secret put VERIFY_TOKEN; fi
+          if [ -n "$WHATSAPP_ACCESS_TOKEN" ]; then printf '%s' "$WHATSAPP_ACCESS_TOKEN" | wrangler secret put WHATSAPP_ACCESS_TOKEN; fi
+          if [ -n "$WHATSAPP_PHONE_NUMBER_ID" ]; then printf '%s' "$WHATSAPP_PHONE_NUMBER_ID" | wrangler secret put WHATSAPP_PHONE_NUMBER_ID; fi
+          if [ -n "$INSTAGRAM_ACCESS_TOKEN" ]; then printf '%s' "$INSTAGRAM_ACCESS_TOKEN" | wrangler secret put INSTAGRAM_ACCESS_TOKEN; fi
+          if [ -n "$INSTAGRAM_SENDER_ID" ]; then printf '%s' "$INSTAGRAM_SENDER_ID" | wrangler secret put INSTAGRAM_SENDER_ID; fi
+          if [ -n "$FACEBOOK_PAGE_ACCESS_TOKEN" ]; then printf '%s' "$FACEBOOK_PAGE_ACCESS_TOKEN" | wrangler secret put FACEBOOK_PAGE_ACCESS_TOKEN; fi
+          if [ -n "$TIKTOK_ACCESS_TOKEN" ]; then printf '%s' "$TIKTOK_ACCESS_TOKEN" | wrangler secret put TIKTOK_ACCESS_TOKEN; fi
+          if [ -n "$LINE_CHANNEL_ACCESS_TOKEN" ]; then printf '%s' "$LINE_CHANNEL_ACCESS_TOKEN" | wrangler secret put LINE_CHANNEL_ACCESS_TOKEN; fi
+          if [ -n "$WECHAT_TOKEN" ]; then printf '%s' "$WECHAT_TOKEN" | wrangler secret put WECHAT_TOKEN; fi
         working-directory: worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
