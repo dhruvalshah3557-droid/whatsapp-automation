@@ -220,7 +220,12 @@ async function handleApi(req, res, url) {
   }
 
   if (url.pathname === "/api/health" && req.method === "GET") {
-    sendJson(res, 200, { ok: true, name: "messaging-webhooks", events: events.length }, corsHeaders());
+    sendJson(res, 200, {
+      ok: true,
+      name: "messaging-webhooks",
+      events: events.length,
+      ai: !!(env.USER_LLM_BASE_URL && env.USER_LLM_API_KEY),
+    }, corsHeaders());
     return;
   }
 
@@ -232,6 +237,20 @@ async function handleApi(req, res, url) {
       console.error("products fetch failed:", err.message);
       sendJson(res, 502, { error: "Could not load products from ColourDiam", detail: String((err && err.message) || err) }, corsHeaders());
     }
+    return;
+  }
+
+  if (url.pathname === "/api/llm" && req.method === "POST") {
+    const raw = await readBody(req);
+    let body;
+    try {
+      body = JSON.parse(raw);
+    } catch (err) {
+      sendJson(res, 400, { error: "Invalid JSON" }, corsHeaders());
+      return;
+    }
+    const result = await apiLlm(body);
+    sendJson(res, result.status, result.body, corsHeaders());
     return;
   }
 
@@ -263,6 +282,29 @@ async function handleApi(req, res, url) {
   }
 
   sendJson(res, 404, { error: "Not found" }, corsHeaders());
+}
+
+async function apiLlm(body) {
+  const base = (env.USER_LLM_BASE_URL || "").replace(/\/+$/, "");
+  const key = env.USER_LLM_API_KEY || "";
+  const model = env.USER_LLM_MODEL || "gpt-4o-mini";
+  if (!base || !key) {
+    return { status: 501, body: { error: "AI not configured on the server (set USER_LLM_BASE_URL / USER_LLM_API_KEY)" } };
+  }
+  const messages = Array.isArray(body.messages) ? body.messages : [];
+  const endpoint = /\/chat\/completions$/i.test(base) ? base : base + "/chat/completions";
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
+    body: JSON.stringify({ model: body.model || model, messages, temperature: typeof body.temperature === "number" ? body.temperature : 0.4 }),
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    return { status: 502, body: { error: "LLM API error " + res.status, detail } };
+  }
+  const data = await res.json();
+  const text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || "";
+  return { status: 200, body: { text } };
 }
 
 async function apiSend(body) {

@@ -261,3 +261,74 @@ test("GET /api/products returns 502 when ColourDiam is unreachable", async () =>
     globalThis.fetch = originalFetch;
   }
 });
+
+test("POST /api/llm returns 501 when server LLM not configured", async () => {
+  const res = await call("/api/llm", { method: "POST", body: JSON.stringify({ messages: [{ role: "user", content: "hi" }] }) });
+  assert.equal(res.status, 501);
+  assert.match((await res.json()).error, /not configured/);
+});
+
+test("POST /api/llm proxies to OpenAI-compatible endpoint", async () => {
+  const calls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (u, o) => {
+    calls.push({ url: u, body: JSON.parse(o.body), auth: o.headers.Authorization });
+    return new Response(JSON.stringify({ choices: [{ message: { content: "Hello there" } }] }), { status: 200, headers: { "Content-Type": "application/json" } });
+  };
+  try {
+    const res = await call("/api/llm", { method: "POST", body: JSON.stringify({ messages: [{ role: "user", content: "hi" }] }) }, {
+      USER_LLM_BASE_URL: "https://api.deepseek.com/v1",
+      USER_LLM_MODEL: "deepseek-chat",
+      USER_LLM_API_KEY: "llm_secret",
+    });
+    assert.equal(res.status, 200);
+    assert.equal((await res.json()).text, "Hello there");
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].url, "https://api.deepseek.com/v1/chat/completions");
+    assert.equal(calls[0].auth, "Bearer llm_secret");
+    assert.equal(calls[0].body.model, "deepseek-chat");
+    assert.equal(calls[0].body.messages[0].role, "user");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("POST /api/llm appends /chat/completions when base URL is a host", async () => {
+  const calls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (u) => {
+    calls.push(u);
+    return new Response(JSON.stringify({ choices: [{ message: { content: "ok" } }] }), { status: 200, headers: { "Content-Type": "application/json" } });
+  };
+  try {
+    const res = await call("/api/llm", { method: "POST", body: JSON.stringify({ messages: [{ role: "user", content: "hi" }] }) }, {
+      USER_LLM_BASE_URL: "https://openai.example.com",
+      USER_LLM_API_KEY: "k",
+    });
+    assert.equal(res.status, 200);
+    assert.equal(calls[0], "https://openai.example.com/chat/completions");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("POST /api/llm returns 502 when the LLM API errors", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response("bad key", { status: 401 });
+  try {
+    const res = await call("/api/llm", { method: "POST", body: JSON.stringify({ messages: [] }) }, {
+      USER_LLM_BASE_URL: "https://openai.example.com/v1",
+      USER_LLM_API_KEY: "wrong",
+    });
+    assert.equal(res.status, 502);
+    assert.match((await res.json()).detail, /bad key/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("GET /api/health reports ai configured", async () => {
+  const res = await call("/api/health", {}, { USER_LLM_BASE_URL: "https://api.deepseek.com/v1", USER_LLM_API_KEY: "k" });
+  assert.equal(res.status, 200);
+  assert.equal((await res.json()).ai, true);
+});

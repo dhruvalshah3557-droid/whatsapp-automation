@@ -2259,8 +2259,28 @@ function aiSaveSettings() {
   const st = document.getElementById("ai-status");
   st.textContent = aiStatusText();
   st.dataset.mode = c.base && c.key ? "ai_on" : "ai_off";
+  aiRefreshStatus();
 }
-function aiStatusText() { const c = aiLoad(); return c.base && c.key ? t("ai_on") : t("ai_off"); }
+function aiStatusText() {
+  const c = aiLoad();
+  if (c.base && c.key) return t("ai_on");
+  return (aiServerAi) ? t("ai_on") : t("ai_off");
+}
+let aiServerAi = false;
+async function aiRefreshStatus() {
+  try {
+    const h = await apiCall("/api/health");
+    aiServerAi = !!(h && h.ai);
+  } catch (err) {
+    aiServerAi = false;
+  }
+  const st = document.getElementById("ai-status");
+  const on = aiServerAi || !!(aiLoad().base && aiLoad().key);
+  if (st) {
+    st.dataset.mode = on ? "ai_on" : "ai_off";
+    st.textContent = aiStatusText();
+  }
+}
 function aiQuick(tpl) {
   const input = document.getElementById("ai-input");
   input.value = tpl;
@@ -2351,8 +2371,18 @@ async function aiHandleCommand(text) {
 }
 async function aiCallLLM(userText) {
   const c = aiLoad();
+  const history = aiMsgs().slice(-10);
+  const messages = [{ role: "system", content: AI_SYSTEM }, ...history];
+  if (!(c.base && c.key) && serverCfg().url) {
+    try {
+      const data = await apiCall("/api/llm", { method: "POST", body: JSON.stringify({ messages, model: c.model }) });
+      return data.text || "";
+    } catch (err) {
+      throw new Error((err && err.message) || "LLM error");
+    }
+  }
   const url = (c.base || "").replace(/\/$/, "") + "/chat/completions";
-  const body = { model: c.model || "gpt-4o-mini", messages: [{ role: "system", content: AI_SYSTEM }, ...aiMsgs().slice(-10)], temperature: 0.4 };
+  const body = { model: c.model || "gpt-4o-mini", messages, temperature: 0.4 };
   const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + c.key }, body: JSON.stringify(body) });
   if (!res.ok) throw new Error("LLM error " + res.status);
   const data = await res.json();
@@ -2376,7 +2406,8 @@ async function aiSend() {
   const offline = await aiHandleCommand(text);
   if (offline !== null) { aiAppend("assistant", offline); return; }
   const c = aiLoad();
-  if (c.base && c.key) {
+  const canLlm = !!(c.base && c.key) || aiServerAi || !!serverCfg().url;
+  if (canLlm) {
     btn.disabled = true;
     btn.classList.add("busy");
     aiAppend("assistant", t("ai_thinking"));
@@ -2390,14 +2421,14 @@ async function aiSend() {
     } catch (err) {
       const msgs = aiMsgs();
       if (msgs.length && msgs[msgs.length - 1].text === t("ai_thinking")) msgs.pop();
-      msgs.push({ role: "assistant", text: "Sorry, I hit an error calling the AI: " + (err.message || err) + ". Check your API Base URL / key in settings." });
+      msgs.push({ role: "assistant", text: "Sorry, I hit an error calling the AI: " + (err.message || err) + ". Check the server AI config (USER_LLM_BASE_URL / USER_LLM_API_KEY) or your API Base URL / key in settings." });
       aiSaveMsgs(msgs);
       aiRender();
     }
     btn.disabled = false;
     btn.classList.remove("busy");
   } else {
-    aiAppend("assistant", "To talk to me with AI, open the ⚙ settings and add your API base URL and key. Meanwhile I can still update your connector with commands (try the buttons above, or \"set whatsapp token to X\").");
+    aiAppend("assistant", "To talk to me with AI, open the ⚙ settings and add your API base URL and key, or configure USER_LLM_BASE_URL / USER_LLM_API_KEY on the webhook server. Meanwhile I can still update your connector with commands (try the buttons above, or \"set whatsapp token to X\").");
   }
 }
 
@@ -2468,6 +2499,7 @@ srvKeyInput.addEventListener("input", () => { const c = load(CFG_KEY); c.server_
   renderSettingsPanel();
   maybeStartPolling();
   loadProducts();
+  aiRefreshStatus();
   if (UI.sec && UI.sec.touchid && UI.sec.cred) setTimeout(lockApp, 500);
 })();
 </script>

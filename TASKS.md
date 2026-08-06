@@ -8,12 +8,15 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [ ] 260806: Wire the AI assistant to a real LLM (OpenAI-compatible + DeepSeek) — status: pending
+  - Done: added a server-side `/api/llm` proxy (server + worker) that forwards chat requests to any OpenAI-compatible endpoint (works for DeepSeek too) using `USER_LLM_BASE_URL` / `USER_LLM_MODEL` / `USER_LLM_API_KEY` env vars, so the key never lives in the browser; `/api/health` now reports `ai` when configured; app calls the proxy automatically and falls back to a browser-configured key; AI status badge turns online when the server has LLM configured; SW bumped to `colourdiam-msg-v14`; 8 new tests (50 total pass); MONITOR OK; preview URL updated in monitor/agent scripts.
+  - Still blocked on user: provide `USER_LLM_BASE_URL` (e.g. `https://api.deepseek.com/v1` for DeepSeek or any OpenAI-compatible base), `USER_LLM_MODEL`, `USER_LLM_API_KEY` in `/workspace/server/.env` (local preview) + GitHub Actions secrets `USER_LLM_BASE_URL`/`USER_LLM_MODEL`/`USER_LLM_API_KEY` (worker deploy; workflow already updated to push them).
+
 - [ ] 260806: Fix worker VERIFY_TOKEN + tokens, point Meta webhooks at worker — status: in progress
   - Done: `VERIFY_TOKEN` GitHub secret is set; re-ran the worker deploy workflow and verified the worker handshake returns the challenge for both `.../webhook/facebook-hook` and `.../webhook/instagram-hook`; monitor is `MONITOR OK`.
   - Done: added `/api/products` proxy (server + worker) that populates the Products tab from the live ColourDiam.com catalogue (100 items, normalized with carat/category/emoji/price/image); Products entry added to the Settings menu; app caches the catalogue in localStorage (commit `3fb9166`).
   - Still blocked on user: (2) regenerate a valid Facebook Page token (current one is invalid/expired); (3) provide a valid Instagram access token.
   - Once tokens are available: update `/workspace/server/.env` (local preview) + GitHub Actions secrets (worker deploy), then point Meta webhooks at `https://messaging-webhooks.messaging-webhooks-worker.workers.dev/webhook/facebook-hook` and `.../webhook/instagram-hook`, verify event flow, and mark this task finished.
-  - Once tokens are available: update `/workspace/server/.env` (local preview) + GitHub Actions secrets (worker deploy), then point Meta webhook callbacks at `https://messaging-webhooks.messaging-webhooks-worker.workers.dev/webhook/facebook-hook` and `.../webhook/instagram-hook`, verify handshakes + event flow, and mark this task finished.
 
 ## History
 

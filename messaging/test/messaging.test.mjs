@@ -194,7 +194,7 @@ test("key functions are defined", () => {
     "sendProduct", "renderCustomers", "renderOrders", "aiInit", "aiSend", "aiCallLLM",
     "aiHandleCommand", "renderSettingsPanel", "render", "renderProgress", "renderEnv",
     "pollEvents", "testServer", "setupTouchId", "removeTouchId", "verifyTouchId", "lockApp",
-    "tryUnlock", "skipLock", "tryInstallApp",
+    "tryUnlock", "skipLock", "tryInstallApp", "aiRefreshStatus",
   ];
   for (const fn of required) {
     assert.ok(sandbox.run(`typeof ${fn} === 'function'`), `function missing: ${fn}`);

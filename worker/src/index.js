@@ -47,7 +47,7 @@ async function handleApi(request, url, env, ctx) {
 
   if (url.pathname === "/api/health" && request.method === "GET") {
     const count = await eventCount(env);
-    return json({ ok: true, name: "messaging-webhooks", events: count }, 200, cors());
+    return json({ ok: true, name: "messaging-webhooks", events: count, ai: !!(env.USER_LLM_BASE_URL && env.USER_LLM_API_KEY) }, 200, cors());
   }
 
   if (url.pathname === "/api/products" && request.method === "GET") {
@@ -57,6 +57,17 @@ async function handleApi(request, url, env, ctx) {
     } catch (err) {
       return json({ error: "Could not load products from ColourDiam", detail: String((err && err.message) || err) }, 502, cors());
     }
+  }
+
+  if (url.pathname === "/api/llm" && request.method === "POST") {
+    let body;
+    try {
+      body = await request.json();
+    } catch (err) {
+      return json({ error: "Invalid JSON" }, 400, cors());
+    }
+    const result = await apiLlm(body, env);
+    return json(result.body, result.status, cors());
   }
 
   if (!requireAuth(request, env)) {
@@ -176,6 +187,29 @@ async function recordEvent(env, platform, from, text) {
   } catch (err) {
     console.error("recordEvent failed:", err && err.message);
   }
+}
+
+async function apiLlm(body, env) {
+  const base = (env.USER_LLM_BASE_URL || "").replace(/\/+$/, "");
+  const key = env.USER_LLM_API_KEY || "";
+  const model = env.USER_LLM_MODEL || "gpt-4o-mini";
+  if (!base || !key) {
+    return { status: 501, body: { error: "AI not configured on the server (set USER_LLM_BASE_URL / USER_LLM_API_KEY)" } };
+  }
+  const messages = Array.isArray(body.messages) ? body.messages : [];
+  const endpoint = /\/chat\/completions$/i.test(base) ? base : base + "/chat/completions";
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
+    body: JSON.stringify({ model: body.model || model, messages, temperature: typeof body.temperature === "number" ? body.temperature : 0.4 }),
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    return { status: 502, body: { error: "LLM API error " + res.status, detail } };
+  }
+  const data = await res.json();
+  const text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || "";
+  return { status: 200, body: { text } };
 }
 
 async function apiSend(body, env) {
