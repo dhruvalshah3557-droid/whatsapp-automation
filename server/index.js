@@ -560,25 +560,56 @@ async function apiMediaTest(body) {
   }
 }
 
+let mediaListCache = { at: 0, key: "", data: null };
+
+function mediaDirFiles(listing) {
+  return String(listing)
+    .split(/\r?\n/)
+    .map(parseListEntry)
+    .filter((f) => f && !f.dir && !f.name.startsWith("."));
+}
+
+async function mediaListFor(remoteDir) {
+  const listing = await ftpList(mediaConfig, remoteDir || "/");
+  return mediaDirFiles(listing).map((f) => ({
+    name: f.name,
+    size: f.size,
+    url: [mediaConfig.baseUrl, remoteDir, f.name].filter(Boolean).join("/"),
+  }));
+}
+
 async function apiMediaList(productId) {
   if (!mediaConfig.host || !mediaConfig.user || !mediaConfig.pass) {
     return { status: 400, body: { error: "FTP not configured on the server" } };
   }
-  if (!productId) {
-    return { status: 400, body: { error: "productId is required" } };
+  const batch = !productId;
+  if (batch) {
+    const cacheKey = mediaConfig.remoteRoot;
+    if (mediaListCache.key === cacheKey && Date.now() - mediaListCache.at < 60_000 && mediaListCache.data) {
+      return { status: 200, body: mediaListCache.data };
+    }
+    try {
+      const root = await ftpList(mediaConfig, mediaConfig.remoteRoot || "/");
+      const dirs = mediaDirFiles(root).filter((f) => f.dir);
+      const media = {};
+      for (const d of dirs) {
+        const dir = [mediaConfig.remoteRoot, d.name].filter(Boolean).join("/");
+        try {
+          media[d.name] = await mediaListFor(dir);
+        } catch (err) {
+          media[d.name] = [];
+        }
+      }
+      const data = { ok: true, media };
+      mediaListCache = { at: Date.now(), key: cacheKey, data };
+      return { status: 200, body: data };
+    } catch (err) {
+      return { status: 502, body: { error: "FTP listing failed: " + String((err && err.message) || err) } };
+    }
   }
   const remoteDir = [mediaConfig.remoteRoot, productId].filter(Boolean).join("/") || "/";
   try {
-    const listing = await ftpList(mediaConfig, remoteDir);
-    const files = String(listing)
-      .split(/\r?\n/)
-      .map(parseListEntry)
-      .filter((f) => f && !f.dir && !f.name.startsWith("."));
-    const items = files.map((f) => ({
-      name: f.name,
-      size: f.size,
-      url: [mediaConfig.baseUrl, remoteDir, f.name].filter(Boolean).join("/"),
-    }));
+    const items = await mediaListFor(remoteDir);
     return { status: 200, body: { ok: true, productId, files: items } };
   } catch (err) {
     return { status: 502, body: { error: "FTP listing failed: " + String((err && err.message) || err) } };

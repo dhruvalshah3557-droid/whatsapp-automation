@@ -80,6 +80,12 @@ async function handleApi(request, url, env, ctx) {
     }, 501, cors());
   }
 
+  if (url.pathname === "/api/media/list") {
+    return json({
+      error: "FTP media listing is only available on the standalone server — point the app's Server URL at it to see product media",
+    }, 501, cors());
+  }
+
   if (url.pathname === "/api/llm" && request.method === "POST") {
     let body;
     try {

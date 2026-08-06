@@ -218,7 +218,7 @@ test("key functions are defined", () => {
     "productMedia", "productFilterValues", "caratInRange", "priceInRange", "sortProducts",
     "populateProductFilters", "clearProductFilters", "productCardHtml", "uploadProductFiles",
     "uploadProductMedia", "ftpFillForm", "ftpFormBody", "ftpLoad", "ftpSave", "ftpTest",
-    "setFtpMsg", "setFtpStatus",
+    "setFtpMsg", "setFtpStatus", "setFtpHint", "loadProductMedia",
   ];
   for (const fn of required) {
     assert.ok(sandbox.run(`typeof ${fn} === 'function'`), `function missing: ${fn}`);
