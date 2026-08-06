@@ -32,12 +32,16 @@ jobs:
         shell: bash
         run: |
           if grep -q "KV_PLACEHOLDER" wrangler.toml; then
-            ID=$(wrangler kv namespace list --json | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const a=JSON.parse(d);const m=a.find(x=>x.title==='EVENTS');console.log(m?m.id:'');}catch(e){console.log('');}})")
+            ID=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces" \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const j=JSON.parse(d);const m=(j.result||[]).find(x=>x.title==='EVENTS');console.log(m?m.id:'');}catch(e){console.log('');}})")
             if [ -z "$ID" ]; then
               echo "Creating EVENTS KV namespace..."
-              OUT=$(wrangler kv namespace create EVENTS)
-              echo "$OUT"
-              ID=$(echo "$OUT" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+              OUT=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces" \
+                -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+                -H "Content-Type: application/json" \
+                -d '{"title":"EVENTS"}')
+              ID=$(echo "$OUT" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const j=JSON.parse(d);console.log((j.result&&j.result.id)||'');}catch(e){console.log('');}})")
             fi
             if [ -z "$ID" ]; then
               echo "Failed to create KV namespace"
