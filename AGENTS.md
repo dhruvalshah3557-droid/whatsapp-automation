@@ -50,7 +50,7 @@ The repo's `TASKS.md` file is the single source of truth for task status. It let
 
 ### Monitoring agent (keep checking and fixing)
 
-A self-healing monitor lives in `scripts/monitor.mjs`. Treat it as the standing "agent" that keeps the stack healthy.
+A self-healing monitor lives in `scripts/monitor.mjs` (single check, exit code) and a standing auto-healing agent lives in `scripts/agent.mjs` (continuous loop). Treat them as the standing "agents" that keep the stack healthy.
 
 - At the start of every session (and before finishing), run:
 
@@ -60,7 +60,13 @@ node scripts/monitor.mjs --fix
 
   It checks the local webhook server, the public preview API, that the service worker never caches `/api` calls, that the served app code is current, and the full test suite. With `--fix` it restarts the server if it is down. Exit code 0 = healthy, 1 = something failed that must be fixed before stopping.
 - If the monitor reports failures, fix them and re-run until `MONITOR OK`.
-- During a live session the monitor can be run in a loop (background terminal) every 60 seconds so issues are caught and auto-healed promptly.
+- The standing agent (`scripts/agent.mjs`) runs the same checks every 60s, logs each cycle to `logs/agent.log`, and auto-heals: it restarts the webhook server if it is down, kills a stale process occupying the port, and re-verifies the Meta webhook handshakes. Start it in a background terminal during a live session:
+
+```bash
+node scripts/agent.mjs --interval 60
+```
+
+  Run it with `--once` for a single check+heal pass. Check the agent's live output with the background terminal log; any `FAIL` line means an issue was found that must be fixed.
 
 ### When a new task arrives
 

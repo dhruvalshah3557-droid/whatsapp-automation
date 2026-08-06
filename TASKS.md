@@ -12,6 +12,8 @@ _None — no pending task right now._
 
 ## History
 
+- [x] 260806: Appoint an auto-solving standing agent — status: finished
+  - Done: created `scripts/agent.mjs` (continuous self-healing loop: checks server, preview API, Meta webhook handshakes, SW cache guard, served app freshness, test suite every 60s; auto-restarts the server and kills stale port processes; logs to `logs/agent.log`); updated `scripts/monitor.mjs` preview URL to the current live host; documented the agent in `AGENTS.md`; started it in a background terminal (terminal `term_1786003652958_1`)
 - [x] 260804: Appoint a self-healing monitoring agent — status: finished
   - Done: created `scripts/monitor.mjs` (checks local server, public preview API, SW `/api` cache guard, served app freshness, full test suite; `--fix` restarts a down server); documented the monitoring duty in `AGENTS.md` so every session runs it; started a 60s background monitor loop (commit `ddaa4f5`)
 - [x] 260804: Connect Facebook and Instagram webhooks — status: finished (server side)
