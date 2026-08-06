@@ -11,5 +11,6 @@ id = "KV_PLACEHOLDER"
 # Serve the messaging app (same origin as the API/webhooks) so one URL does everything.
 [assets]
 directory = "../messaging"
+binding = "ASSETS"
 not_found_handling = "single-page-application"
 run_worker_first = true
