@@ -183,3 +183,20 @@ test("GET missing static file returns 404", async () => {
   const res = await fetch(`${BASE}/does-not-exist.js`);
   assert.equal(res.status, 404);
 });
+
+test("GET /api/products returns the ColourDiam catalogue", async () => {
+  const { status, text } = await req("/api/products");
+  if (status === 502) {
+    assert.match(JSON.parse(text).error, /Could not load products/);
+    return;
+  }
+  assert.equal(status, 200);
+  const { products } = JSON.parse(text);
+  assert.ok(Array.isArray(products));
+  assert.ok(products.length > 0, "expected a non-empty catalogue");
+  const p = products[0];
+  for (const field of ["id", "name", "category", "carat", "price", "stock", "emoji", "color"]) {
+    assert.ok(p[field] !== undefined, `missing product field: ${field}`);
+  }
+  assert.ok(typeof p.price === "number");
+});

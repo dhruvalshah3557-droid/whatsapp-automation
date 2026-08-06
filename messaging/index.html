@@ -1237,7 +1237,7 @@ function switchView(v) {
   const sb = document.getElementById("sidebar");
   if (sb) sb.classList.remove("hide-mobile");
   if (v === "customers") renderCustomers();
-  if (v === "products") renderProducts();
+  if (v === "products") { renderProducts(); loadProducts(); }
   if (v === "orders") renderOrders();
   if (v === "settings") renderSettingsPanel();
 }
@@ -1488,7 +1488,29 @@ async function sendLive(c, text) {
 
 /* ==================== Business data ==================== */
 const AGENTS = ["Dhruval", "Aria", "Ken", "Sofia"];
-const PRODUCTS = [];
+let PRODUCTS = [];
+const PRODUCTS_CACHE_KEY = "mc_products_v1";
+let productsLoaded = false;
+async function loadProducts(force = false) {
+  if (productsLoaded && !force) return;
+  const cached = load(PRODUCTS_CACHE_KEY);
+  if (Array.isArray(cached.list) && cached.list.length) {
+    PRODUCTS = cached.list;
+    renderProducts();
+  }
+  try {
+    const data = await apiCall("/api/products");
+    const list = Array.isArray(data.products) ? data.products : [];
+    if (list.length) {
+      PRODUCTS = list;
+      productsLoaded = true;
+      save(PRODUCTS_CACHE_KEY, { list, at: Date.now() });
+      renderProducts();
+    }
+  } catch (err) {
+    if (!PRODUCTS.length) renderProducts();
+  }
+}
 const REPLIES_KEY = "mc_replies_v1";
 function savedReplies() {
   const d = load(REPLIES_KEY);
@@ -1653,7 +1675,6 @@ const MIC_SVG = '<svg viewBox="0 0 24 24" width="23" height="23" fill="none" str
 const REC_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><rect x="9" y="3" width="6" height="18" rx="3"/></svg>';
 
 function productById(pid) { return PRODUCTS.find(p => p.id === pid); }
-
 function richBody(m) {
   if (m.type === "image" || m.type === "video") {
     const src = esc(m.src || "");
@@ -1663,7 +1684,7 @@ function richBody(m) {
   if (m.type === "voice") return `<div class="rich rich-voice"><audio controls preload="none" src="${esc(m.audio || "")}"></audio>${m.duration ? `<span class="time">${esc(m.duration)}</span>` : ""}</div>`;
   if (m.type === "doc") return `<div class="rich rich-file"><div class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg></div><div><div class="fname">${esc(m.fname || m.text || "document")}</div><div class="fsize">${esc(m.fsize || "")}</div></div></div>`;
   if (m.type === "product") {
-    const p = productById(m.productId) || { name: m.text, price: m.price || 0, emoji: "💎", category: "" };
+    const p = productById(m.productId) || { id: m.productId, name: m.text, price: m.price || 0, emoji: m.emoji || "💎", category: m.category || "", carat: m.carat || "" };
     return `<div class="rich rich-card"><div class="rc-media">${p.emoji || "💎"}</div><div class="rc-body"><div class="rc-title">${esc(p.name)}</div><div class="rc-sub">${esc(p.category || "")} · ${esc(p.carat || "")}ct</div><div class="rc-price">$${Number(p.price || 0).toLocaleString()}</div><button class="rc-btn" onclick="sendProduct('${esc(p.id)}')">${t("buy")}</button></div></div>`;
   }
   if (m.type === "story") return `<div class="rich rich-story"><div class="st-ring"><span>💍</span></div><div>${m.text ? `<div style="font-size:13px">${esc(m.text)}</div>` : ""}<div class="time">${t("story")} · ${esc(m.time)}</div></div></div>`;
@@ -2125,15 +2146,16 @@ async function toggleTranslate(contactId, msgIdx) {
 /* ---------------- Product catalogue ---------------- */
 function renderProducts() {
   const list = document.getElementById("products-list");
+  if (!list) return;
   if (!PRODUCTS.length) { list.innerHTML = `<div class="empty-state"><div class="big">💎</div><p>${t("no_products")}</p></div>`; return; }
   list.innerHTML = PRODUCTS.map(p => `
     <div class="product-card">
-      <div class="pc-media" style="background:${p.color}">${p.emoji}</div>
+      <div class="pc-media" style="background:${p.color}">${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:12px">` : p.emoji}</div>
       <div class="pc-name">${esc(p.name)}</div>
       <div class="pc-sub">${esc(p.category)} · ${esc(p.carat)}ct</div>
       <div class="pc-bot">
-        <div><div class="pc-price">$${Number(p.price).toLocaleString()}</div><div class="pc-stock">${t("stock")}: ${p.stock}</div></div>
-        <button class="pc-btn" onclick="sendProduct('${p.id}')">${t("buy")}</button>
+        <div><div class="pc-price">$${Number(p.price).toLocaleString()}</div><div class="pc-stock">${t("stock")}: ${esc(p.stock)}</div></div>
+        <button class="pc-btn" onclick="sendProduct('${esc(p.id)}')">${t("buy")}</button>
       </div>
     </div>`).join("");
 }
@@ -2146,7 +2168,7 @@ function sendProduct(pid) {
     c = d.contacts[0];
     if (!c) return;
   }
-  c.messages.push({ from: "me", type: "product", text: p.name, productId: pid, time: timeFmt(), date: new Date().toISOString(), ticks: 1 });
+  c.messages.push({ from: "me", type: "product", text: p.name, productId: pid, price: p.price, emoji: p.emoji, category: p.category, carat: p.carat, time: timeFmt(), date: new Date().toISOString(), ticks: 1 });
   c.lastMsg = p.name; c.time = "Now";
   save(CHAT_KEY, d);
   switchView("messages");
@@ -2445,6 +2467,7 @@ srvKeyInput.addEventListener("input", () => { const c = load(CFG_KEY); c.server_
   applyI18n();
   renderSettingsPanel();
   maybeStartPolling();
+  loadProducts();
   if (UI.sec && UI.sec.touchid && UI.sec.cred) setTimeout(lockApp, 500);
 })();
 </script>

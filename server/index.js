@@ -50,6 +50,69 @@ const EVENTS_FILE = env.EVENTS_FILE || path.join(__dirname, "events.json");
 const MAX_EVENTS = 200;
 let events = loadEvents();
 
+const COLOURDIAM_SEARCH = "https://www.colourdiam.com/Home/SearchProduct?SubMenuName=&FromHome=&PageIndex=1&PageCount=100&SortById=";
+const PRODUCT_CACHE_TTL = 10 * 60 * 1000;
+let productsCache = { at: 0, list: [] };
+
+const COLOUR_EMOJI = {
+  yellow: "💛", green: "💚", pink: "💗", blue: "💙", brown: "🤎", white: "🤍",
+  gray: "🩶", grey: "🩶", orange: "🧡", red: "❤️", violet: "💜", purple: "💜",
+  black: "🖤",
+};
+const COLOUR_BG = {
+  yellow: "#f7e08a", green: "#cde8c4", pink: "#f5d7de", blue: "#cfdff5", brown: "#d9c5a8",
+  white: "#eceae4", gray: "#d9d9d9", grey: "#d9d9d9", orange: "#fbe0c0", red: "#f2c3c3",
+  violet: "#ddd2ef", purple: "#ddd2ef", black: "#c9c9c9",
+};
+
+function colourDiamondMeta(name) {
+  const lower = name.toLowerCase();
+  let found = "";
+  for (const key of Object.keys(COLOUR_EMOJI)) {
+    if (lower.includes(key)) { found = key; break; }
+  }
+  return { emoji: COLOUR_EMOJI[found] || "💎", bg: COLOUR_BG[found] || "#f3ead7" };
+}
+
+function parseColourdiamCarat(name) {
+  const m = name.match(/(\d+\.\d+)/);
+  return m ? m[1] : "";
+}
+
+function normalizeColourdiamProduct(p) {
+  const name = String(p.ProdName || "").trim();
+  const meta = colourDiamondMeta(name);
+  const carat = parseColourdiamCarat(name);
+  return {
+    id: String(p.ProdId || p.TagNo || "cd-" + Math.random().toString(36).slice(2, 8)),
+    name,
+    category: (name.match(/Fancy\s+\w+/i) || [])[0] || "Diamond",
+    carat,
+    price: Number(p.NewPrice || p.OldPrice || 0),
+    oldPrice: Number(p.OldPrice || 0),
+    stock: "In stock",
+    emoji: meta.emoji,
+    color: meta.bg,
+    img: p.ImgPath ? "https://www.colourdiam.com" + p.ImgPath : null,
+  };
+}
+
+async function fetchColourdiamProducts() {
+  const now = Date.now();
+  if (now - productsCache.at < PRODUCT_CACHE_TTL && productsCache.list.length) {
+    return productsCache.list;
+  }
+  const res = await fetch(COLOURDIAM_SEARCH, {
+    headers: { "User-Agent": "colourdiam-messaging/1.0", Accept: "application/json" },
+  });
+  if (!res.ok) throw new Error("ColourDiam API HTTP " + res.status);
+  const data = await res.json();
+  const raw = Array.isArray(data.searchProductsList) ? data.searchProductsList : [];
+  const list = raw.map(normalizeColourdiamProduct).filter((p) => p.name);
+  productsCache = { at: now, list };
+  return list;
+}
+
 function loadEvents() {
   try {
     if (fs.existsSync(EVENTS_FILE)) {
@@ -158,6 +221,17 @@ async function handleApi(req, res, url) {
 
   if (url.pathname === "/api/health" && req.method === "GET") {
     sendJson(res, 200, { ok: true, name: "messaging-webhooks", events: events.length }, corsHeaders());
+    return;
+  }
+
+  if (url.pathname === "/api/products" && req.method === "GET") {
+    try {
+      const products = await fetchColourdiamProducts();
+      sendJson(res, 200, { products }, corsHeaders());
+    } catch (err) {
+      console.error("products fetch failed:", err.message);
+      sendJson(res, 502, { error: "Could not load products from ColourDiam", detail: String((err && err.message) || err) }, corsHeaders());
+    }
     return;
   }
 

@@ -218,3 +218,46 @@ test("GET /api/health reports event count", async () => {
   assert.equal(res.status, 200);
   assert.equal((await res.json()).events, 2);
 });
+
+test("GET /api/products proxies and normalizes ColourDiam catalogue", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (u, o) => {
+    return new Response(JSON.stringify({
+      searchProductsList: [
+        { ProdId: "1003", ProdName: " Fancy Yellow 1.05 SI1 18K 4.072 gm", OldPrice: 17825, NewPrice: 17825, ImgPath: "/Product/Jewellery/1003/CENTER.jpg" },
+        { ProdId: "1135", ProdName: "Fancy Intense Yellow 1.02 I1 18K 5.550 gm", OldPrice: 5750, NewPrice: 5750, ImgPath: null },
+        { ProdId: "1263", ProdName: "Fancy Green 0.30 VS 18K 5.180 gm", OldPrice: 2070, NewPrice: 2070 },
+        { ProdId: "", ProdName: "", OldPrice: 0, NewPrice: 0 },
+      ],
+    }), { status: 200, headers: { "Content-Type": "application/json" } });
+  };
+  try {
+    const res = await call("/api/products", {}, {});
+    assert.equal(res.status, 200);
+    const { products } = await res.json();
+    assert.equal(products.length, 3);
+    const yellow = products.find((p) => p.id === "1003");
+    assert.equal(yellow.name, "Fancy Yellow 1.05 SI1 18K 4.072 gm");
+    assert.equal(yellow.carat, "1.05");
+    assert.equal(yellow.price, 17825);
+    assert.equal(yellow.emoji, "💛");
+    assert.equal(yellow.img, "https://www.colourdiam.com/Product/Jewellery/1003/CENTER.jpg");
+    const green = products.find((p) => p.id === "1263");
+    assert.equal(green.emoji, "💚");
+    assert.ok(products.every((p) => p.name && p.id));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("GET /api/products returns 502 when ColourDiam is unreachable", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => { throw new Error("network down"); };
+  try {
+    const res = await call("/api/products", {}, {});
+    assert.equal(res.status, 502);
+    assert.match((await res.json()).error, /Could not load products/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
