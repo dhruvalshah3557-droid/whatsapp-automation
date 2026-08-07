@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Activate "Send to customer" product button — status: finished
+  - Done: `sendProduct()` returned silently when no chat was open, so the Products view button appeared dead; it now sends to the active chat when one is open, sends directly when only one contact exists, and otherwise opens a customer picker modal (`pickProductRecipient`/`sendProductTo`) so a target can be chosen; live contacts get the product delivered via `/api/send` (name · carat · price), others get the card added to their chat; `tracking_live` i18n key added (en/zh/th); SW bumped to `colourdiam-msg-v26`.
+
 - [x] 260807: Make "Send to customer" actually deliver via /api/send — status: finished
   - Done: `sendProduct()` only added the product card to the local chat (localStorage) and never called the server, so customers never received it; it now reuses `sendLive()` → `POST /api/send` when the selected contact has a `liveKey` (sends name + carat + price as text, marks ticks delivered, system error message on failure); SW bumped to `colourdiam-msg-v25`; MONITOR OK.
 

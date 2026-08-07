@@ -1227,7 +1227,7 @@ const I18N = {
     no_customers: "No customers yet", no_orders: "No orders yet", no_products: "No products yet",
     tracking: "Tracking", track: "Track", carrier: "Carrier", tracking_number: "Tracking number",
     tracking_fedex: "FedEx", tracking_dhl: "DHL", no_tracking: "Add a tracking number to follow this shipment",
-    tracking_set: "Tracking saved", tracking_loading: "Tracking…", tracking_error: "Tracking error",
+    tracking_set: "Tracking saved", tracking_loading: "Tracking…", tracking_error: "Tracking error", tracking_live: "live",
     ai_name: "Colourdiam AI Assistant", ai_status: "Ready — updates your connector directly",
     ai_api_base: "API Base URL", ai_model: "Model", ai_api_key: "API Key (stored only on this device)",
     ai_save: "Save Settings", ai_hint: "Optional. Without a key the bot still works in offline mode using built-in commands. Your key is saved only in this browser and sent only to the API base URL you enter.",
@@ -1325,7 +1325,7 @@ const I18N = {
     no_customers: "暂无客户", no_orders: "暂无订单", no_products: "暂无商品",
     tracking: "物流跟踪", track: "跟踪", carrier: "承运商", tracking_number: "运单号",
     tracking_fedex: "FedEx", tracking_dhl: "DHL", no_tracking: "添加运单号即可跟踪此包裹",
-    tracking_set: "跟踪信息已保存", tracking_loading: "正在跟踪…", tracking_error: "跟踪出错",
+    tracking_set: "跟踪信息已保存", tracking_loading: "正在跟踪…", tracking_error: "跟踪出错", tracking_live: "在线",
     ai_name: "Colourdiam AI 助手", ai_status: "就绪 — 直接更新你的连接器",
     ai_api_base: "API 基础地址", ai_model: "模型", ai_api_key: "API 密钥（仅存储在本设备）",
     ai_save: "保存设置", ai_hint: "可选。没有密钥时，机器人仍可通过内置命令离线工作。你的密钥仅保存在此浏览器中，且只发送到你填写的 API 基础地址。",
@@ -1423,7 +1423,7 @@ const I18N = {
     no_customers: "ยังไม่มีลูกค้า", no_orders: "ยังไม่มีคำสั่งซื้อ", no_products: "ยังไม่มีสินค้า",
     tracking: "ติดตามพัสดุ", track: "ติดตาม", carrier: "ผู้ให้บริการขนส่ง", tracking_number: "เลขพัสดุ",
     tracking_fedex: "FedEx", tracking_dhl: "DHL", no_tracking: "เพิ่มเลขพัสดุเพื่อติดตามสินค้าชิ้นนี้",
-    tracking_set: "บันทึกการติดตามแล้ว", tracking_loading: "กำลังติดตาม…", tracking_error: "เกิดข้อผิดพลาด",
+    tracking_set: "บันทึกการติดตามแล้ว", tracking_loading: "กำลังติดตาม…", tracking_error: "เกิดข้อผิดพลาด", tracking_live: "ออนไลน์",
     ai_name: "ผู้ช่วย Colourdiam AI", ai_status: "พร้อม — อัปเดตคอนเนกเตอร์ของคุณโดยตรง",
     ai_api_base: "API Base URL", ai_model: "โมเดล", ai_api_key: "API Key (เก็บไว้ในอุปกรณ์นี้เท่านั้น)",
     ai_save: "บันทึกการตั้งค่า", ai_hint: "ไม่บังคับ หากไม่มีคีย์บอทจะยังทำงานในโหมดออฟไลน์ด้วยคำสั่งในตัว คีย์ของคุณบันทึกเฉพาะในเบราว์เซอร์นี้และส่งไปยัง API base URL ที่คุณกรอกเท่านั้น",
@@ -2832,11 +2832,46 @@ function sendProduct(pid) {
   const p = productById(pid);
   if (!p) return;
   const d = chatData();
-  let c = d.contacts.find(x => x.id === (d.activeId || ""));
-  if (!c) {
-    c = d.contacts[0];
-    if (!c) return;
-  }
+  const active = d.contacts.find(x => x.id === (d.activeId || ""));
+  if (active) { sendProductTo(pid, active.id); return; }
+  if (d.contacts.length === 1) { sendProductTo(pid, d.contacts[0].id); return; }
+  pickProductRecipient(pid);
+}
+function pickProductRecipient(pid) {
+  const p = productById(pid);
+  const d = chatData();
+  const rows = d.contacts.length
+    ? d.contacts.map(c => `
+      <div class="person-card" style="cursor:pointer;margin-bottom:8px" onclick="sendProductTo('${esc(pid)}','${c.id}')">
+        <div class="p-top">
+          <div class="p-avatar" style="background:${c.color}">${esc(c.initials)}</div>
+          <div><div class="p-name">${esc(c.name)}</div><div class="p-email">${esc(c.platform)}${c.liveKey ? " · " + t("tracking_live") : ""}</div></div>
+        </div>
+      </div>`).join("")
+    : `<p class="hint">${t("no_customers")}</p>`;
+  const html = `
+  <div class="task-modal-backdrop" onclick="if(event.target===this)productPickerClose()">
+    <div class="task-modal">
+      <h3>${esc(p ? p.name : "")} — ${t("buy")}</h3>
+      ${rows}
+      <button class="btn btn-ghost" style="width:100%;margin-top:10px" onclick="productPickerClose()">${t("ws_cancel")}</button>
+    </div>
+  </div>`;
+  let host = document.getElementById("product-modal-host");
+  if (!host) { host = document.createElement("div"); host.id = "product-modal-host"; document.body.appendChild(host); }
+  host.innerHTML = html;
+}
+function productPickerClose() {
+  const h = document.getElementById("product-modal-host");
+  if (h) h.innerHTML = "";
+}
+function sendProductTo(pid, contactId) {
+  productPickerClose();
+  const p = productById(pid);
+  if (!p) return;
+  const d = chatData();
+  const c = d.contacts.find(x => x.id === contactId);
+  if (!c) return;
   c.messages.push({ from: "me", type: "product", text: p.name, productId: pid, price: p.price, emoji: p.emoji, category: p.category, carat: p.carat, time: timeFmt(), date: new Date().toISOString(), ticks: 1 });
   c.lastMsg = p.name; c.time = "Now";
   save(CHAT_KEY, d);
