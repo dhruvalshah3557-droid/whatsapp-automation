@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Server-backed app memory so data survives updates & URL changes — status: finished
+  - Done: `GET/POST /api/memory` on the server (persists `server/app-memory.json`) and mirrored on the worker (KV `app-memory` key); the app snapshots its localStorage buckets (chat, ui, config, auth, reminders, replies, AI, media) to the server on every save (debounced 1.5s, with a last-saved timestamp in `mc_memory_at`) and on load restores any newer server copy automatically (reloads once). Fixes the "data lost on update" symptom where a new preview URL means a new origin with empty localStorage — data now follows the user across URLs, devices, and updates. SW bumped to `colourdiam-msg-v33`; 2 new memory tests (107 total); MONITOR OK.
+
 - [x] 260807: Auto-update the app without manual refresh — status: finished
   - Done: previously a new SW version took control but the open page never reloaded, so you had to refresh to see updates; the app now registers `updatefound`/`SKIP_WAITING` messaging (activates a newer SW immediately) and auto-reloads itself on `controllerchange` (guarded so first-ever visits don't reload), plus a 30-minute `reg.update()` poll so long-open tabs pick up new deploys; SW bumped to `colourdiam-msg-v32`; MONITOR OK (105/105 tests).
 

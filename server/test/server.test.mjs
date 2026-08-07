@@ -151,6 +151,24 @@ test("GET /api/events supports since filter", async () => {
   assert.deepEqual(events, []);
 });
 
+test("POST /api/memory saves and GET /api/memory restores app data", async () => {
+  const { status } = await req("/api/memory", {
+    method: "POST",
+    body: JSON.stringify({ at: 1234567, data: { mc_chat_v2: { contacts: [{ id: "c1", name: "Test" }] } } }),
+  });
+  assert.equal(status, 200);
+  const { status: gs, text } = await req("/api/memory");
+  assert.equal(gs, 200);
+  const { memory, at } = JSON.parse(text);
+  assert.equal(at, 1234567);
+  assert.deepEqual(memory.mc_chat_v2.contacts[0].name, "Test");
+});
+
+test("POST /api/memory rejects invalid body", async () => {
+  const { status } = await req("/api/memory", { method: "POST", body: "not-json" });
+  assert.equal(status, 400);
+});
+
 test("GET /api/events rejects missing API key", async () => {
   const res = await fetch(`${BASE}/api/events`, {
     headers: { Authorization: "Bearer wrong_key" },

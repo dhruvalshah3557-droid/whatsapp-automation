@@ -1250,7 +1250,7 @@ if ("serviceWorker" in navigator) {
 /* ==================== Utilities ==================== */
 function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 function load(key) { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch (e) { return {}; } }
-function save(key, v) { localStorage.setItem(key, JSON.stringify(v)); }
+function save(key, v) { localStorage.setItem(key, JSON.stringify(v)); scheduleMemoryBackup(); }
 function uid() { return "u" + Math.random().toString(36).slice(2, 9); }
 function timeFmt() { return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
 function autoGrow(el) { el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 120) + "px"; }
@@ -2028,6 +2028,61 @@ async function apiCall(path, opts = {}) {
   if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
   return data;
 }
+
+/* ==================== App memory (server-backed persistence) ==================== */
+const MEMORY_AT_KEY = "mc_memory_at";
+let memTimer = null;
+let memSaving = false;
+function memoryKeys() { return [CHAT_KEY, UI_KEY, CFG_KEY, AUTH_KEY, RM_KEY, REPLIES_KEY, AI_KEY, AI_MSG_KEY, MEDIA_KEY]; }
+function collectMemory() {
+  const data = {};
+  for (const k of memoryKeys()) {
+    try {
+      const raw = localStorage.getItem(k);
+      if (raw) data[k] = JSON.parse(raw);
+    } catch (e) { /* skip */ }
+  }
+  return data;
+}
+function scheduleMemoryBackup() {
+  if (memSaving) return;
+  clearTimeout(memTimer);
+  memTimer = setTimeout(() => { backupMemory(); }, 1500);
+}
+async function backupMemory() {
+  if (memSaving) return;
+  memSaving = true;
+  try {
+    const data = collectMemory();
+    if (!Object.keys(data).length) return;
+    const at = Date.now();
+    await apiCall("/api/memory", { method: "POST", body: JSON.stringify({ data, at }) });
+    localStorage.setItem(MEMORY_AT_KEY, String(at));
+  } catch (err) { /* offline — retry on next save */ }
+  finally { memSaving = false; }
+}
+async function restoreMemory() {
+  try {
+    const r = await apiCall("/api/memory");
+    const mem = r.memory;
+    if (!mem || typeof mem !== "object" || !Object.keys(mem).length) return;
+    const serverAt = Number(r.at) || 0;
+    const localAt = Number(localStorage.getItem(MEMORY_AT_KEY) || 0);
+    if (serverAt <= localAt) return;
+    let changed = false;
+    for (const k of Object.keys(mem)) {
+      if (!memoryKeys().includes(k)) continue;
+      try {
+        if (localStorage.getItem(k) !== JSON.stringify(mem[k])) { localStorage.setItem(k, JSON.stringify(mem[k])); changed = true; }
+      } catch (e) { /* skip */ }
+    }
+    if (changed) {
+      localStorage.setItem(MEMORY_AT_KEY, String(serverAt));
+      location.reload();
+    }
+  } catch (err) { /* no server yet */ }
+}
+
 let lastEventId = Number(localStorage.getItem("mc_last_event_id") || 0);
 let pollTimer = null;
 let lastLiveState = "off";
@@ -4009,6 +4064,7 @@ async function renderAdminReport() {
   aiRefreshStatus();
   if (UI.sec && UI.sec.touchid && UI.sec.cred) setTimeout(lockApp, 500);
   authGate();
+  restoreMemory();
 })();
 </script>
 </body>

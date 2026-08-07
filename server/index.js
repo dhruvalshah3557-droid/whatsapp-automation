@@ -197,6 +197,27 @@ function loadEvents() {
   return [];
 }
 
+const MEMORY_FILE = env.MEMORY_FILE || path.join(__dirname, "app-memory.json");
+function loadAppMemory() {
+  try {
+    if (fs.existsSync(MEMORY_FILE)) {
+      const d = JSON.parse(fs.readFileSync(MEMORY_FILE, "utf8"));
+      return { data: (d && d.data) || {}, at: (d && d.at) || 0 };
+    }
+  } catch (err) {
+    console.error("could not load app-memory.json:", err.message);
+  }
+  return { data: {}, at: 0 };
+}
+
+function saveAppMemory(data, at) {
+  try {
+    fs.writeFileSync(MEMORY_FILE, JSON.stringify({ data, at }));
+  } catch (err) {
+    console.error("could not save app-memory.json:", err.message);
+  }
+}
+
 function saveEvents() {
   try {
     fs.writeFileSync(EVENTS_FILE, JSON.stringify(events));
@@ -467,6 +488,25 @@ async function handleApi(req, res, url) {
       events: events.length,
       ai: !!(env.USER_LLM_BASE_URL && env.USER_LLM_API_KEY),
     }, corsHeaders());
+    return;
+  }
+
+  if (url.pathname === "/api/memory" && req.method === "GET") {
+    const mem = loadAppMemory();
+    sendJson(res, 200, { ok: true, memory: mem.data, at: mem.at }, corsHeaders());
+    return;
+  }
+
+  if (url.pathname === "/api/memory" && req.method === "POST") {
+    const raw = await readBody(req);
+    const body = parseJsonBody(raw);
+    if (!body || typeof body.data !== "object" || body.data === null) {
+      sendJson(res, 400, { error: "Expected { data: {...} }" }, corsHeaders());
+      return;
+    }
+    const at = Number(body.at) || Date.now();
+    saveAppMemory(body.data, at);
+    sendJson(res, 200, { ok: true, at }, corsHeaders());
     return;
   }
 

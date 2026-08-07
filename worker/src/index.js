@@ -50,6 +50,26 @@ async function handleApi(request, url, env, ctx) {
     return json({ ok: true, name: "messaging-webhooks", events: count, ai: !!(env.USER_LLM_BASE_URL && env.USER_LLM_API_KEY) }, 200, cors());
   }
 
+  if (url.pathname === "/api/memory" && request.method === "GET") {
+    const mem = await getMemory(env);
+    return json({ ok: true, memory: mem.data, at: mem.at }, 200, cors());
+  }
+
+  if (url.pathname === "/api/memory" && request.method === "POST") {
+    let body;
+    try {
+      body = await request.json();
+    } catch (err) {
+      return json({ error: "Invalid JSON" }, 400, cors());
+    }
+    if (!body || typeof body.data !== "object" || body.data === null) {
+      return json({ error: "Expected { data: {...} }" }, 400, cors());
+    }
+    const at = Number(body.at) || Date.now();
+    await putMemory(env, body.data, at);
+    return json({ ok: true, at }, 200, cors());
+  }
+
   if (url.pathname === "/api/products" && request.method === "GET") {
     try {
       const products = await fetchColourdiamProducts(env);
@@ -142,6 +162,29 @@ async function handleApi(request, url, env, ctx) {
 }
 
 const EVENTS_KEY = "events";
+const MEMORY_KEY = "app-memory";
+
+async function getMemory(env) {
+  if (!env.EVENTS) return { data: {}, at: 0 };
+  try {
+    const raw = await env.EVENTS.get(MEMORY_KEY, { type: "text" });
+    if (!raw) return { data: {}, at: 0 };
+    const d = JSON.parse(raw);
+    return { data: (d && d.data) || {}, at: (d && d.at) || 0 };
+  } catch (err) {
+    return { data: {}, at: 0 };
+  }
+}
+
+async function putMemory(env, data, at) {
+  if (!env.EVENTS) return;
+  try {
+    await env.EVENTS.put(MEMORY_KEY, JSON.stringify({ data, at }));
+  } catch (err) {
+    // ignore KV write failures
+  }
+}
+
 
 const COLOURDIAM_SEARCH = "https://www.colourdiam.com/Home/SearchProduct?SubMenuName=&FromHome=&PageIndex=1&PageCount=100&SortById=";
 const PRODUCT_CACHE_TTL = 10 * 60 * 1000;

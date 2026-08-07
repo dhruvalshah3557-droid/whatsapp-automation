@@ -30,6 +30,9 @@ server/audit.json
 server/test/tmp-auth/
 server/test/tmp-auth-*.json
 
+# App memory backup (server-side localStorage snapshot)
+server/app-memory.json
+
 # OS files
 .DS_Store
 
