@@ -9,6 +9,10 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Upload everything to Cloudflare + GitHub (full sync verification) — status: finished
+  - Done: GitHub — working tree clean, all commits pushed to `origin main` (HEAD `5d8c064`). Cloudflare — Worker (`worker-deploy.yml`) and Pages (`pages.yml`) both `completed/success` for the latest commit `5d8c064`, so the live worker serves `colourdiam-msg-v36`; Worker KV holds the real app data (`/api/memory` with chat/ui/auth buckets), 2 inbound events in `EVENTS` KV, and the bootstrapped admin in `AUTH` KV (verified live). The local 77-byte `server/app-memory.json` is stale test data (`at:1234567`) so it was NOT pushed to the worker to avoid overwriting the newer Cloudflare copy. No code changed in this pass.
+  - Still blocked (pre-existing): `git push backup main:colourdiam-messaging` → 403 (`monkeycode-global[bot]` needs write access to `zebbern/no-cost-ai`).
+
 - [x] 260807: Keep upgrading the app for speed (render perf) — status: finished
   - Done: chat images now load lazily + async-decode (`loading="lazy" decoding="async"` on rich images); `renderChat()` no longer calls `c.messages.indexOf(msg)` per message inside the loop (was O(n²), now uses the forEach index); `content-visibility: auto` + `contain-intrinsic-size` added to message rows and customer/product/order cards so off-screen DOM work is skipped until scrolled into view; SW bumped to `colourdiam-msg-v36`; MONITOR OK (127/127 tests).
 
