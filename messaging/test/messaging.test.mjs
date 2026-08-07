@@ -192,10 +192,12 @@ test("required HTML element ids exist", () => {
     "progress-label", "platforms", "env-out", "msg", "tab-msg-badge", "toast-msg", "lightbox",
     "lightbox-img", "lock-screen", "lock-hint", "lock-fab", "lock-skip-btn", "file-input",
     "settings-lang", "reply-input",
-    "pf-search", "pf-type", "pf-shape", "pf-color", "pf-carat", "pf-price", "pf-sort",
+    "pf-search", "pf-type", "pf-jtype", "pf-shape", "pf-color", "pf-lab", "pf-carat", "pf-price", "pf-sort",
     "ftp-host", "ftp-port", "ftp-user", "ftp-pass", "ftp-base", "ftp-root",
     "ftp-load-btn", "ftp-save-btn", "ftp-test-btn", "ftp-status", "ftp-status-txt",
     "ftp-msg", "ftp-worker-hint",
+    "ai-suggest-bar", "ai-suggest-list", "ai-suggest-btn",
+    "dw-ai-out", "dw-ai-summary-btn", "dw-ai-follow-btn", "dw-ai-product-btn", "whatsnew-host",
   ];
   for (const id of ids) {
     assert.ok(new RegExp(`id=["']${id}["']`).test(html), `missing element id: ${id}`);
@@ -227,8 +229,34 @@ test("key functions are defined", () => {
     "populateProductFilters", "clearProductFilters", "productCardHtml", "uploadProductFiles",
     "uploadProductMedia", "ftpFillForm", "ftpFormBody", "ftpLoad", "ftpSave", "ftpTest",
     "setFtpMsg", "setFtpStatus", "setFtpHint", "loadProductMedia", "productMainImgName",
+    "aiChat", "aiCanUse", "aiSuggestReply", "aiUseSuggest", "aiCloseSuggest", "aiShowSuggest",
+    "aiConversation", "aiLangName", "aiDrawerSummary", "aiDrawerFollow", "aiProductSuggest",
+    "showWhatsNew", "closeWhatsNew",
   ];
   for (const fn of required) {
     assert.ok(sandbox.run(`typeof ${fn} === 'function'`), `function missing: ${fn}`);
   }
+});
+
+test("What's New changelog is present and versioned", () => {
+  const v = sandbox.run("WN_VERSION");
+  assert.ok(/^v\d+$/.test(v), `WN_VERSION looks like a version (got ${v})`);
+  const list = sandbox.run("WHATS_NEW");
+  assert.ok(Array.isArray(list) && list.length > 0, "WHATS_NEW has entries");
+  const latest = list[list.length - 1];
+  assert.equal(latest.v, v, "latest changelog entry matches WN_VERSION");
+  assert.ok(latest.items.length > 0, "latest changelog entry has items");
+  assert.ok(latest.items.every((i) => typeof i === "string" && i.length > 0), "items are non-empty strings");
+});
+
+test("What's New shows only unseen versions", () => {
+  const run = sandbox.run;
+  const all = run("WHATS_NEW");
+  run("localStorage.removeItem('mc_whatsnew_v1')");
+  const entries = run("WHATS_NEW.filter(function(e){ return Number(e.v.slice(1)) > Number(localStorage.getItem('mc_whatsnew_v1') || 0); })");
+  assert.equal(entries.length, all.length, "fresh install sees every changelog entry");
+  run("localStorage.setItem('mc_whatsnew_v1', WN_VERSION.slice(1))");
+  const seen2 = run("WHATS_NEW.filter(function(e){ return Number(e.v.slice(1)) > Number(localStorage.getItem('mc_whatsnew_v1') || 0); })");
+  assert.equal(seen2.length, 0, "after marking seen, nothing is new");
+  run("localStorage.removeItem('mc_whatsnew_v1')");
 });

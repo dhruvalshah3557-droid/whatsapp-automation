@@ -377,6 +377,35 @@ input, textarea, select { font-family: inherit; }
 .qr-add input { flex: 1; background: var(--bg-2); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 18px; font-size: 12.5px; outline: none; }
 .qr-add input:focus { border-color: var(--gold); }
 
+/* ---------------- AI reply suggestions ---------------- */
+.ai-suggest-bar { display: none; padding: 8px 12px; background: var(--card); border-top: 1px solid var(--border); }
+.ai-suggest-bar.open { display: block; }
+.ai-suggest-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 6px; }
+.ai-suggest-list { display: flex; flex-direction: column; gap: 6px; }
+.ai-suggest-chip { display: flex; align-items: center; gap: 8px; text-align: left; background: var(--bg-2); border: 1px solid var(--border); color: var(--text); font-size: 12.5px; padding: 8px 11px; border-radius: 12px; cursor: pointer; line-height: 1.35; }
+.ai-suggest-chip:hover { border-color: var(--gold); background: var(--gold-soft); }
+.ai-suggest-chip .ai-s-send { margin-left: auto; font-weight: 800; color: var(--gold-deep); flex-shrink: 0; }
+.ai-suggest-chip.busy { opacity: .6; cursor: default; }
+
+/* ---------------- Customer drawer AI ---------------- */
+.dw-ai-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg,#f7e08a,#b8943a); color: #3a2c10; border: none; border-radius: 12px; padding: 10px 12px; font-weight: 800; font-size: 13px; cursor: pointer; margin-bottom: 10px; }
+.dw-ai-btn:hover { filter: brightness(1.05); }
+.dw-ai-btn:disabled { opacity: .55; cursor: default; }
+.dw-ai-out { background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; font-size: 12.5px; line-height: 1.5; color: var(--text); white-space: pre-wrap; max-height: 260px; overflow-y: auto; }
+.dw-ai-out .dw-ai-title { font-weight: 800; color: var(--gold-deep); margin-bottom: 4px; }
+.dw-ai-out .dw-ai-hint { font-size: 11px; color: var(--muted); margin-top: 6px; }
+.dw-ai-out.busy { opacity: .65; }
+
+/* ---------------- What's New modal ---------------- */
+.wn-backdrop { position: fixed; inset: 0; z-index: 950; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; padding: 20px 16px; }
+.wn-modal { width: 100%; max-width: 480px; max-height: 80vh; overflow-y: auto; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 22px; box-shadow: var(--shadow-md); }
+.wn-modal h2 { font-family: var(--font-serif); margin-bottom: 4px; }
+.wn-modal .wn-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+.wn-item { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; line-height: 1.45; }
+.wn-item:last-child { border-bottom: none; }
+.wn-item .wn-dot { color: var(--gold-deep); flex-shrink: 0; }
+.wn-done { width: 100%; margin-top: 14px; }
+
 /* ---------------- Customer info drawer ---------------- */
 .drawer-backdrop { position: fixed; inset: 0; background: rgba(40,32,16,.35); z-index: 300; opacity: 0; pointer-events: none; transition: opacity var(--ease); }
 .drawer-backdrop.open { opacity: 1; pointer-events: auto; }
@@ -825,12 +854,17 @@ body.is-admin .nav-tabs .admin-only { display: inline-block; }
             <div class="messages" id="messages"></div>
             <div class="emoji-panel" id="emoji-panel" hidden></div>
             <div class="quick-replies" id="quick-replies" hidden></div>
+            <div class="ai-suggest-bar" id="ai-suggest-bar">
+              <div class="ai-suggest-head"><span data-i18n="ai_suggest_title">AI Reply Suggestions</span><button class="ch-header-btn" onclick="aiCloseSuggest()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+              <div class="ai-suggest-list" id="ai-suggest-list"></div>
+            </div>
             <div class="input-bar">
               <button class="inbar-btn" id="attach-btn" onclick="attachTap()" aria-label="Attach" data-i18n-title="attach"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21.4 11.05 12.25 20.2a5 5 0 0 1-7.07 0 5 5 0 0 1 0-7.07l8.49-8.49a3.4 3.4 0 0 1 4.8 4.8L9.42 18.9a1.8 1.8 0 0 1-2.55-2.55L14.6 8.6"/></svg></button>
               <button class="inbar-btn" id="emoji-btn" onclick="toggleEmoji()" aria-label="Emoji" title="Emoji"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg></button>
               <textarea id="msg-input" rows="1" data-i18n-ph="type_msg" placeholder="Type a message" onkeydown="onKey(event)" oninput="autoGrow(this)"></textarea>
               <button class="inbar-btn" onclick="toggleReplies()" aria-label="Quick replies" data-i18n-title="quick_replies"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.9 8.9 0 0 1-3.3-.7L3 21l1.8-5.5A8.4 8.4 0 0 1 3 11.5a8.5 8.5 0 1 1 18 0Z"/><path d="M8 11h8"/><path d="M8 14h5"/></svg></button>
               <button class="inbar-btn" id="mic-btn" onclick="micTap()" aria-label="Voice message" data-i18n-title="voice"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v4"/></svg></button>
+              <button class="inbar-btn" id="ai-suggest-btn" onclick="aiSuggestReply()" aria-label="AI Reply Suggestions" data-i18n-title="ai_suggest"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4"/><path d="M12 17v4"/><path d="M3 12h4"/><path d="M17 12h4"/><path d="m5.6 5.6 2.8 2.8"/><path d="m15.6 15.6 2.8 2.8"/><path d="m18.4 5.6-2.8 2.8"/><path d="m8.4 15.6-2.8 2.8"/></svg></button>
               <button class="send-btn" id="send-btn" onclick="sendMsg()" aria-label="Send message"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg></button>
             </div>
           </div>
@@ -1218,6 +1252,7 @@ body.is-admin .nav-tabs .admin-only { display: inline-block; }
 </div>
 
 <input type="file" id="file-input" accept="image/*" multiple hidden>
+<div id="whatsnew-host"></div>
 
 <script>
 if ("serviceWorker" in navigator) {
@@ -1303,6 +1338,9 @@ const I18N = {
     ai_q_token: "Set WhatsApp token", ai_q_check: "Check server", ai_q_status: "Status", ai_q_env: "Show .env", ai_q_help: "Help",
     ai_ask: "Ask the AI to configure something... e.g. set instagram token to X",
     ai_on: "Connected — AI mode on", ai_off: "Ready — offline mode (commands only)", ai_thinking: "Thinking…",
+    ai_suggest_title: "AI Reply Suggestions", ai_suggest: "AI Reply Suggestions", ai_need_chat: "Open a chat first", ai_not_configured: "AI not configured — add a key in AI settings or configure the server",
+    ai_error: "AI error: ", ai_drawer: "AI Assistant", ai_summary: "AI Summary", ai_follow_btn: "AI Follow-up & Hints", ai_product_btn: "AI Product Ideas", ai_hint_open_products: "Open the Products tab to view the full catalogue.",
+    wn_title: "What's New", wn_sub: "New features added to your app", wn_done: "Got it",
     m_products: "Products", m_ai: "AI Assistant", m_connector: "Connector settings", m_install: "Install app", m_website: "Website",
     menu_foot: "Colourdiam Messaging · config stays on this device",
     conn_webhook: "Webhook Server", conn_server_url: "Server URL", conn_server_key: "Server API Key (optional)",
@@ -1403,6 +1441,9 @@ const I18N = {
     ai_q_token: "设置 WhatsApp 令牌", ai_q_check: "检查服务器", ai_q_status: "状态", ai_q_env: "显示 .env", ai_q_help: "帮助",
     ai_ask: "让 AI 配置某些内容... 例如将 instagram token 设置为 X",
     ai_on: "已连接 — AI 模式开启", ai_off: "就绪 — 离线模式（仅命令）", ai_thinking: "思考中…",
+    ai_suggest_title: "AI 回复建议", ai_suggest: "AI 回复建议", ai_need_chat: "请先打开一个聊天", ai_not_configured: "AI 未配置 — 请在 AI 设置中添加密钥或配置服务器",
+    ai_error: "AI 错误: ", ai_drawer: "AI 助手", ai_summary: "AI 摘要", ai_follow_btn: "AI 跟进与提示", ai_product_btn: "AI 产品推荐", ai_hint_open_products: "打开产品标签页查看完整目录。",
+    wn_title: "新功能", wn_sub: "应用新增的功能", wn_done: "知道了",
     m_products: "产品", m_ai: "AI 助手", m_connector: "连接器设置", m_install: "安装应用", m_website: "网站",
     menu_foot: "Colourdiam 消息 · 配置保存在本设备",
     conn_webhook: "Webhook 服务器", conn_server_url: "服务器地址", conn_server_key: "服务器 API 密钥（可选）",
@@ -1503,6 +1544,9 @@ const I18N = {
     ai_q_token: "ตั้งค่า WhatsApp token", ai_q_check: "ตรวจเซิร์ฟเวอร์", ai_q_status: "สถานะ", ai_q_env: "แสดง .env", ai_q_help: "ช่วยเหลือ",
     ai_ask: "ถามให้ AI ตั้งค่าบางอย่าง... เช่น set instagram token to X",
     ai_on: "เชื่อมต่อแล้ว — โหมด AI เปิด", ai_off: "พร้อม — โหมดออฟไลน์ (คำสั่งเท่านั้น)", ai_thinking: "กำลังคิด…",
+    ai_suggest_title: "AI แนะนำคำตอบ", ai_suggest: "AI แนะนำคำตอบ", ai_need_chat: "กรุณาเปิดแชทก่อน", ai_not_configured: "AI ยังไม่ได้ตั้งค่า — เพิ่มคีย์ในตั้งค่า AI หรือตั้งค่าเซิร์ฟเวอร์",
+    ai_error: "AI ผิดพลาด: ", ai_drawer: "ผู้ช่วย AI", ai_summary: "สรุปด้วย AI", ai_follow_btn: "AI ตามติดและคำแนะนำ", ai_product_btn: "AI แนะนำสินค้า", ai_hint_open_products: "เปิดแท็บสินค้าเพื่อดูแคตตาล็อกทั้งหมด",
+    wn_title: "มีอะไรใหม่", wn_sub: "ฟีเจอร์ใหม่ที่เพิ่มในแอป", wn_done: "รับทราบ",
     m_products: "สินค้า", m_ai: "ผู้ช่วย AI", m_connector: "ตั้งค่าคอนเนกเตอร์", m_install: "ติดตั้งแอป", m_website: "เว็บไซต์",
     menu_foot: "Colourdiam Messaging · กำหนดค่าเก็บในอุปกรณ์นี้",
     conn_webhook: "เว็บฮุคเซิร์ฟเวอร์", conn_server_url: "Server URL", conn_server_key: "Server API Key (ไม่บังคับ)",
@@ -2081,6 +2125,43 @@ async function restoreMemory() {
       location.reload();
     }
   } catch (err) { /* no server yet */ }
+}
+
+/* ==================== What's New (auto-show feature updates) ==================== */
+const WN_KEY = "mc_whatsnew_v1";
+const WN_VERSION = "v34";
+const WHATS_NEW = [
+  { v: "v34", items: [
+    "AI Reply Suggestions — tap the sparkle ✦ in any chat for 3 smart draft replies",
+    "AI Customer Summary — one click summary of a customer conversation (drawer)",
+    "AI Follow-up & Sales Hints — lead temperature + suggested follow-up date & message",
+    "AI Product Recommendations — suggests matching diamonds/jewellery from the live catalogue",
+    "What's New popup — this panel, shown automatically on every update",
+    "Server-backed app memory — chats & settings now survive updates and URL changes",
+    "Auto-update — the app refreshes itself when a new version is deployed",
+  ] },
+];
+function showWhatsNew() {
+  const seen = Number(localStorage.getItem(WN_KEY) || 0);
+  const current = WHATS_NEW.filter((e) => { const n = Number(e.v.slice(1)) || 0; return n > seen; });
+  if (!current.length) return;
+  const items = current.flatMap((e) => e.items.map((it) => `<div class="wn-item"><span class="wn-dot">✦</span><span>${esc(it)}</span></div>`));
+  const host = document.getElementById("whatsnew-host");
+  if (!host) return;
+  host.innerHTML = `
+  <div class="wn-backdrop" onclick="if(event.target===this)closeWhatsNew()">
+    <div class="wn-modal">
+      <h2>✨ ${t("wn_title")}</h2>
+      <div class="wn-sub">${t("wn_sub")}</div>
+      ${items.join("")}
+      <button class="btn wn-done" onclick="closeWhatsNew()">${t("wn_done")}</button>
+    </div>
+  </div>`;
+}
+function closeWhatsNew() {
+  const host = document.getElementById("whatsnew-host");
+  if (host) host.innerHTML = "";
+  localStorage.setItem(WN_KEY, String(Number(WN_VERSION.slice(1))));
 }
 
 let lastEventId = Number(localStorage.getItem("mc_last_event_id") || 0);
@@ -2800,6 +2881,14 @@ function renderDrawer(c) {
     </div>
 
     <div class="dw-section">
+      <div class="dw-section-title">✦ ${t("ai_drawer")}</div>
+      <button class="dw-ai-btn" id="dw-ai-summary-btn" onclick="aiDrawerSummary('${c.id}')">${t("ai_summary")}</button>
+      <button class="dw-ai-btn" id="dw-ai-follow-btn" onclick="aiDrawerFollow('${c.id}')">${t("ai_follow_btn")}</button>
+      <button class="dw-ai-btn" id="dw-ai-product-btn" onclick="aiProductSuggest('${c.id}')">${t("ai_product_btn")}</button>
+      <div class="dw-ai-out" id="dw-ai-out" style="display:none"></div>
+    </div>
+
+    <div class="dw-section">
       <div class="dw-section-title">${t("assigned_to")}</div>
       <select class="dw-select" id="dw-assignee" onchange="setAssignee('${c.id}', this.value)">
         <option value="">—</option>
@@ -2899,22 +2988,13 @@ async function toggleTranslate(contactId, msgIdx) {
   else {
     const lang = UI.lang === "zh" ? "zh" : UI.lang === "th" ? "th" : "zh";
     let out = builtinTranslate(m.text, lang);
-    if (!out) {
-      const aic = aiLoad();
-      if (aic.base && aic.key) {
-        try {
-          const res = await fetch((aic.base || "").replace(/\/$/, "") + "/chat/completions", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + aic.key },
-            body: JSON.stringify({ model: aic.model || "gpt-4o-mini", messages: [{ role: "user", content: "Translate this message into " + (lang === "zh" ? "Chinese" : "Thai") + ". Reply with only the translation, no quotes:\n\n" + m.text }], temperature: 0.2 })
-          });
-          if (res.ok) {
-            const data = await res.json();
-            const txt = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-            if (txt) out = txt.trim();
-          }
-        } catch (err) {}
-      }
+    if (!out && aiCanUse()) {
+      try {
+        out = (await aiChat([
+          { role: "system", content: `You are a translator. Translate the user's message into ${lang === "zh" ? "Chinese" : "Thai"}. Reply with only the translation, no quotes, no notes.` },
+          { role: "user", content: m.text },
+        ], { temperature: 0.2 })).trim();
+      } catch (err) {}
     }
     if (!out) { toastMsg(t("translation_unavailable")); return; }
     m.translation = out;
@@ -3444,6 +3524,164 @@ async function aiSend() {
   } else {
     aiAppend("assistant", "To talk to me with AI, open the ⚙ settings and add your API base URL and key, or configure USER_LLM_BASE_URL / USER_LLM_API_KEY on the webhook server. Meanwhile I can still update your connector with commands (try the buttons above, or \"set whatsapp token to X\").");
   }
+}
+
+/* ==================== Shared AI helper + chat AI features ==================== */
+function aiCanUse() {
+  const c = aiLoad();
+  return !!(c.base && c.key) || aiServerAi || !!serverCfg().url;
+}
+async function aiChat(messages, opts = {}) {
+  const c = aiLoad();
+  const body = { messages, model: opts.model || c.model };
+  if (opts.temperature != null) body.temperature = opts.temperature;
+  if (serverCfg().url) {
+    try {
+      const data = await apiCall("/api/llm", { method: "POST", body: JSON.stringify(body) });
+      if (data.text) return data.text;
+    } catch (err) { /* fall back to browser key */ }
+  }
+  if (c.base && c.key) {
+    const url = (c.base || "").replace(/\/$/, "") + "/chat/completions";
+    const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + c.key }, body: JSON.stringify(body) });
+    if (!res.ok) throw new Error("LLM error " + res.status);
+    const data = await res.json();
+    return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || "";
+  }
+  throw new Error("AI not configured");
+}
+function activeChat() {
+  const d = chatData();
+  return d.contacts.find((x) => x.id === (d.activeId || ""));
+}
+function aiConversation(c, limit = 12) {
+  return (c.messages || []).slice(-limit).map((m) => (m.from === "me" ? "You: " : "Customer: ") + (m.text || "")).join("\n");
+}
+function aiLangName() {
+  return UI.lang === "zh" ? "Chinese" : UI.lang === "th" ? "Thai" : "English";
+}
+function aiCloseSuggest() {
+  const bar = document.getElementById("ai-suggest-bar");
+  if (bar) bar.classList.remove("open");
+}
+function aiShowSuggest(items) {
+  const bar = document.getElementById("ai-suggest-bar");
+  const list = document.getElementById("ai-suggest-list");
+  if (!bar || !list) return;
+  bar.classList.add("open");
+  list.innerHTML = items.map((s, i) =>
+    `<div class="ai-suggest-chip" onclick="aiUseSuggest(${i})"><span>${esc(s)}</span><span class="ai-s-send">→</span></div>`
+  ).join("");
+}
+function aiUseSuggest(idx) {
+  const bar = document.getElementById("ai-suggest-bar");
+  const list = document.getElementById("ai-suggest-list");
+  if (!bar || !list) return;
+  const chip = list.querySelectorAll(".ai-suggest-chip")[idx];
+  if (!chip || chip.classList.contains("busy")) return;
+  const input = document.getElementById("msg-input");
+  input.value = chip.querySelector("span").textContent;
+  input.focus();
+  autoGrow(input);
+  aiCloseSuggest();
+}
+async function aiSuggestReply() {
+  const c = activeChat();
+  if (!c) return toastMsg(t("ai_need_chat"));
+  if (!aiCanUse()) return toastMsg(t("ai_not_configured"));
+  const btn = document.getElementById("ai-suggest-btn");
+  const bar = document.getElementById("ai-suggest-bar");
+  const list = document.getElementById("ai-suggest-list");
+  btn.disabled = true;
+  if (bar) bar.classList.add("open");
+  if (list) list.innerHTML = `<div class="ai-suggest-chip busy">${t("ai_thinking")}</div>`;
+  try {
+    const convo = aiConversation(c) || "The customer just opened the chat.";
+    const lang = aiLangName();
+    const res = await aiChat([
+      { role: "system", content: `You are a friendly diamond-jewellery sales assistant for Colourdiam. Reply in ${lang}. Write exactly 3 short suggested replies the shop assistant could send to the customer. Output only the 3 lines, one per line, no numbering, no quotes, each under 18 words, in a natural conversational tone.` },
+      { role: "user", content: convo },
+    ], { temperature: 0.7 });
+    const lines = res.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 3);
+    if (!lines.length) throw new Error("empty");
+    aiShowSuggest(lines);
+  } catch (err) {
+    if (list) list.innerHTML = `<div class="ai-suggest-chip busy">${t("ai_error")} ${esc((err && err.message) || err)}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+async function aiProductSuggest(cid) {
+  const c = (chatData().contacts || []).find((x) => x.id === cid) || activeChat();
+  if (!c) return;
+  if (!aiCanUse()) return toastMsg(t("ai_not_configured"));
+  const out = document.getElementById("dw-ai-out");
+  const btn = document.getElementById("dw-ai-follow-btn");
+  if (!out) return;
+  out.style.display = "block";
+  out.className = "dw-ai-out busy";
+  out.innerHTML = `<div class="dw-ai-title">${t("ai_thinking")}</div>`;
+  if (btn) btn.disabled = true;
+  try {
+    const convo = aiConversation(c, 10);
+    const lang = aiLangName();
+    const catalogue = (PRODUCTS || []).slice(0, 40).map((p) => `${p.name} ($${Number(p.price || 0).toLocaleString()})`).join("\n");
+    const res = await aiChat([
+      { role: "system", content: `You are a diamond-jewellery sales assistant for Colourdiam. Reply in ${lang}. Based on the customer conversation, recommend up to 3 products from the catalogue that best match what the customer wants. Catalogue sample:\n${catalogue}\nFor each recommendation give a one-line reason in the customer's language. Keep it short.` },
+      { role: "user", content: convo },
+    ], { temperature: 0.4 });
+    out.className = "dw-ai-out";
+    out.innerHTML = `<div class="dw-ai-title">💎 ${t("ai_product_btn")}</div>${esc(res)}\n<div class="dw-ai-hint">${t("ai_hint_open_products")}</div>`;
+  } catch (err) {
+    out.className = "dw-ai-out";
+    out.innerHTML = `<div class="dw-ai-title">${t("ai_error")}</div>${esc((err && err.message) || err)}`;
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+function aiDrawerSummary(cid) {
+  const c = (chatData().contacts || []).find((x) => x.id === cid);
+  if (!c) return;
+  if (!aiCanUse()) return toastMsg(t("ai_not_configured"));
+  const out = document.getElementById("dw-ai-out");
+  const btn = document.getElementById("dw-ai-summary-btn");
+  if (!out) return;
+  out.style.display = "block";
+  out.className = "dw-ai-out busy";
+  out.innerHTML = `<div class="dw-ai-title">${t("ai_thinking")}</div>`;
+  if (btn) btn.disabled = true;
+  aiChat([
+    { role: "system", content: `You are a sales analyst for Colourdiam, a diamond-jewellery company. Reply in ${aiLangName()}. Summarize this customer conversation in under 90 words: their interests, budget hints, sentiment, and the recommended next step.` },
+    { role: "user", content: aiConversation(c, 20) || "New customer, no messages yet." },
+  ], { temperature: 0.3 }).then((res) => {
+    out.className = "dw-ai-out";
+    out.innerHTML = `<div class="dw-ai-title">📋 ${t("ai_summary")}</div>${esc(res)}`;
+  }).catch((err) => {
+    out.className = "dw-ai-out";
+    out.innerHTML = `<div class="dw-ai-title">${t("ai_error")}</div>${esc((err && err.message) || err)}`;
+  }).finally(() => { if (btn) btn.disabled = false; });
+}
+function aiDrawerFollow(cid) {
+  const c = (chatData().contacts || []).find((x) => x.id === cid);
+  if (!c) return;
+  if (!aiCanUse()) return toastMsg(t("ai_not_configured"));
+  const out = document.getElementById("dw-ai-out");
+  const btn = document.getElementById("dw-ai-follow-btn");
+  if (!out) return;
+  out.style.display = "block";
+  out.className = "dw-ai-out busy";
+  out.innerHTML = `<div class="dw-ai-title">${t("ai_thinking")}</div>`;
+  if (btn) btn.disabled = true;
+  aiChat([
+    { role: "system", content: `You are a sales coach for Colourdiam, a diamond-jewellery company. Reply in ${aiLangName()}. Analyze this conversation and output, in ${aiLangName()}:\n1. Lead temperature (Hot/Warm/Cold)\n2. Suggested follow-up date (relative, e.g. "today", "2 days")\n3. One suggested follow-up message under 25 words\nKeep it very short, one per line.` },
+    { role: "user", content: aiConversation(c, 20) || "New customer, no messages yet." },
+  ], { temperature: 0.4 }).then((res) => {
+    out.className = "dw-ai-out";
+    out.innerHTML = `<div class="dw-ai-title">🔔 ${t("ai_follow_btn")}</div>${esc(res)}`;
+  }).catch((err) => {
+    out.className = "dw-ai-out";
+    out.innerHTML = `<div class="dw-ai-title">${t("ai_error")}</div>${esc((err && err.message) || err)}`;
+  }).finally(() => { if (btn) btn.disabled = false; });
 }
 
 /* ==================== Swipe actions (touch) ==================== */
@@ -4065,6 +4303,7 @@ async function renderAdminReport() {
   if (UI.sec && UI.sec.touchid && UI.sec.cred) setTimeout(lockApp, 500);
   authGate();
   restoreMemory();
+  setTimeout(showWhatsNew, 1200);
 })();
 </script>
 </body>

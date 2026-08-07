@@ -9,6 +9,16 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Add AI features + auto-show What's New on updates — status: finished
+  - Done: all six requested features (en/zh/th i18n, all reuse the LLM via server proxy `/api/llm` first then the browser-configured key):
+    - AI Reply Suggestions — sparkle button in the chat composer opens a bar with 3 smart draft replies in the customer's language; tap to fill the input.
+    - AI Customer Summary — button in the customer drawer summarizes the conversation (interests, budget, sentiment, next step).
+    - AI Follow-up & Sales Hints — drawer button outputs lead temperature + suggested follow-up date + a ready follow-up message.
+    - AI Product Recommendations — drawer button recommends matching diamonds/jewellery from the live catalogue with one-line reasons.
+    - Message translation now also uses the shared AI helper (server proxy fallback) instead of only a browser key.
+    - What's New popup — version-aware changelog (`WHATS_NEW` + `WN_VERSION` in localStorage `mc_whatsnew_v1`), auto-shows unseen features ~1.2s after load, marks seen on dismiss; every future deploy adds a new entry so users automatically see new features.
+  - SW bumped to `colourdiam-msg-v34`; 3 new messaging tests (109 total); MONITOR OK; pushed to origin (commit to follow).
+
 - [x] 260807: Server-backed app memory so data survives updates & URL changes — status: finished
   - Done: `GET/POST /api/memory` on the server (persists `server/app-memory.json`) and mirrored on the worker (KV `app-memory` key); the app snapshots its localStorage buckets (chat, ui, config, auth, reminders, replies, AI, media) to the server on every save (debounced 1.5s, with a last-saved timestamp in `mc_memory_at`) and on load restores any newer server copy automatically (reloads once). Fixes the "data lost on update" symptom where a new preview URL means a new origin with empty localStorage — data now follows the user across URLs, devices, and updates. SW bumped to `colourdiam-msg-v33`; 2 new memory tests (107 total); MONITOR OK.
 
