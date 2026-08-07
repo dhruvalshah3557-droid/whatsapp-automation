@@ -9,8 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
-- [x] 260806: Back up the project to the zebbern/no-cost-ai repo — status: finished
-  - Done: added `backup` remote = `https://github.com/zebbern/no-cost-ai.git`; `AGENTS.md` auto-save rule now pushes to `origin main` and `backup main:colourdiam-messaging`; the existing free-AI-index project in that repo is preserved on its own main branch.
+- [x] 260806: Back up the project to the zebbern/no-cost-ai repo — status: pending (needs user access grant)
+  - Done: added `backup` remote = `https://github.com/zebbern/no-cost-ai.git`; `AGENTS.md` auto-save rule now pushes to `origin main` and `backup main:colourdiam-messaging`; the existing free-AI-index project in that repo is preserved on its own main branch (commit `3f3885e`).
+  - Blocked on user: `git push backup main:colourdiam-messaging` is denied with 403 — the available GitHub token (fine-grained `ghs_`) can write to `whatsapp-automation` but not `zebbern/no-cost-ai`. User must either grant the bot/app write access to `zebbern/no-cost-ai` or provide a token with push access to that repo; then the backup push will go through automatically on future saves.
 
 - [x] 260806: Keep a standing check-and-fix agent running — status: finished
   - Done: started `scripts/agent.mjs` in a background terminal (`term_1786038809642_1`, interval 60s); it runs the full health suite every cycle (server, preview API, Meta webhook handshakes, SW cache guard, served app freshness, 73 tests) and auto-heals (restarts server, kills stale port process); first cycle `AGENT OK`; logs to `logs/agent.log` and the terminal log.
