@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Admin dashboard cards clickable + voice commands + reminders/calendar sync + iPad layout — status: finished
+  - Done: admin stat cards now navigate (Users/Active/Suspended → Users view, Total/Completed/Overdue → Assign view, Audit → Activity view) with hover style; added voice commands via Web Speech API (topbar mic button, en/zh/th recognition, navigates to any view by name, "lock app", opens chats by customer name; unsupported-browser fallback); new Reminders view (add/complete/delete reminders with datetime, persisted in localStorage) + "Sync to calendar" ICS export; iPad support: scrollable bottom tabbar on narrow screens (9 tabs now) and horizontally scrollable top nav for the 900-1180px tablet range; SW bumped to `colourdiam-msg-v30`; MONITOR OK (105/105 tests).
+
 - [x] 260807: Activate "Send to customer" product button — status: finished
   - Done: `sendProduct()` returned silently when no chat was open, so the Products view button appeared dead; it now sends to the active chat when one is open, sends directly when only one contact exists, and otherwise opens a customer picker modal (`pickProductRecipient`/`sendProductTo`) so a target can be chosen; live contacts get the product delivered via `/api/send` (name · carat · price), others get the card added to their chat; `tracking_live` i18n key added (en/zh/th); SW bumped to `colourdiam-msg-v26`.
 

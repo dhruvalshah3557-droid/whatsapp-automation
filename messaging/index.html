@@ -84,8 +84,8 @@ input, textarea, select { font-family: inherit; }
 .brand-logo-img { height: 34px; width: auto; border-radius: 8px; display: block; box-shadow: var(--shadow-sm); }
 .brand h1 { font-family: var(--font-serif); font-size: 19px; font-weight: 700; letter-spacing: .02em; color: var(--text); }
 .brand h1 span { color: var(--gold); font-weight: 600; }
-.top-actions { display: flex; align-items: center; gap: 10px; }
-.nav-tabs { display: flex; gap: 4px; }
+.top-actions { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.nav-tabs { display: flex; gap: 4px; min-width: 0; }
 .nav-tabs button {
   background: transparent; border: none; color: var(--muted); font-size: 13px; font-weight: 600;
   padding: 8px 13px; border-radius: 9px; cursor: pointer; transition: all var(--ease);
@@ -342,6 +342,7 @@ input, textarea, select { font-family: inherit; }
 .inbar-btn:active { transform: scale(.92); }
 .inbar-btn svg { width: 23px; height: 23px; }
 .inbar-btn.recording { background: rgba(192,57,43,.14); color: var(--red); animation: recPulse 1s infinite ease-in-out; }
+.top-icon-btn.recording { color: var(--red); animation: recPulse 1s infinite ease-in-out; }
 @keyframes recPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,.3); } 50% { box-shadow: 0 0 0 7px rgba(192,57,43,0); } }
 .input-bar textarea {
   flex: 1; resize: none; background: var(--card); border: 1px solid var(--border); color: var(--text);
@@ -635,6 +636,14 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
   .messages { padding-bottom: 10px; }
   .form-row { grid-template-columns: 1fr; }
   .customer-drawer { width: 100%; max-width: 480px; }
+  .tabbar { justify-content: flex-start; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .tabbar::-webkit-scrollbar { display: none; }
+  .tab-item { flex: 0 0 auto; min-width: 62px; padding: 0 6px; }
+}
+@media (min-width: 900px) and (max-width: 1180px) {
+  .nav-tabs { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tabs button { flex-shrink: 0; }
 }
 @media (max-width: 420px) {
   .bubble { max-width: 86%; }
@@ -666,7 +675,8 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
 .role-badge.admin { background: rgba(184,148,58,.16); color: var(--gold-deep); }
 .role-badge.user { background: rgba(46,125,91,.14); color: var(--green); }
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
-.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: var(--shadow-sm); }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: var(--shadow-sm); transition: border-color var(--ease), transform var(--ease); }
+.stat-card:hover { border-color: var(--gold); transform: translateY(-1px); }
 .stat-card .s-num { font-size: 28px; font-weight: 800; color: var(--gold-deep); }
 .stat-card .s-label { font-size: 12px; color: var(--muted); margin-top: 3px; }
 .task-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: var(--shadow-sm); margin-bottom: 12px; }
@@ -741,6 +751,7 @@ body.is-admin .nav-tabs .admin-only { display: inline-block; }
         <button data-view="connector" onclick="switchView('connector')" data-i18n="tab_connector">Connector</button>
         <button class="ws-tab" data-view="dashboard" onclick="switchView('dashboard')" data-i18n="ws_dashboard">Dashboard</button>
         <button class="ws-tab" data-view="tasks" onclick="switchView('tasks')" data-i18n="ws_my_tasks">Tasks</button>
+        <button class="ws-tab" data-view="reminders" onclick="switchView('reminders')" data-i18n="rm_title">Reminders</button>
         <button class="ws-tab" data-view="activity" onclick="switchView('activity')" data-i18n="ws_my_activity">Activity</button>
         <button class="ws-tab admin-only" data-view="admin" onclick="switchView('admin')" data-i18n="ws_admin_dashboard">Admin</button>
         <button class="ws-tab admin-only" data-view="admin-users" onclick="switchView('admin-users')" data-i18n="ws_admin_users">Users</button>
@@ -755,6 +766,9 @@ body.is-admin .nav-tabs .admin-only { display: inline-block; }
       </div>
       <button class="top-icon-btn" onclick="lockApp()" title="Lock app" aria-label="Lock app">
         <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button class="top-icon-btn" id="voice-btn" onclick="voiceToggle()" title="Voice commands" aria-label="Voice commands">
+        <svg id="voice-ico" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
       </button>
       <select class="lang-select" id="lang-select" onchange="setLang(this.value)" aria-label="Language">
         <option value="en">English</option>
@@ -902,6 +916,7 @@ body.is-admin .nav-tabs .admin-only { display: inline-block; }
           <button class="menu-item" onclick="switchView('connector')"><span class="m-ico">🔌</span><span data-i18n="m_connector">Connector settings</span></button>
           <button class="menu-item" onclick="switchView('dashboard')"><span class="m-ico">📊</span><span data-i18n="ws_dashboard">My Dashboard</span></button>
           <button class="menu-item" onclick="switchView('tasks')"><span class="m-ico">✅</span><span data-i18n="ws_my_tasks">My Tasks</span></button>
+          <button class="menu-item" onclick="switchView('reminders')"><span class="m-ico">⏰</span><span data-i18n="rm_title">Reminders</span></button>
           <button class="menu-item" onclick="switchView('activity')"><span class="m-ico">🕓</span><span data-i18n="ws_my_activity">My Activity</span></button>
           <button class="menu-item admin-only" onclick="switchView('admin')"><span class="m-ico">🏛</span><span data-i18n="ws_admin_dashboard">Admin Dashboard</span></button>
           <button class="menu-item admin-only" onclick="switchView('admin-users')"><span class="m-ico">👥</span><span data-i18n="ws_admin_users">User Management</span></button>
@@ -1065,6 +1080,23 @@ body.is-admin .nav-tabs .admin-only { display: inline-block; }
       </div></div>
     </div>
 
+    <!-- ===================== Reminders view ===================== -->
+    <div id="view-reminders" class="view">
+      <div class="feed-wrap"><div class="feed-inner" style="max-width:900px">
+        <div class="feed-header"><h2 data-i18n="rm_title">Reminders</h2>
+          <button class="btn btn-ghost" onclick="rmExportIcs()" data-i18n="rm_export">Sync to calendar</button>
+        </div>
+        <div class="card">
+          <div class="form-row">
+            <div class="full"><label data-i18n="rm_new">New reminder</label><input id="rm-input" data-i18n-ph="rm_ph" placeholder="Remind me to..." onkeydown="if(event.key==='Enter')rmAdd()"></div>
+            <div><label data-i18n="rm_when">When</label><input id="rm-when" type="datetime-local"></div>
+            <div><label>&nbsp;</label><button class="btn" onclick="rmAdd()" data-i18n="rm_add">Add reminder</button></div>
+          </div>
+        </div>
+        <div id="reminders-list"></div>
+      </div></div>
+    </div>
+
     <!-- ===================== Admin dashboard view ===================== -->
     <div id="view-admin" class="view">
       <div class="feed-wrap"><div class="feed-inner" style="max-width:1200px">
@@ -1115,6 +1147,7 @@ body.is-admin .nav-tabs .admin-only { display: inline-block; }
     <button class="tab-item" data-view="orders" onclick="switchView('orders')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.2 13H4.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg></span><span data-i18n="tab_orders">Orders</span></button>
     <button class="tab-item ws" data-view="dashboard" onclick="switchView('dashboard')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span><span data-i18n="ws_dashboard">Dashboard</span></button>
     <button class="tab-item ws" data-view="tasks" onclick="switchView('tasks')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></span><span data-i18n="ws_my_tasks">Tasks</span></button>
+    <button class="tab-item ws" data-view="reminders" onclick="switchView('reminders')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4"/><path d="M16 3v4"/><path d="M3 10h18"/><path d="M9 15l2 2 4-4"/></svg></span><span data-i18n="rm_title">Reminders</span></button>
     <button class="tab-item admin-only ws" data-view="admin" onclick="switchView('admin')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v7c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V5l-8-3Z"/></svg></span><span data-i18n="ws_admin_dashboard">Admin</span></button>
     <button class="tab-item settings" data-view="settings" onclick="switchView('settings')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.1-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1.1 1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.01a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.01a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1Z"/></svg></span><span data-i18n="tab_settings">Settings</span></button>
   </nav>
@@ -1224,6 +1257,7 @@ const I18N = {
     pin: "Pin chat", unpin: "Unpin chat", star: "Star", unstar: "Unstar", archive: "Archive", unarchive: "Unarchive", block: "Block", unblock: "Unblock",
     mark_unread: "Mark unread", unread_marked: "Marked as unread",
     type_msg: "Type a message", voice: "Voice message", stop_rec: "Stop recording", listening: "Listening...", attach: "Attach",
+    voice_cmd: "Voice commands", voice_listening: "Listening... speak a command", voice_no_support: "Voice commands are not supported in this browser", voice_done: "Done", voice_err: "Could not understand that command",
     quick_replies: "Quick replies", add_reply: "Add", reply_ph: "New saved reply...", reply_added: "Saved reply added",
     search_msgs_ph: "Search messages...", no_msg_results: "No messages match", load_older: "Load older messages",
     online: "online", offline: "offline",
@@ -1300,6 +1334,7 @@ const I18N = {
     ws_last_login: "Last login", ws_status: "Status", ws_role: "Role", ws_created: "Created",
     ws_activate: "Activate", ws_suspend: "Suspend", ws_reset_pass: "Reset password", ws_promote: "Promote", ws_demote: "Demote",
     ws_no_tasks: "No tasks yet. Create one to get started.", ws_no_activity: "No activity recorded yet.",
+    rm_title: "Reminders", rm_new: "New reminder", rm_when: "When", rm_add: "Add reminder", rm_export: "Sync to calendar", rm_exported: "Calendar file exported", rm_none: "No reminders yet", rm_err: "Enter a reminder first", rm_added: "Reminder added", rm_ph: "Remind me to...",
     ws_title: "Title", ws_description: "Description", ws_assigned_to: "Assigned to", ws_status_lbl: "Status",
     ws_progress_lbl: "Progress %", ws_priority: "Priority", ws_start: "Start date", ws_due: "Due date", ws_notes: "Notes",
     ws_save: "Save task", ws_cancel: "Cancel", ws_edit: "Edit", ws_delete: "Delete", ws_add_note: "Add note",
@@ -1322,6 +1357,7 @@ const I18N = {
     pin: "置顶聊天", unpin: "取消置顶", star: "收藏", unstar: "取消收藏", archive: "归档", unarchive: "取消归档", block: "拉黑", unblock: "解除拉黑",
     mark_unread: "标记未读", unread_marked: "已标记为未读",
     type_msg: "输入消息", voice: "语音消息", stop_rec: "停止录音", listening: "正在聆听...", attach: "附件",
+    voice_cmd: "语音命令", voice_listening: "正在聆听...请说出指令", voice_no_support: "此浏览器不支持语音命令", voice_done: "完成", voice_err: "无法理解该指令",
     quick_replies: "快捷回复", add_reply: "添加", reply_ph: "新建快捷回复...", reply_added: "快捷回复已添加",
     search_msgs_ph: "搜索消息...", no_msg_results: "没有匹配的消息", load_older: "加载更早消息",
     online: "在线", offline: "离线",
@@ -1398,6 +1434,7 @@ const I18N = {
     ws_last_login: "最后登录", ws_status: "状态", ws_role: "角色", ws_created: "创建时间",
     ws_activate: "启用", ws_suspend: "停用", ws_reset_pass: "重置密码", ws_promote: "提升", ws_demote: "降级",
     ws_no_tasks: "还没有任务，先创建一个吧。", ws_no_activity: "暂无活动记录。",
+    rm_title: "提醒事项", rm_new: "新建提醒", rm_when: "时间", rm_add: "添加提醒", rm_export: "同步到日历", rm_exported: "日历文件已导出", rm_none: "暂无提醒", rm_err: "请先输入提醒内容", rm_added: "提醒已添加", rm_ph: "提醒我...",
     ws_title: "标题", ws_description: "描述", ws_assigned_to: "分配给", ws_status_lbl: "状态",
     ws_progress_lbl: "进度 %", ws_priority: "优先级", ws_start: "开始日期", ws_due: "截止日期", ws_notes: "备注",
     ws_save: "保存任务", ws_cancel: "取消", ws_edit: "编辑", ws_delete: "删除", ws_add_note: "添加备注",
@@ -1420,6 +1457,7 @@ const I18N = {
     pin: "ปักหมุดแชท", unpin: "เลิกปักหมุด", star: "ดาวน์โหลด", unstar: "เลิกดาวน์โหลด", archive: "เก็บถาวร", unarchive: "เลิกเก็บถาวร", block: "บล็อก", unblock: "เลิกบล็อก",
     mark_unread: "ทำเครื่องหมายยังไม่อ่าน", unread_marked: "ทำเครื่องหมายยังไม่อ่านแล้ว",
     type_msg: "พิมพ์ข้อความ", voice: "ข้อความเสียง", stop_rec: "หยุดบันทึก", listening: "กำลังฟัง...", attach: "แนบ",
+    voice_cmd: "คำสั่งเสียง", voice_listening: "กำลังฟัง... พูดคำสั่งได้เลย", voice_no_support: "เบราว์เซอร์นี้ไม่รองรับคำสั่งเสียง", voice_done: "เสร็จสิ้น", voice_err: "ไม่เข้าใจคำสั่ง",
     quick_replies: "ตอบด่วน", add_reply: "เพิ่ม", reply_ph: "ข้อความตอบด่วนใหม่...", reply_added: "เพิ่มข้อความตอบด่วนแล้ว",
     search_msgs_ph: "ค้นหาข้อความ...", no_msg_results: "ไม่มีข้อความที่ตรง", load_older: "โหลดข้อความเก่ากว่า",
     online: "ออนไลน์", offline: "ออฟไลน์",
@@ -1496,6 +1534,7 @@ const I18N = {
     ws_last_login: "เข้าสู่ระบบล่าสุด", ws_status: "สถานะ", ws_role: "บทบาท", ws_created: "สร้างเมื่อ",
     ws_activate: "เปิดใช้งาน", ws_suspend: "ระงับ", ws_reset_pass: "รีเซ็ตรหัสผ่าน", ws_promote: "เลื่อน", ws_demote: "ลด",
     ws_no_tasks: "ยังไม่มีงาน สร้างงานแรกของคุณ", ws_no_activity: "ยังไม่มีกิจกรรม",
+    rm_title: "การแจ้งเตือน", rm_new: "แจ้งเตือนใหม่", rm_when: "เวลา", rm_add: "เพิ่มการแจ้งเตือน", rm_export: "ซิงค์กับปฏิทิน", rm_exported: "ส่งออกไฟล์ปฏิทินแล้ว", rm_none: "ยังไม่มีการแจ้งเตือน", rm_err: "กรุณากรอกการแจ้งเตือนก่อน", rm_added: "เพิ่มการแจ้งเตือนแล้ว", rm_ph: "แจ้งให้ฉัน...",
     ws_title: "หัวข้อ", ws_description: "คำอธิบาย", ws_assigned_to: "มอบหมายให้", ws_status_lbl: "สถานะ",
     ws_progress_lbl: "ความคืบหน้า %", ws_priority: "ความสำคัญ", ws_start: "วันที่เริ่ม", ws_due: "วันที่ครบกำหนด", ws_notes: "บันทึก",
     ws_save: "บันทึกงาน", ws_cancel: "ยกเลิก", ws_edit: "แก้ไข", ws_delete: "ลบ", ws_add_note: "เพิ่มบันทึก",
@@ -1718,6 +1757,7 @@ function switchView(v) {
   if (v === "settings") renderSettingsPanel();
   if (v === "dashboard") renderDashboard();
   if (v === "tasks") renderTasksView();
+  if (v === "reminders") renderReminders();
   if (v === "activity") renderActivity();
   if (v === "admin") renderAdmin();
   if (v === "admin-users") renderAdminUsers();
@@ -2529,6 +2569,74 @@ function micTap() {
   btn.title = t("stop_rec");
   if (st) { st.dataset.prev = st.textContent; st.textContent = t("listening"); }
   setTimeout(resetMic, 2500);
+}
+
+/* ---------------- Voice commands (Web Speech API) ---------------- */
+let voiceRec = null;
+function voiceSupported() {
+  return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+}
+function voiceToggle() {
+  const btn = document.getElementById("voice-btn");
+  const ico = document.getElementById("voice-ico");
+  if (voiceRec) { voiceStop(); return; }
+  if (!voiceSupported()) { toastMsg(t("voice_no_support")); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  voiceRec = new SR();
+  voiceRec.lang = UI.lang === "zh" ? "zh-CN" : UI.lang === "th" ? "th-TH" : "en-US";
+  voiceRec.interimResults = false;
+  voiceRec.maxAlternatives = 1;
+  if (btn) { btn.classList.add("recording"); }
+  if (ico) { ico.innerHTML = '<rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor" stroke="none"/><path d="M5 10a7 7 0 0 0 14 0" fill="none"/><path d="M12 17v4" fill="none"/>'; }
+  toastMsg(t("voice_listening"));
+  voiceRec.onresult = (ev) => {
+    const said = ev.results[0][0].transcript.trim().toLowerCase();
+    voiceStop();
+    handleVoiceCommand(said);
+  };
+  voiceRec.onerror = () => { voiceStop(); toastMsg(t("voice_err")); };
+  voiceRec.onend = () => voiceStop();
+  try { voiceRec.start(); } catch (e) { voiceStop(); toastMsg(t("voice_err")); }
+}
+function voiceStop() {
+  const btn = document.getElementById("voice-btn");
+  const ico = document.getElementById("voice-ico");
+  if (voiceRec) { try { voiceRec.stop(); } catch (e) {} voiceRec = null; }
+  if (btn) btn.classList.remove("recording");
+  if (ico) { ico.innerHTML = '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/>'; }
+  toastMsg(t("voice_done"));
+}
+function handleVoiceCommand(said) {
+  const has = (re) => new RegExp(re).test(said);
+  const views = {
+    "admin": /admin dashboard|admin|dashboard admin/,
+    "admin-users": /user (management|manage)|manage users|users/,
+    "admin-tasks": /assign|assignment|task assignment/,
+    "admin-report": /report|progress report/,
+    "messages": /message|chat|inbox/,
+    "customers": /customer/,
+    "products": /product|catalogue|jewelry|jewellery/,
+    "orders": /order|shipment/,
+    "settings": /setting/,
+    "connector": /connector|webhook|token/,
+    "ai": /ai assistant|assistant|ai/,
+    "dashboard": /my dashboard|dashboard/,
+    "tasks": /my tasks|tasks/,
+    "reminders": /remind|reminder|calendar/,
+    "activity": /activity|audit/,
+  };
+  for (const [v, re] of Object.entries(views)) {
+    if (has(re) && (v !== "admin" || isAdminUser())) { switchView(v); toastMsg(t("voice_done")); return; }
+  }
+  if (has(/lock|secure|biometric/)) { lockApp(); toastMsg(t("voice_done")); return; }
+  if (has(/send|message to|text to/)) {
+    const m = said.match(/(?:send|message to|text to)\s+(.+)/);
+    const rest = m ? m[1] : "";
+    const d = chatData();
+    const c = d.contacts.find(x => rest && x.name.toLowerCase().includes(rest.toLowerCase()));
+    if (c) { switchView("messages"); openChat(c.id); toastMsg(t("voice_done")); return; }
+  }
+  toastMsg(t("voice_err"));
 }
 
 /* ---------------- Pin / star / unread / archive / block ---------------- */
@@ -3438,7 +3546,10 @@ async function authGate() {
 
 /* ---------- workspace renderers ---------- */
 function statCards(items) {
-  return items.map(([ico, label, val]) => `<div class="stat-card"><div class="s-num">${val}</div><div class="s-label">${ico} ${esc(label)}</div></div>`).join("");
+  return items.map(([ico, label, val, view]) => {
+    const click = view ? ` style="cursor:pointer" onclick="switchView('${view}')"` : "";
+    return `<div class="stat-card"${click}><div class="s-num">${val}</div><div class="s-label">${ico} ${esc(label)}</div></div>`;
+  }).join("");
 }
 function fmtDate(iso) { if (!iso) return "—"; try { return new Date(iso).toLocaleDateString(); } catch (e) { return "—"; } }
 function fmtDT(iso) { if (!iso) return "—"; try { return new Date(iso).toLocaleString(); } catch (e) { return "—"; } }
@@ -3493,6 +3604,90 @@ function taskCardHtml(task) {
     </div>
   </div>`;
 }
+/* ---------------- Reminders + calendar sync ---------------- */
+const RM_KEY = "mc_reminders_v1";
+function loadReminders() {
+  try { const d = JSON.parse(localStorage.getItem(RM_KEY) || "[]"); return Array.isArray(d) ? d : []; }
+  catch (e) { return []; }
+}
+function saveReminders(list) { localStorage.setItem(RM_KEY, JSON.stringify(list)); }
+function rmAdd() {
+  const input = document.getElementById("rm-input");
+  const when = document.getElementById("rm-when");
+  const text = (input ? input.value : "").trim();
+  if (!text) return toastMsg(t("rm_err"));
+  const list = loadReminders();
+  list.push({ id: "r" + Math.random().toString(36).slice(2, 9), text, when: when && when.value ? when.value : "", done: false, at: new Date().toISOString() });
+  saveReminders(list);
+  if (input) input.value = "";
+  renderReminders();
+  toastMsg(t("rm_added"));
+}
+function rmToggle(id) {
+  const list = loadReminders();
+  const r = list.find(x => x.id === id);
+  if (!r) return;
+  r.done = !r.done;
+  saveReminders(list);
+  renderReminders();
+}
+function rmDelete(id) {
+  saveReminders(loadReminders().filter(x => x.id !== id));
+  renderReminders();
+}
+function rmDue(r) {
+  if (!r.when) return "";
+  const dt = new Date(r.when);
+  if (isNaN(dt)) return "";
+  return dt.toLocaleString();
+}
+function renderReminders() {
+  const list = document.getElementById("reminders-list");
+  if (!list) return;
+  const arr = loadReminders().sort((a, b) => String(a.when || "").localeCompare(String(b.when || "")));
+  if (!arr.length) { list.innerHTML = `<div class="empty-state"><div class="big">⏰</div><p>${t("rm_none")}</p></div>`; return; }
+  list.innerHTML = arr.map(r => `
+    <div class="card" style="margin-bottom:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;${r.done ? "opacity:.55" : ""}">
+      <input type="checkbox" ${r.done ? "checked" : ""} onchange="rmToggle('${r.id}')" style="width:18px;height:18px;flex-shrink:0">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;${r.done ? "text-decoration:line-through" : ""}">${esc(r.text)}</div>
+        <div class="hint">${rmDue(r)}</div>
+      </div>
+      <button class="btn btn-ghost" style="padding:6px 12px;width:auto" onclick="rmDelete('${r.id}')">${t("ws_delete")}</button>
+    </div>`).join("");
+}
+function rmEscapeIcs(s) { return String(s || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n"); }
+function icsStamp(dt) {
+  const p = (n) => String(n).padStart(2, "0");
+  return dt.getUTCFullYear() + p(dt.getUTCMonth() + 1) + p(dt.getUTCDate()) + "T" + p(dt.getUTCHours()) + p(dt.getUTCMinutes()) + p(dt.getUTCSeconds()) + "Z";
+}
+function rmExportIcs() {
+  const reminders = loadReminders();
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Colourdiam//Messaging//EN", "CALSCALE:GREGORIAN"];
+  let seq = 0;
+  reminders.forEach(r => {
+    const when = r.when ? new Date(r.when) : new Date();
+    lines.push("BEGIN:VEVENT");
+    lines.push("UID:" + (r.id || "r") + "@colourdiam");
+    lines.push("DTSTAMP:" + icsStamp(new Date()));
+    lines.push("DTSTART:" + icsStamp(isNaN(when) ? new Date() : when));
+    lines.push("SUMMARY:" + rmEscapeIcs(r.text));
+    lines.push("STATUS:" + (r.done ? "COMPLETED" : "CONFIRMED"));
+    lines.push("END:VEVENT");
+    seq++;
+  });
+  lines.push("END:VCALENDAR");
+  const blob = new Blob([lines.join("\r\n")], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "colourdiam-reminders.ics";
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
+  toastMsg(t("rm_exported"));
+}
+
 async function taskSet(id, patch) {
   try {
     await authFetch("/api/tasks/" + id, { method: "PATCH", body: JSON.stringify(patch) });
@@ -3631,8 +3826,8 @@ async function renderAdmin() {
     const d = await authFetch("/api/admin/stats");
     const tot = d.totals || {};
     document.getElementById("admin-stats").innerHTML = statCards([
-      ["👥", t("ws_users"), tot.users], ["🟢", t("ws_active"), tot.active], ["🚫", t("ws_suspended"), tot.suspended],
-      ["💼", t("ws_total"), tot.tasks], ["✅", t("ws_completed"), tot.tasksCompleted], ["⚠️", t("ws_overdue"), tot.tasksOverdue], ["🕓", t("ws_audit"), tot.audit],
+      ["👥", t("ws_users"), tot.users, "admin-users"], ["🟢", t("ws_active"), tot.active, "admin-users"], ["🚫", t("ws_suspended"), tot.suspended, "admin-users"],
+      ["💼", t("ws_total"), tot.tasks, "admin-tasks"], ["✅", t("ws_completed"), tot.tasksCompleted, "admin-tasks"], ["⚠️", t("ws_overdue"), tot.tasksOverdue, "admin-tasks"], ["🕓", t("ws_audit"), tot.audit, "activity"],
     ]);
     const r = await authFetch("/api/admin/audit?limit=15");
     document.getElementById("admin-recent").innerHTML = (r.audit || []).map(auditRowHtml).join("") || `<p class="hint">${t("ws_no_activity")}</p>`;
