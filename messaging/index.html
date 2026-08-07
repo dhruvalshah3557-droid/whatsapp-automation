@@ -1704,7 +1704,7 @@ async function sendLive(c, text) {
 /* ==================== Business data ==================== */
 const AGENTS = ["Dhruval", "Aria", "Ken", "Sofia"];
 let PRODUCTS = [];
-const PRODUCTS_CACHE_KEY = "mc_products_v1";
+const PRODUCTS_CACHE_KEY = "mc_products_v2";
 let productsLoaded = false;
 async function loadProducts(force = false) {
   if (productsLoaded && !force) return;

@@ -40,6 +40,9 @@ This file is the single source of truth for task status. A fresh session reads t
 - [x] 260807: Remove the "Oval · 1.06ct SI1 · Fancy Deep Brownish Greenish Yellow · GIA" diamond (id 8171) from the app catalogue — status: reverted (not requested)
   - Done: briefly added a persistent `EXCLUDE_IDS` blocklist in `server/site-sync.js` and filtered it at load/sync; then reverted the whole change because it was not requested (commit `2bbe60d`). Diamond 8171 is back in the catalogue; `/api/products` returns all 742 items.
 
+- [x] 260807: Add jewellery to the catalogue via the ColourDiam sitemap — status: finished
+  - Done: `site-sync.js` now discovers jewellery categories from the sitemap (`sitemap.xml` → `/product/<slug>`), fetches each category through `/Home/SearchProduct` (`ring` 440, `earring` 96, `bracelet` 53, `pendant` 46, `necklace` 3), enriches every item from `/productdetail/{id}` (metal/purity/weight + diamond shape/colour/cts tables), and maps to the app model with `type: "jewelry"` + category slug. Full sync now yields 742 diamonds + 638 jewellery = 1380 items; `/api/products` serves both and the Product → Jewelry filter is populated. New `parseJewelleryDetail`/`mapJewellery`/`syncJewellery` plus sitemap/jewellery tests (92 total pass); MONITOR OK. Products cache bumped to `mc_products_v2`, SW to `colourdiam-msg-v19` so clients drop the old diamond-only cache.
+
 ## History
 
 - [x] 260806: Upgrade Cloudflare Worker to a full replacement server — status: finished

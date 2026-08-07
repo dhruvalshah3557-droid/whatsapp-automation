@@ -11,7 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 process.env.INVENTORY_FILE = path.join(os.tmpdir(), "cd-sync-test-inventory.json");
 try { fs.unlinkSync(process.env.INVENTORY_FILE); } catch {}
 
-const { syncConfig, searchUrl, fetchAllDiamonds, parseDiamondDetail, mapDiamond, syncSite, getInventory, getSyncStatus, loadInventoryFromDisk } =
+const { syncConfig, searchUrl, fetchAllDiamonds, parseDiamondDetail, mapDiamond, syncSite, syncJewellery, fetchSitemapCategories, fetchJewelleryByCategory, parseJewelleryDetail, mapJewellery, getInventory, getSyncStatus, loadInventoryFromDisk } =
   await import("../site-sync.js");
 
 const SEARCH_HTML = [
@@ -71,6 +71,32 @@ function fakeDetail(id) {
   return byId[id] || "<html><body>not found</body></html>";
 }
 
+const JEWELLERY_HTML = [
+  { ProdId: "1003", ProdName: "Fancy Yellow 1.05 SI1 18K 4.072 gm", OldPrice: 17825, NewPrice: 17825, ImgPath: "/Product/Jewellery/1003/white360/center.jpg", TotRec: 2 },
+  { ProdId: "1263", ProdName: "Fancy Green 0.30 VS 18K 5.180 gm", OldPrice: 2070, NewPrice: 2070, ImgPath: "/Product/Jewellery/1263/white360/CENTER.jpg", TotRec: 2 },
+];
+
+const JEWELLERY_DETAIL = `<!doctype html><html><body>
+  <meta property="og:title" content="Fancy Yellow 1.05 SI1 18K | ColourDiam" />
+  <h3 class="product-name product-name2">Fancy Yellow 1.05 SI1 18K</h3>
+  <div class="price-box"><span class="price-regular">$17825</span></div>
+  <div class="cert"><img src="/assets/img/Lab/AGL.png" /></div>
+  <a onclick="CertModal('/Product/Certificate/1003.pdf')"></a>
+  <div id='imgSlider'><div class="post-portfolio" data-thumb="/Product/Jewellery/1003/white45/CENTER.jpg"></div></div>
+  <table class="table border"><tbody class="table-body">
+    <tr><td>Gold</td><td>18K</td><td>3.810</td></tr>
+  </tbody></table>
+  <table class="table border"><tbody class="table-body">
+    <tr><th>Diamond</th><th>Shape</th><th>Colour</th><th>Pcs</th><th>Cts</th></tr>
+    <tr><td>Diamond</td><td>Round</td><td>Fancy Yellow</td><td>1</td><td>1.05</td></tr>
+  </tbody></table>
+</body></html>`;
+
+function fakeJewelleryDetail(id) {
+  if (id === "1003") return JEWELLERY_DETAIL;
+  return "<html><body>not found</body></html>";
+}
+
 function mockSite() {
   const original = globalThis.fetch;
   globalThis.fetch = async (url) => {
@@ -81,6 +107,25 @@ function mockSite() {
         SearchProductsList: SEARCH_HTML,
         TotalCount: SEARCH_HTML.length,
       }), { status: 200, headers: { "Content-Type": "application/json" } });
+    }
+    if (u.includes("/sitemap.xml")) {
+      return new Response(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://colourdiam.com/</loc></url>
+  <url><loc>https://colourdiam.com/product/ring</loc></url>
+  <url><loc>https://colourdiam.com/product/pendant</loc></url>
+  <url><loc>https://colourdiam.com/product/Yellow Diamond Jewelry</loc></url>
+  <url><loc>https://colourdiam.com/diamonds</loc></url>
+</urlset>`, { status: 200, headers: { "Content-Type": "application/xml" } });
+    }
+    if (u.includes("/Home/SearchProduct")) {
+      return new Response(JSON.stringify({
+        searchProductsList: JEWELLERY_HTML,
+      }), { status: 200, headers: { "Content-Type": "application/json" } });
+    }
+    if (u.includes("/productdetail/")) {
+      const id = decodeURIComponent(u).split("/").pop();
+      return new Response(fakeJewelleryDetail(id), { status: 200, headers: { "Content-Type": "text/html" } });
     }
     if (u.includes("/diamonddetails/")) {
       const id = decodeURIComponent(u).split("/").pop();
@@ -162,17 +207,89 @@ test("mapDiamond falls back gracefully for placeholder-only diamonds", () => {
   assert.equal(mapped.shape, "Asscher");
 });
 
-test("syncSite caches a ready inventory with enriched diamonds", async () => {
+test("syncSite caches a ready inventory with enriched diamonds and jewellery", async () => {
   const restore = mockSite();
   try {
     const inv = await syncSite({ enrich: true });
     assert.equal(inv.status, "ready");
-    assert.equal(inv.list.length, SEARCH_HTML.length);
-    assert.equal(inv.enriched, SEARCH_HTML.length);
+    assert.equal(inv.list.length, SEARCH_HTML.length + JEWELLERY_HTML.length);
     const byId = Object.fromEntries(inv.list.map((d) => [d.id, d]));
     assert.equal(byId["8171"].clarity, "SI1");
     assert.equal(byId["8398"].colorName, "pink");
+    assert.equal(byId["1003"].type, "jewelry");
     assert.ok(fs.existsSync(syncConfig.inventoryFile), "inventory file written");
+  } finally {
+    restore();
+  }
+});
+
+test("fetchSitemapCategories parses /product/ slugs from the sitemap", async () => {
+  const restore = mockSite();
+  try {
+    const slugs = await fetchSitemapCategories();
+    assert.ok(slugs.includes("ring"));
+    assert.ok(slugs.includes("pendant"));
+    assert.ok(slugs.includes("Yellow Diamond Jewelry"));
+    assert.ok(!slugs.includes("diamonds"), "non /product/ URLs are skipped");
+  } finally {
+    restore();
+  }
+});
+
+test("fetchJewelleryByCategory lists items with TotRec total", async () => {
+  const restore = mockSite();
+  try {
+    const { list, total } = await fetchJewelleryByCategory("ring");
+    assert.equal(list.length, JEWELLERY_HTML.length);
+    assert.equal(total, 2);
+    assert.equal(list[0].ProdId, "1003");
+  } finally {
+    restore();
+  }
+});
+
+test("parseJewelleryDetail extracts metal and diamond spec", () => {
+  const d = parseJewelleryDetail(JEWELLERY_DETAIL);
+  assert.equal(d.name, "Fancy Yellow 1.05 SI1 18K");
+  assert.equal(d.metal, "Gold");
+  assert.equal(d.purity, "18K");
+  assert.equal(d.weight, "3.810");
+  assert.equal(d.shape, "Round");
+  assert.equal(d.colour, "Fancy Yellow");
+  assert.equal(d.cts, "1.05");
+  assert.equal(d.lab, "AGL");
+  assert.equal(d.price, 17825);
+  assert.ok(d.images.includes("/Product/Jewellery/1003/white45/CENTER.jpg"));
+});
+
+test("mapJewellery maps to the jewelry type with HTTPS media", () => {
+  const detail = parseJewelleryDetail(JEWELLERY_DETAIL);
+  const mapped = mapJewellery(JEWELLERY_HTML[0], detail, "ring");
+  assert.equal(mapped.id, "1003");
+  assert.equal(mapped.type, "jewelry");
+  assert.equal(mapped.category, "ring");
+  assert.equal(mapped.carat, "1.05");
+  assert.equal(mapped.price, 17825);
+  assert.equal(mapped.metal, "Gold");
+  assert.equal(mapped.purity, "18K");
+  assert.equal(mapped.weight, "3.810");
+  assert.equal(mapped.colorGrade, "Fancy Yellow");
+  assert.equal(mapped.lab, "AGL");
+  assert.match(mapped.img, /^https:\/\/www\.colourdiam\.com\/Product\/Jewellery\/1003\/white45\/CENTER\.jpg$/);
+  assert.equal(mapped.certificate, "https://www.colourdiam.com/Product/Certificate/1003.pdf");
+  assert.match(mapped.detailUrl, /^https:\/\/www\.colourdiam\.com\/productdetail\/1003$/);
+});
+
+test("syncJewellery maps sitemap categories to enriched jewellery items", async () => {
+  const restore = mockSite();
+  try {
+    const list = await syncJewellery({ enrich: true });
+    assert.equal(list.length, JEWELLERY_HTML.length);
+    const byId = Object.fromEntries(list.map((d) => [d.id, d]));
+    assert.equal(byId["1003"].type, "jewelry");
+    assert.equal(byId["1003"].category, "ring");
+    assert.equal(byId["1003"].metal, "Gold");
+    assert.equal(byId["1263"].colorName, "green");
   } finally {
     restore();
   }

@@ -18,6 +18,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SITE = "https://www.colourdiam.com";
 const SEARCH_PATH = "/Home/SearchDiamonds";
 const DETAIL_PATH = (id) => `/diamonddetails/Menu Diamonds/${encodeURIComponent(id)}`;
+const SITEMAP_URL = `${SITE}/sitemap.xml`;
+const PRODUCT_SEARCH_PATH = "/Home/SearchProduct";
+const JEWELLERY_DETAIL_PATH = (id) => `/productdetail/${encodeURIComponent(id)}`;
 const UA = "colourdiam-messaging/1.0";
 
 const DEFAULT_INVENTORY_FILE = path.join(__dirname, "inventory.json");
@@ -99,6 +102,49 @@ async function fetchText(url, retries = 2) {
 }
 
 /* --------------------------- list fetching --------------------------- */
+
+export async function fetchSitemapCategories() {
+  const text = await fetchText(SITEMAP_URL);
+  if (!text) return [];
+  const slugs = new Set();
+  for (const m of String(text).matchAll(/<loc>([^<]+)<\/loc>/g)) {
+    const url = m[1].trim();
+    const u = url.split("#")[0].split("?")[0].replace(/\/+$/, "");
+    const m2 = u.match(/\/product\/([^/]+)$/i);
+    if (m2) slugs.add(decodeURIComponent(m2[1]));
+  }
+  return [...slugs];
+}
+
+export function jewellerySearchUrl(slug, page, pageSize = syncConfig.pageSize) {
+  const q = new URLSearchParams({
+    SubMenuName: slug, FromHome: "0", PageIndex: String(page), PageCount: String(pageSize), SortById: "",
+    PriceFrm: "", PriceTo: "", PriceList: "", CaratList: "",
+  });
+  return `${SITE}${PRODUCT_SEARCH_PATH}?${q.toString()}`;
+}
+
+export async function fetchJewelleryByCategory(slug, { onProgress } = {}) {
+  const seen = new Map();
+  let total = 0;
+  for (let page = 1; page <= syncConfig.maxPages; page++) {
+    const text = await fetchText(jewellerySearchUrl(slug, page));
+    if (!text) break;
+    let data;
+    try { data = JSON.parse(text); } catch { break; }
+    const items = Array.isArray(data.searchProductsList) ? data.searchProductsList : [];
+    if (!items.length) break;
+    total = Number((items[0] && items[0].TotRec) || total) || total;
+    for (const it of items) {
+      const id = String(it.ProdId || "");
+      if (id && !seen.has(id)) seen.set(id, it);
+    }
+    if (onProgress) onProgress(seen.size, total);
+    if (seen.size >= total && total > 0) break;
+    if (items.length < syncConfig.pageSize) break;
+  }
+  return { list: [...seen.values()], total };
+}
 
 export function searchUrl(page, pageSize = syncConfig.pageSize) {
   const q = new URLSearchParams({
@@ -241,6 +287,105 @@ export function mapDiamond(raw, detail) {
   };
 }
 
+/* ------------------------- jewellery parsing ------------------------- */
+
+export function parseJewelleryDetail(html) {
+  if (!html || html.includes("pagenotfound")) return null;
+  const spec = { metal: "", purity: "", weight: "", shape: "", colour: "", pcs: "", cts: "" };
+  const tables = String(html).matchAll(/<table[^>]*>([\s\S]*?)<\/table>/gi);
+  for (const t of tables) {
+    const body = t[1];
+    const cells = [...body.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)].map((m) => clean(m[1]));
+    if (cells.length >= 3 && /^(Gold|White|Yellow|Rose|Platinum|Silver)/i.test(cells[0])) {
+      spec.metal = cells[0];
+      spec.purity = cells[1];
+      spec.weight = cells[2];
+      continue;
+    }
+    if (cells.some((c) => /^(Round|Princess|Emerald|Pear|Marquise|Oval|Cushion|Heart|Radiant|Asscher|Shield)$/i.test(c))) {
+      const idx = cells.findIndex((c) => /^(Round|Princess|Emerald|Pear|Marquise|Oval|Cushion|Heart|Radiant|Asscher|Shield)$/i.test(c));
+      spec.shape = cells[idx] || "";
+      spec.colour = cells[idx + 1] || "";
+      spec.pcs = cells[idx + 2] || "";
+      spec.cts = cells[idx + 3] || "";
+    }
+  }
+  const name =
+    grab(html, /property="og:title"\s+content="([^"]+)"/) ||
+    grab(html, /<h3 class="product-name[^"]*">([\s\S]*?)<\/h3>/i);
+  const priceMatch = String(html).match(/price-regular">\$([\d,]+)/i);
+  const price = priceMatch ? Number(priceMatch[1].replace(/,/g, "")) : 0;
+  const certMatch = String(html).match(/CertModal\('([^']+)'\)/);
+  const labMatch = String(html).match(/\/assets\/img\/Lab\/([A-Za-z0-9]+)\.png/i);
+  const images = [...String(html).matchAll(/data-thumb="([^"]+)"/g)]
+    .map((m) => m[1])
+    .filter((p) => p && !p.includes("/assets/"));
+  const still = String(html).match(/\/Product\/Jewellery\/[^"?]+\/(?:still|center)\.jpg/i);
+  if (!images.length && still) images.push(still[0]);
+
+  return {
+    name: name.replace(/\s*\|\s*ColourDiam\s*$/i, ""),
+    price,
+    metal: spec.metal,
+    purity: spec.purity,
+    weight: spec.weight,
+    shape: spec.shape,
+    colour: spec.colour,
+    pcs: spec.pcs,
+    cts: spec.cts,
+    lab: labMatch ? labMatch[1].toUpperCase() : "",
+    certificate: certMatch && certMatch[1] ? certMatch[1] : "",
+    images,
+  };
+}
+
+export async function fetchJewelleryDetail(id) {
+  const text = await fetchText(SITE + JEWELLERY_DETAIL_PATH(id));
+  return parseJewelleryDetail(text);
+}
+
+export function mapJewellery(raw, detail, categorySlug) {
+  const name = String(detail && detail.name ? detail.name : (raw.ProdName || "")).trim();
+  const meta = colourMeta(name);
+  const carat = parseCarat(name, detail && detail.cts);
+  const real = (id) => id && !String(id).startsWith("/assets/");
+  const imgPath = (detail && detail.images && detail.images[0]) ||
+    (real(raw.ImgPath) ? raw.ImgPath : (real(raw.ModelImgPath) ? raw.ModelImgPath : null)) ||
+    (Array.isArray(raw.ImgPathList) ? raw.ImgPathList.find(real) : null);
+  return {
+    id: String(raw.ProdId || raw.TagNo || "cd-" + Math.random().toString(36).slice(2, 8)),
+    name,
+    type: "jewelry",
+    category: categorySlug || "Jewelry",
+    carat,
+    price: Number(detail && detail.price ? detail.price : (raw.NewPrice || raw.OldPrice || 0)),
+    oldPrice: Number(raw.OldPrice || 0),
+    stock: "In stock",
+    emoji: meta.emoji,
+    color: meta.bg,
+    colorName: meta.colorName,
+    img: imgPath ? toHttps(imgPath) : null,
+    shape: (detail && detail.shape) || "",
+    clarity: "",
+    colorGrade: (detail && detail.colour) || "",
+    lab: (detail && detail.lab) || "",
+    polish: "",
+    symmetry: "",
+    fluorescence: "",
+    measurement: "",
+    depth: "",
+    tablePct: "",
+    ratio: "",
+    metal: (detail && detail.metal) || "",
+    purity: (detail && detail.purity) || "",
+    weight: (detail && detail.weight) || "",
+    certificate: detail && detail.certificate ? toHttps(detail.certificate) : null,
+    images: (detail && detail.images ? detail.images : []).map(toHttps),
+    detailUrl: toHttps(JEWELLERY_DETAIL_PATH(String(raw.ProdId || raw.TagNo || ""))),
+    source: "colourdiam",
+  };
+}
+
 /* ------------------------- persistence ------------------------- */
 
 export function inventoryFile() {
@@ -349,13 +494,16 @@ export async function syncSite({ enrich = true, onProgress } = {}) {
         mapped = list.map((raw) => mapDiamond(raw, null));
         inventory.enriched = 0;
       }
-      inventory.list = mapped;
+
+      const jewellery = await syncJewellery({ enrich, onProgress, diamondCount: mapped.length });
+      inventory.list = [...mapped, ...jewellery];
+      inventory.total = mapped.length + jewellery.length;
       inventory.status = "ready";
       inventory.at = Date.now();
       inventory.lastSync = new Date().toISOString();
       inventory.error = null;
       saveInventory();
-      log(`done: ${mapped.length} diamonds in inventory, ${inventory.enriched} enriched (${Date.now() - started}ms)`);
+      log(`done: ${mapped.length} diamonds + ${jewellery.length} jewellery in inventory, ${inventory.enriched} enriched (${Date.now() - started}ms)`);
       return inventory;
     } catch (err) {
       inventory.status = "error";
@@ -368,6 +516,72 @@ export async function syncSite({ enrich = true, onProgress } = {}) {
     }
   })();
   return syncRun;
+}
+
+export async function syncJewellery({ enrich = true, onProgress, diamondCount = 0 } = {}) {
+  log("fetching jewellery categories from sitemap…");
+  let slugs = await fetchSitemapCategories().catch((err) => {
+    log("sitemap fetch failed:", (err && err.message) || err);
+    return [];
+  });
+  const ITEM_CATS = new Set(["ring", "necklace", "pendant", "earring", "bracelet", "bangle", "brooch", "cufflink"]);
+  const COLOR_PATTERN = /diamond jewelry$/i;
+  const itemSlugs = slugs.filter((s) => ITEM_CATS.has(s.toLowerCase()));
+  const colorSlugs = slugs.filter((s) => !ITEM_CATS.has(s.toLowerCase()) && COLOR_PATTERN.test(s));
+  if (!itemSlugs.length) {
+    log("no jewellery categories in sitemap — skipping jewellery sync");
+    return [];
+  }
+  log(`sitemap: ${itemSlugs.length} item categories + ${colorSlugs.length} colour categories`);
+
+  const rawByCategory = {};
+  const allRaw = new Map();
+  for (const slug of itemSlugs) {
+    const { list, total } = await fetchJewelleryByCategory(slug, {
+      onProgress: (n, t) => { if (onProgress) onProgress({ phase: "jewellery-list", category: slug, count: n, total: t }); },
+    });
+    log(`  ${slug}: ${list.length} items (site total ${total})`);
+    rawByCategory[slug] = list;
+    for (const it of list) allRaw.set(String(it.ProdId || ""), it);
+  }
+
+  const combined = [...allRaw.values()];
+  if (!combined.length) {
+    log("no jewellery items found");
+    return [];
+  }
+  const categoryOf = (raw) => {
+    for (const slug of itemSlugs) {
+      if (rawByCategory[slug].some((x) => String(x.ProdId || "") === String(raw.ProdId || ""))) return slug;
+    }
+    return itemSlugs[0];
+  };
+
+  const mapped = [];
+  let done = 0;
+  if (enrich) {
+    log(`enriching ${combined.length} jewellery items from detail pages…`);
+    const results = new Array(combined.length);
+    let next = 0;
+    const worker = async () => {
+      while (next < combined.length) {
+        const idx = next++;
+        const raw = combined[idx];
+        let detail = null;
+        try { detail = await fetchJewelleryDetail(raw.ProdId || raw.TagNo); } catch { detail = null; }
+        const item = mapJewellery(raw, detail, categoryOf(raw));
+        results[idx] = item;
+        done++;
+        if (onProgress) onProgress({ phase: "jewellery-enrich", count: done, total: combined.length });
+      }
+    };
+    await Promise.all(Array.from({ length: syncConfig.concurrency }, worker));
+    mapped.push(...results.filter(Boolean));
+  } else {
+    for (const raw of combined) mapped.push(mapJewellery(raw, null, categoryOf(raw)));
+  }
+  log(`jewellery complete: ${mapped.length} items (${diamondCount} diamonds already in inventory)`);
+  return mapped;
 }
 
 /* ------------------------------ CLI ------------------------------ */
