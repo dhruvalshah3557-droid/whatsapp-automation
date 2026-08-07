@@ -1639,14 +1639,9 @@ function renderSettingsPanel() {
     </div>
     <div class="card">
       <div class="card-head"><div class="card-title"><div class="logo-lg" style="background:#3f6fb5">🔒</div><span>${t("sec_title")}</span></div></div>
-      <div class="form-row">
-        <div class="full">
-          <label>${t("sec_touchid")}</label>
-          <p class="hint" style="margin-bottom:8px">${t("sec_touchid_sub")}</p>
-          ${bio ? `<button class="btn" style="width:100%" onclick="${UI.sec.touchid ? "removeTouchId()" : "setupTouchId()"}">${UI.sec.touchid ? t("sec_on") + " — " + t("sec_off") : t("sec_off") + " — " + t("sec_on")}</button>` : `<p class="hint">${t("sec_unsupported")}</p>`}
-        </div>
-      </div>
-      ${UI.sec.touchid ? `<button class="btn btn-ghost" style="width:100%" onclick="lockApp()">🔒 ${t("sec_lock_now")}</button>` : ""}
+      <p class="hint" style="margin:0 0 10px">${t("sec_touchid_sub")}</p>
+      ${bio ? `<button class="menu-item" onclick="${UI.sec.touchid ? "removeTouchId()" : "setupTouchId()"}"><span class="m-ico">🔒</span><span>${UI.sec.touchid ? t("sec_on") + " — " + t("sec_off") : t("sec_off") + " — " + t("sec_on")}</span></button>` : `<p class="hint">${t("sec_unsupported")}</p>`}
+      ${UI.sec.touchid ? `<button class="menu-item" onclick="lockApp()"><span class="m-ico">🔒</span><span>${t("sec_lock_now")}</span></button>` : ""}
     </div>`;
   const ls = document.getElementById("settings-lang");
   if (ls) ls.value = UI.lang;
