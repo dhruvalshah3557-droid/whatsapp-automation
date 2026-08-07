@@ -1551,8 +1551,16 @@ function applyI18n() {
 /* ==================== UI state + Biometrics ==================== */
 const UI_KEY = "mc_ui_v1";
 function loadUI() {
-  try { return Object.assign({ lang: "en", sec: { touchid: false, cred: null } }, JSON.parse(localStorage.getItem(UI_KEY) || "{}")); }
-  catch (e) { return { lang: "en", sec: { touchid: false, cred: null } }; }
+  let d = { lang: "en", sec: { touchid: false, creds: [] } };
+  try {
+    d = Object.assign(d, JSON.parse(localStorage.getItem(UI_KEY) || "{}"));
+  } catch (e) {}
+  if (d.sec && !Array.isArray(d.sec.creds)) {
+    if (d.sec.cred) d.sec.creds = [d.sec.cred];
+    else d.sec.creds = [];
+  }
+  if (!d.sec) d.sec = { touchid: false, creds: [] };
+  return d;
 }
 const UI = loadUI();
 function bioAvailable() {
@@ -1561,30 +1569,46 @@ function bioAvailable() {
 async function setupTouchId() {
   if (!bioAvailable()) return toastMsg(t("sec_unsupported"));
   const rpId = location.hostname || "localhost";
+  const user = { id: new TextEncoder().encode("colourdiam-msg-user"), name: "owner", displayName: "Owner" };
   try {
-    const cred = await navigator.credentials.create({
-      publicKey: {
-        challenge: new Uint8Array(32).map(() => Math.floor(Math.random() * 256)),
-        rp: { name: "Colourdiam Messaging", id: rpId },
-        user: { id: new TextEncoder().encode("colourdiam-msg-user"), name: "owner", displayName: "Owner" },
-        pubKeyCredParams: [{ type: "public-key", alg: -7 }],
-        authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
-        timeout: 60000
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const cred = await navigator.credentials.create({
+          publicKey: {
+            challenge: new Uint8Array(32).map(() => Math.floor(Math.random() * 256)),
+            rp: { name: "Colourdiam Messaging", id: rpId },
+            user,
+            pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+            authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
+            timeout: 60000
+          }
+        });
+        if (cred) {
+          const raw = new Uint8Array(cred.rawId);
+          const entry = { id: cred.id, rawId: btoa(String.fromCharCode.apply(null, raw)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "") };
+          if (!UI.sec.creds.some(c => c.id === entry.id)) UI.sec.creds.push(entry);
+        }
+      } catch (e) {
+        if (UI.sec.creds.length) break;
+        throw e;
       }
-    });
-    if (cred) {
-      const raw = new Uint8Array(cred.rawId);
+      if (UI.sec.creds.length === 2) break;
+    }
+    if (UI.sec.creds.length) {
       UI.sec.touchid = true;
-      UI.sec.cred = { id: cred.id, rawId: btoa(String.fromCharCode.apply(null, raw)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "") };
+      UI.sec.cred = null;
       save(UI_KEY, UI);
       renderSettingsPanel();
       toastMsg(t("sec_enabled"));
+    } else {
+      toastMsg(t("sec_unsupported"));
     }
   } catch (e) { toastMsg(t("sec_unsupported")); }
 }
 async function removeTouchId() {
   UI.sec.touchid = false;
   UI.sec.cred = null;
+  UI.sec.creds = [];
   save(UI_KEY, UI);
   renderSettingsPanel();
   toastMsg(t("sec_disabled"));
@@ -1598,15 +1622,19 @@ async function toggleBiometric(on) {
   }
 }
 async function verifyTouchId() {
-  if (!UI.sec || !UI.sec.cred) return false;
-  const b64 = UI.sec.cred.rawId.replace(/-/g, "+").replace(/_/g, "/");
-  const bin = atob(b64);
-  const arr = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  const creds = (UI.sec && Array.isArray(UI.sec.creds) && UI.sec.creds.length) ? UI.sec.creds : (UI.sec && UI.sec.cred ? [UI.sec.cred] : []);
+  if (!creds.length) return false;
+  const allowCredentials = creds.map(c => {
+    const b64 = c.rawId.replace(/-/g, "+").replace(/_/g, "/");
+    const bin = atob(b64);
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return { type: "public-key", id: arr };
+  });
   const assertion = await navigator.credentials.get({
     publicKey: {
       challenge: new Uint8Array(32).map(() => Math.floor(Math.random() * 256)),
-      allowCredentials: [{ type: "public-key", id: arr }],
+      allowCredentials,
       userVerification: "required",
       timeout: 60000
     }
