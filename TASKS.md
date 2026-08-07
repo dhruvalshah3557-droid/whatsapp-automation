@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Add jewellery type filter (ring/pendant/earrings etc) to Products — status: finished
+  - Done: new `Jewellery type` select in the product filter bar (populated from unique jewellery `category` slugs: ring/earring/bracelet/pendant/necklace, capitalized labels), wired into `productFilterValues()`/`populateProductFilters()`/`clearProductFilters()`/the `renderProducts()` predicate (only filters `type === "jewelry"`), en/zh/th i18n (`prod_jtype`); SW bumped to `colourdiam-msg-v31`; MONITOR OK (105/105 tests).
+
 - [x] 260807: Refresh stale preview URL again — status: finished
   - Done: old preview `8099-94416e0ed3edebff.monkeycode-ai.live` was dead again (HTTP 521, origin tunnel down); requested a fresh preview `8099-e1ac3c1ab16f7e9e.monkeycode-ai.live` (health 200) and updated `PREVIEW_URL` in `scripts/monitor.mjs` + `scripts/agent.mjs`; MONITOR OK (105/105 tests); origin push done (commit `a605e8d`).
   - Blocked (pre-existing): `git push backup main:colourdiam-messaging` still 403 (bot token has no write access to `zebbern/no-cost-ai`); `backup` remote was missing from git config again and has been re-added so the push goes through automatically once the user grants access.
