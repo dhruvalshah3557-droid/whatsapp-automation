@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
 const PORT = process.env.MONITOR_PORT || "8099";
 const LOCAL = `http://127.0.0.1:${PORT}`;
-const PUBLIC = process.env.PREVIEW_URL || "https://8099-3f4513c9b36b2da2.monkeycode-ai.live";
+const PUBLIC = process.env.PREVIEW_URL || "https://8099-20c91de3a23a0ad5.monkeycode-ai.live";
 const VERIFY_TOKEN = process.env.MONITOR_VERIFY_TOKEN || "change_me_verify_token";
 const FIX = process.argv.includes("--fix");
 
@@ -61,7 +61,7 @@ function runTests() {
   return new Promise((resolve) => {
     const t = spawn(
       process.execPath,
-      ["--test", "messaging/test/messaging.test.mjs", "server/test/server.test.mjs", "worker/test/worker.test.mjs"],
+      ["--test", "messaging/test/messaging.test.mjs", "server/test/server.test.mjs", "server/test/site-sync.test.mjs", "worker/test/worker.test.mjs"],
       { cwd: ROOT, stdio: ["ignore", "pipe", "pipe"] }
     );
     let out = "";

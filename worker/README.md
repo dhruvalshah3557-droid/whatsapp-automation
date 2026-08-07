@@ -11,6 +11,9 @@ and serves the messaging app on the same origin so one URL is the whole product:
 - **LINE Official** — `/webhook/line-hook`
 - **WeChat Official Account** — `/webhook/wechat-hook`
 - **Live API** — `/api/health`, `/api/events` (KV-backed), `/api/send`
+- **Products** — `/api/products` proxies the live ColourDiam.com catalogue
+  (list-only; `/api/sync/site` on this worker returns 501 — run the full
+  742-diamond enriched sync on the standalone server instead)
 
 Each route answers the platform's webhook verification and auto-replies to
 inbound text messages by calling the platform API directly. Inbound messages

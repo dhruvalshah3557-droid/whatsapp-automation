@@ -22,6 +22,8 @@ const ENV = {
   API_KEY: "test_api_key",
   EVENTS_FILE: path.join(__dirname, "tmp-events.json"),
   MEDIA_CONFIG_FILE: path.join(__dirname, "tmp-media-config.json"),
+  INVENTORY_FILE: path.join(__dirname, "tmp-inventory.json"),
+  SYNC_ON_START: "0",
 };
 
 let child;
@@ -238,6 +240,27 @@ test("GET /api/products returns the ColourDiam catalogue", async () => {
   assert.ok(typeof p.price === "number");
 });
 
+test("GET /api/sync/site reports inventory status", async () => {
+  const { status, text } = await req("/api/sync/site");
+  assert.equal(status, 200);
+  const data = JSON.parse(text);
+  assert.equal(data.ok, true);
+  assert.ok(typeof data.count === "number");
+  assert.ok(["ready", "syncing", "error", "idle"].includes(data.status));
+});
+
+test("POST /api/sync/site starts a sync and returns 202", async () => {
+  const { status, text } = await req("/api/sync/site", { method: "POST", body: JSON.stringify({ enrich: false }) });
+  assert.equal(status, 202);
+  const data = JSON.parse(text);
+  assert.match(data.message, /sync started/);
+});
+
+test("POST /api/sync/site returns 405 for other methods", async () => {
+  const { status } = await req("/api/sync/site", { method: "PUT" });
+  assert.equal(status, 405);
+});
+
 test("POST /api/llm returns 501 when server LLM not configured", async () => {
   const { status, text } = await req("/api/llm", { method: "POST", body: JSON.stringify({ messages: [{ role: "user", content: "hi" }] }) });
   assert.equal(status, 501);
@@ -370,6 +393,7 @@ function startFakeFtp() {
   const dataServers = [];
   const srv = net.createServer((sock) => {
     sock.write("220 FakeFTP ready\r\n");
+    sock.on("error", () => {});
     let dataSock = null;
     sock.on("data", async (d) => {
       const line = d.toString().trim();
@@ -380,6 +404,7 @@ function startFakeFtp() {
       else if (cmd === "PASV") {
         const dataServer = net.createServer((ds) => {
           dataSock = ds;
+          ds.on("error", () => {});
         });
         dataServers.push(dataServer);
         await new Promise((r) => dataServer.listen(0, "127.0.0.1", r));

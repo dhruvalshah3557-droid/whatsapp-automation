@@ -74,6 +74,26 @@ npm install
 npm start
 ```
 
+### Colourdiam diamond inventory sync
+
+The server keeps the full ColourDiam diamond catalogue (742 loose stones) synced
+to `server/inventory.json` and serves it from memory through `/api/products`:
+
+- **Startup** — loads the cached inventory from disk immediately, then starts a
+  background re-sync when the cache is missing or older than 12 hours.
+- **`GET /api/sync/site`** — returns sync status (`status`, `total`, `count`,
+  `enriched`, `lastSync`).
+- **`POST /api/sync/site`** — triggers a fresh sync (body `{"enrich":false}` for a
+  list-only run). `GET /api/products` serves the memory cache in ~10ms and only
+  falls back to the live colourdiam.com search when nothing is cached yet.
+- Standalone CLI: `node site-sync.js --enrich` (full sync with detail-page specs),
+  `node site-sync.js` (list only), `node site-sync.js --status`.
+
+Each diamond is enriched from its `/diamonddetails/...` page with shape, clarity,
+color grade, lab, polish, symmetry, fluorescence, measurements (L×W×D, depth%,
+table%, ratio), certificate PDF, image gallery and HTTPS media URLs, all mapped to
+the app's product model (`id`, `name`, `carat`, `price`, `colorName`, `img`, …).
+
 Run the tests:
 
 ```bash

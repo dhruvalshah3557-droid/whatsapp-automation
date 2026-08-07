@@ -319,6 +319,12 @@ test("POST /api/track fedex returns normalized status", async () => {
   }
 });
 
+test("GET /api/sync/site returns guidance to use the standalone server", async () => {
+  const res = await call("/api/sync/site");
+  assert.equal(res.status, 501);
+  assert.match((await res.json()).error, /standalone server/);
+});
+
 test("GET /api/products returns 502 when ColourDiam is unreachable", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => { throw new Error("network down"); };

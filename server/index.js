@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ftpList, ftpStore, ftpMkdirs } from "./ftp.js";
+import { loadInventoryFromDisk, getInventory, getSyncStatus, syncSite } from "./site-sync.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -212,6 +213,17 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`webhook server listening on port ${PORT}`);
+  const inv = loadInventoryFromDisk();
+  const cached = inv.list.length;
+  console.log(`site-sync: loaded ${cached} diamonds from inventory cache (status=${inv.status})`);
+  if (env.SYNC_ON_START !== "0" && (!cached || Date.now() - (inv.at || 0) > 12 * 60 * 60 * 1000)) {
+    console.log("site-sync: inventory missing or stale — starting background sync");
+    syncSite({ enrich: true }).then((r) => {
+      console.log(`site-sync: background sync done — ${r.list.length} diamonds (${r.enriched} enriched)`);
+    }).catch((err) => {
+      console.error("site-sync: background sync failed:", (err && err.message) || err);
+    });
+  }
 });
 
 async function handle(req, res) {
@@ -291,13 +303,43 @@ async function handleApi(req, res, url) {
   }
 
   if (url.pathname === "/api/products" && req.method === "GET") {
+    const inv = getInventory();
+    if (inv.list.length) {
+      sendJson(res, 200, { products: inv.list, source: "inventory", count: inv.list.length, syncedAt: inv.at }, corsHeaders());
+      return;
+    }
     try {
       const products = await fetchColourdiamProducts();
-      sendJson(res, 200, { products }, corsHeaders());
+      sendJson(res, 200, { products, source: "live" }, corsHeaders());
     } catch (err) {
       console.error("products fetch failed:", err.message);
       sendJson(res, 502, { error: "Could not load products from ColourDiam", detail: String((err && err.message) || err) }, corsHeaders());
     }
+    return;
+  }
+
+  if (url.pathname === "/api/sync/site") {
+    if (req.method === "GET") {
+      sendJson(res, 200, getSyncStatus(), corsHeaders());
+      return;
+    }
+    if (req.method === "POST") {
+      const raw = await readBody(req);
+      let body = {};
+      try { body = raw ? JSON.parse(raw) : {}; } catch (err) { body = {}; }
+      const enrich = body.enrich !== false;
+      const now = getSyncStatus();
+      if (now.running) {
+        sendJson(res, 200, { ...now, message: "sync already in progress" }, corsHeaders());
+        return;
+      }
+      syncSite({ enrich }).catch((err) => {
+        console.error("site sync failed:", (err && err.message) || err);
+      });
+      sendJson(res, 202, { ...getSyncStatus(), message: `sync started (enrich=${enrich})` }, corsHeaders());
+      return;
+    }
+    sendJson(res, 405, { error: "Method not allowed" }, corsHeaders());
     return;
   }
 

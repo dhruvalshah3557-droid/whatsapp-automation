@@ -53,10 +53,17 @@ async function handleApi(request, url, env, ctx) {
   if (url.pathname === "/api/products" && request.method === "GET") {
     try {
       const products = await fetchColourdiamProducts(env);
-      return json({ products }, 200, cors());
+      return json({ products, source: "live" }, 200, cors());
     } catch (err) {
       return json({ error: "Could not load products from ColourDiam", detail: String((err && err.message) || err) }, 502, cors());
     }
+  }
+
+  if (url.pathname === "/api/sync/site") {
+    return json({
+      error: "Full site sync (742-diamond inventory) runs on the standalone server — it caches to local JSON and serves from memory",
+      hint: "Point the app's Server URL at the standalone server and POST /api/sync/site there",
+    }, 501, cors());
   }
 
   if (url.pathname === "/api/media/config") {
