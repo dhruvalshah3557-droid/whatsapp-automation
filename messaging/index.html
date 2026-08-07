@@ -3253,6 +3253,7 @@ function updateAuthUI() {
   const dot = document.getElementById("user-chip-dot");
   const role = document.getElementById("user-chip-role");
   document.body.classList.toggle("is-admin", isAdminUser());
+  document.body.classList.toggle("ws-on", !!currentUser());
   if (u) {
     if (chip) chip.style.display = "flex";
     if (name) name.textContent = u.name;
