@@ -421,12 +421,18 @@ async function fetchColourdiamProducts(env) {
   if (env._productsCache && now - env._productsCache.at < PRODUCT_CACHE_TTL && env._productsCache.list.length) {
     return env._productsCache.list;
   }
-  const res = await fetch(COLOURDIAM_SEARCH, {
-    headers: { "User-Agent": "colourdiam-messaging/1.0", Accept: "application/json" },
-  });
-  if (!res.ok) throw new Error("ColourDiam API HTTP " + res.status);
-  const data = await res.json();
-  const raw = Array.isArray(data.searchProductsList) ? data.searchProductsList : [];
+  const PAGE_SIZE = 100;
+  const raw = [];
+  for (let page = 1; page <= 7; page++) {
+    const res = await fetch(COLOURDIAM_SEARCH.replace("PageIndex=1", "PageIndex=" + page), {
+      headers: { "User-Agent": "colourdiam-messaging/1.0", Accept: "application/json" },
+    });
+    if (!res.ok) throw new Error("ColourDiam API HTTP " + res.status);
+    const data = await res.json();
+    const batch = Array.isArray(data.searchProductsList) ? data.searchProductsList : [];
+    raw.push(...batch);
+    if (batch.length < PAGE_SIZE) break;
+  }
   const list = raw.map((p) => normalizeColourdiamProduct(p, env)).filter((p) => p.name);
   env._productsCache = { at: now, list };
   return list;

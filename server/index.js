@@ -54,9 +54,10 @@ const MAX_EVENTS = 200;
 let events = loadEvents();
 
 const COLOURDIAM_SEARCH = "https://www.colourdiam.com/Home/SearchProduct?SubMenuName=&FromHome=&PageIndex=1&PageCount=100&SortById=";
+const MEDIA_BASE_URL = String(env.MEDIA_BASE_URL || "https://media.colourdiamhk.com/image").trim().replace(/\/+$/, "");
 const PRODUCT_CACHE_TTL = 10 * 60 * 1000;
 let productsCache = { at: 0, list: [] };
-
+let mediaFoldersCache = { at: 0, set: null };
 const MEDIA_CONFIG_FILE = env.MEDIA_CONFIG_FILE || path.join(__dirname, "media-config.json");
 let mediaConfig = loadMediaConfig();
 
@@ -132,6 +133,30 @@ function parseColourdiamCarat(name) {
   return m ? m[1] : "";
 }
 
+async function colourdiamMediaFolders() {
+  const now = Date.now();
+  if (mediaFoldersCache.set && now - mediaFoldersCache.at < PRODUCT_CACHE_TTL) {
+    return mediaFoldersCache.set;
+  }
+  try {
+    const res = await fetch(MEDIA_BASE_URL + "/", {
+      headers: { "User-Agent": "colourdiam-messaging/1.0" },
+    });
+    if (!res.ok) throw new Error("media index HTTP " + res.status);
+    const html = await res.text();
+    const set = new Set(
+      [...html.matchAll(/<a href="([^"]+)\/"[^>]*>([^<]*)\/?<\/a>/g)]
+        .map((m) => decodeURIComponent(m[2] || m[1]).trim().replace(/\/+$/, ""))
+        .filter(Boolean)
+    );
+    mediaFoldersCache = { at: now, set };
+    return set;
+  } catch (err) {
+    mediaFoldersCache = { at: now, set: mediaFoldersCache.set || new Set() };
+    return mediaFoldersCache.set;
+  }
+}
+
 function colourdiamProductImg(p) {
   const real = (id) => id && !String(id).startsWith("/assets/");
   const cand = real(p.ImgPath)
@@ -148,15 +173,22 @@ function colourdiamType(name, imgPath) {
   return "diamond";
 }
 
-function normalizeColourdiamProduct(p) {
+function normalizeColourdiamProduct(p, folders) {
   const name = String(p.ProdName || "").trim();
   const meta = colourDiamondMeta(name);
   const carat = parseColourdiamCarat(name);
-  const imgPath = colourdiamProductImg(p);
+  const id = String(p.ProdId || p.TagNo || "cd-" + Math.random().toString(36).slice(2, 8));
+  const feedPath = colourdiamProductImg(p);
+  let img = null;
+  if (folders && folders.has(id)) {
+    img = MEDIA_BASE_URL + "/" + encodeURIComponent(id) + "/still.jpg";
+  } else if (feedPath) {
+    img = productImgBase() + feedPath;
+  }
   return {
-    id: String(p.ProdId || p.TagNo || "cd-" + Math.random().toString(36).slice(2, 8)),
+    id,
     name,
-    type: colourdiamType(name, imgPath),
+    type: colourdiamType(name, feedPath),
     category: (name.match(/Fancy\s+\w+/i) || [])[0] || "Diamond",
     carat,
     price: Number(p.NewPrice || p.OldPrice || 0),
@@ -165,8 +197,19 @@ function normalizeColourdiamProduct(p) {
     emoji: meta.emoji,
     color: meta.bg,
     colorName: meta.colorName,
-    img: imgPath ? productImgBase() + imgPath : null,
+    img,
   };
+}
+
+async function colourdiamSearch(pageIndex, pageCount) {
+  const url = "https://www.colourdiam.com/Home/SearchProduct?SubMenuName=&FromHome=&PageIndex="
+    + pageIndex + "&PageCount=" + pageCount + "&SortById=";
+  const res = await fetch(url, {
+    headers: { "User-Agent": "colourdiam-messaging/1.0", Accept: "application/json" },
+  });
+  if (!res.ok) throw new Error("ColourDiam API HTTP " + res.status);
+  const data = await res.json();
+  return Array.isArray(data.searchProductsList) ? data.searchProductsList : [];
 }
 
 async function fetchColourdiamProducts() {
@@ -174,13 +217,15 @@ async function fetchColourdiamProducts() {
   if (now - productsCache.at < PRODUCT_CACHE_TTL && productsCache.list.length) {
     return productsCache.list;
   }
-  const res = await fetch(COLOURDIAM_SEARCH, {
-    headers: { "User-Agent": "colourdiam-messaging/1.0", Accept: "application/json" },
-  });
-  if (!res.ok) throw new Error("ColourDiam API HTTP " + res.status);
-  const data = await res.json();
-  const raw = Array.isArray(data.searchProductsList) ? data.searchProductsList : [];
-  const list = raw.map(normalizeColourdiamProduct).filter((p) => p.name);
+  const PAGE_SIZE = 100;
+  const raw = [];
+  for (let page = 1; page <= 7; page++) {
+    const batch = await colourdiamSearch(page, PAGE_SIZE);
+    raw.push(...batch);
+    if (batch.length < PAGE_SIZE) break;
+  }
+  const folders = await colourdiamMediaFolders();
+  const list = raw.map((p) => normalizeColourdiamProduct(p, folders)).filter((p) => p.name);
   productsCache = { at: now, list };
   return list;
 }

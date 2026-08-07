@@ -232,6 +232,7 @@ test("key functions are defined", () => {
     "aiChat", "aiCanUse", "aiSuggestReply", "aiUseSuggest", "aiCloseSuggest", "aiShowSuggest",
     "aiConversation", "aiLangName", "aiDrawerSummary", "aiDrawerFollow", "aiProductSuggest",
     "showWhatsNew", "closeWhatsNew",
+    "newTextChat",
   ];
   for (const fn of required) {
     assert.ok(sandbox.run(`typeof ${fn} === 'function'`), `function missing: ${fn}`);

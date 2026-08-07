@@ -816,7 +816,7 @@ body.is-admin .nav-tabs .admin-only { display: inline-block; }
           <div class="sb-head">
             <div class="logo">CD</div>
             <h2 data-i18n="tab_messages">Messages</h2>
-            <button class="sb-icon-btn" onclick="showDrawer(null)" title="New chat" aria-label="New chat"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></button>
+            <button class="sb-icon-btn" onclick="newTextChat()" title="New text chat" aria-label="New text chat"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></button>
             <button class="sb-icon-btn" onclick="toggleShowArchived()" title="Archived" aria-label="Archived"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M10 12h4"/></svg></button>
           </div>
           <div class="sidebar-search"><input id="search" data-i18n-ph="search_ph" placeholder="Search chats..." oninput="renderContacts()"></div>
@@ -2417,6 +2417,39 @@ function setFilter(f) {
 }
 function toggleShowArchived() { showArchived = !showArchived; renderContacts(); }
 function resetSwipes() { document.querySelectorAll(".contact-item.swiped").forEach(el => el.classList.remove("swiped")); }
+function newTextChat() {
+  const name = (prompt("Customer name for this text chat:") || "").trim() || "Text Chat";
+  const d = chatData();
+  const c = {
+    id: "txt-" + Date.now().toString(36),
+    name,
+    platform: "Text Chat",
+    platformId: "text",
+    color: "#8b8172",
+    initials: name.slice(0, 2).toUpperCase(),
+    online: true,
+    lastMsg: "", time: "",
+    unread: 0,
+    messages: [],
+    tags: [], notes: "", assignee: "", followUp: "", orders: []
+  };
+  d.contacts.unshift(c);
+  d.activeId = c.id;
+  save(CHAT_KEY, d);
+  resetSwipes();
+  renderContacts();
+  renderChat(c);
+  renderTabBadge();
+  document.getElementById("chat-empty").style.display = "none";
+  document.getElementById("chat-open").classList.add("open");
+  document.getElementById("chat-panel").classList.add("show-mobile");
+  document.getElementById("chat-search-bar").classList.remove("open");
+  chatSearchQ = "";
+  hideEmoji();
+  hideReplies();
+  scrollBottom();
+}
+
 function openChat(id) {
   const d = chatData();
   const c = d.contacts.find(x => x.id === id);
