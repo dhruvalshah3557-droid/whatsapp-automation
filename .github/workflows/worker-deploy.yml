@@ -28,31 +28,36 @@ jobs:
         shell: bash
         run: npm install -g wrangler
 
-      - name: Create KV namespace if first deploy
+      - name: Create KV namespaces if first deploy
         id: kv-setup
         shell: bash
         run: |
-          if grep -q "KV_PLACEHOLDER" wrangler.toml; then
-            ID=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces" \
-              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-              | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const j=JSON.parse(d);const m=(j.result||[]).find(x=>x.title==='EVENTS');console.log(m?m.id:'');}catch(e){console.log('');}})")
-            if [ -z "$ID" ]; then
-              echo "Creating EVENTS KV namespace..."
-              OUT=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces" \
+          for ENTRY in "KV_PLACEHOLDER EVENTS" "AUTH_KV_PLACEHOLDER AUTH"; do
+            set -- $ENTRY
+            PLACEHOLDER=$1
+            TITLE=$2
+            if grep -q "$PLACEHOLDER" wrangler.toml; then
+              ID=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces" \
                 -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-                -H "Content-Type: application/json" \
-                -d '{"title":"EVENTS"}')
-              ID=$(echo "$OUT" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const j=JSON.parse(d);console.log((j.result&&j.result.id)||'');}catch(e){console.log('');}})")
+                | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const j=JSON.parse(d);const m=(j.result||[]).find(x=>x.title==='$TITLE');console.log(m?m.id:'');}catch(e){console.log('');}})")
+              if [ -z "$ID" ]; then
+                echo "Creating $TITLE KV namespace..."
+                OUT=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces" \
+                  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+                  -H "Content-Type: application/json" \
+                  -d "{\"title\":\"$TITLE\"}")
+                ID=$(echo "$OUT" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const j=JSON.parse(d);console.log((j.result&&j.result.id)||'');}catch(e){console.log('');}})")
+              fi
+              if [ -z "$ID" ]; then
+                echo "Failed to create $TITLE KV namespace"
+                exit 1
+              fi
+              sed -i "s/$PLACEHOLDER/$ID/" wrangler.toml
+              echo "kv_created=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "kv_created=false" >> "$GITHUB_OUTPUT"
             fi
-            if [ -z "$ID" ]; then
-              echo "Failed to create KV namespace"
-              exit 1
-            fi
-            sed -i "s/KV_PLACEHOLDER/$ID/" wrangler.toml
-            echo "kv_created=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "kv_created=false" >> "$GITHUB_OUTPUT"
-          fi
+          done
         working-directory: worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -89,6 +94,8 @@ jobs:
           if [ -n "$FTP_PASS" ]; then printf '%s' "$FTP_PASS" | npx wrangler secret put FTP_PASS; fi
           if [ -n "$FTP_BASE_URL" ]; then printf '%s' "$FTP_BASE_URL" | npx wrangler secret put FTP_BASE_URL; fi
           if [ -n "$FTP_REMOTE_ROOT" ]; then printf '%s' "$FTP_REMOTE_ROOT" | npx wrangler secret put FTP_REMOTE_ROOT; fi
+          if [ -n "$ADMIN_EMAIL" ]; then printf '%s' "$ADMIN_EMAIL" | npx wrangler secret put ADMIN_EMAIL; fi
+          if [ -n "$ADMIN_PASSWORD" ]; then printf '%s' "$ADMIN_PASSWORD" | npx wrangler secret put ADMIN_PASSWORD; fi
         working-directory: worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -114,3 +121,5 @@ jobs:
           FTP_PASS: ${{ secrets.FTP_PASS }}
           FTP_BASE_URL: ${{ secrets.FTP_BASE_URL }}
           FTP_REMOTE_ROOT: ${{ secrets.FTP_REMOTE_ROOT }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}

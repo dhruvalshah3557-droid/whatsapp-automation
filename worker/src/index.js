@@ -1,3 +1,5 @@
+import * as auth from "./auth.js";
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -29,9 +31,24 @@ export default {
 function cors() {
   return {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
+}
+
+function isAuthPath(path) {
+  return path.startsWith("/api/auth/") ||
+    path === "/api/tasks" || path.startsWith("/api/tasks/") ||
+    path === "/api/activity" ||
+    path.startsWith("/api/admin/");
+}
+
+async function readJsonBody(request) {
+  try {
+    return await request.json();
+  } catch (err) {
+    return null;
+  }
 }
 
 function requireAuth(request, env) {
@@ -40,9 +57,153 @@ function requireAuth(request, env) {
   return header === "Bearer " + env.API_KEY;
 }
 
+async function handleAuthApi(request, url, env) {
+  const body = await readJsonBody(request);
+  const method = request.method;
+  const p = url.pathname;
+  await auth.ensureBootstrap(env);
+  const user = await auth.sessionUser(request, env);
+  const ip = auth.clientIp(request);
+
+  if (p === "/api/auth/login" && method === "POST") {
+    if (!body) return json({ error: "Invalid JSON" }, 400, cors());
+    const result = await auth.attemptLogin(env, body.email, body.password, ip);
+    if (result.error) return json({ error: result.error }, 401, cors());
+    return json(result, 200, cors());
+  }
+
+  if (p === "/api/auth/forgot" && method === "POST") {
+    if (!body) return json({ error: "Invalid JSON" }, 400, cors());
+    const result = await auth.issueResetToken(env, body.email);
+    if (result.error) return json({ ok: true }, 200, cors());
+    return json(result, 200, cors());
+  }
+
+  if (p === "/api/auth/reset" && method === "POST") {
+    if (!body) return json({ error: "Invalid JSON" }, 400, cors());
+    const result = await auth.consumeResetToken(env, body.email, body.token, body.newPassword);
+    if (result.error) return json({ error: result.error }, 400, cors());
+    return json(result, 200, cors());
+  }
+
+  if (!user) return json({ error: "Unauthorized — please log in" }, 401, cors());
+
+  if (p === "/api/auth/logout" && method === "POST") {
+    const t = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+    await auth.destroySession(env, t);
+    await auth.auditLog(env, user.id, "logout", { ip });
+    return json({ ok: true }, 200, cors());
+  }
+
+  if (p === "/api/auth/me" && method === "GET") {
+    return json({ user: auth.publicUser(user) }, 200, cors());
+  }
+
+  if (p === "/api/auth/change-password" && method === "POST") {
+    if (!body) return json({ error: "Invalid JSON" }, 400, cors());
+    const result = await auth.changePassword(env, user, body.oldPassword, body.newPassword);
+    if (result.error) return json({ error: result.error }, 400, cors());
+    return json(result, 200, cors());
+  }
+
+  if (p === "/api/activity" && method === "GET") {
+    return json({ activity: await auth.activityFor(env, user.id) }, 200, cors());
+  }
+
+  if (p === "/api/tasks" && method === "GET") {
+    const opts = {};
+    if (url.searchParams.get("status")) opts.status = url.searchParams.get("status");
+    if (auth.isAdmin(user) && url.searchParams.get("assignedTo")) opts.assignedTo = url.searchParams.get("assignedTo");
+    return json({ tasks: await auth.listTasks(env, user, opts) }, 200, cors());
+  }
+
+  if (p === "/api/tasks" && method === "POST") {
+    if (!body) return json({ error: "Invalid JSON" }, 400, cors());
+    const result = await auth.createTask(env, body, user);
+    if (result.error) return json({ error: result.error }, 400, cors());
+    return json(result, 201, cors());
+  }
+
+  const taskMatch = p.match(/^\/api\/tasks\/([^/]+)$/);
+  if (taskMatch) {
+    const id = decodeURIComponent(taskMatch[1]);
+    if (method === "GET") {
+      const result = await auth.getTask(env, id, user);
+      if (result.error) return json({ error: result.error }, result.error === "not allowed" ? 403 : 404, cors());
+      return json(result, 200, cors());
+    }
+    if (method === "PATCH") {
+      if (!body) return json({ error: "Invalid JSON" }, 400, cors());
+      const result = await auth.updateTask(env, id, body, user);
+      if (result.error) return json({ error: result.error }, result.error === "not allowed" ? 403 : 400, cors());
+      return json(result, 200, cors());
+    }
+    if (method === "DELETE") {
+      const result = await auth.deleteTask(env, id, user);
+      if (result.error) return json({ error: result.error }, result.error === "not allowed" ? 403 : 404, cors());
+      return json(result, 200, cors());
+    }
+  }
+
+  if (!auth.isAdmin(user)) {
+    return json({ error: "Admin access required" }, 403, cors());
+  }
+
+  if (p === "/api/admin/users" && method === "GET") {
+    const stats = await auth.adminStats(env);
+    return json({ users: stats.users, totals: stats.totals }, 200, cors());
+  }
+
+  if (p === "/api/admin/users" && method === "POST") {
+    if (!body) return json({ error: "Invalid JSON" }, 400, cors());
+    const result = await auth.createUser(env, body);
+    if (result.error) return json({ error: result.error }, 400, cors());
+    await auth.auditLog(env, user.id, "user_created", { email: result.user.email, role: result.user.role });
+    return json(result, 201, cors());
+  }
+
+  const userMatch = p.match(/^\/api\/admin\/users\/([^/]+)\/action$/);
+  if (userMatch && method === "POST") {
+    if (!body) return json({ error: "Invalid JSON" }, 400, cors());
+    const id = decodeURIComponent(userMatch[1]);
+    let result;
+    if (body.action === "activate") result = await auth.setUserActive(env, id, true);
+    else if (body.action === "suspend") result = await auth.setUserActive(env, id, false);
+    else if (body.action === "promote") result = await auth.setUserRole(env, id, "admin");
+    else if (body.action === "demote") result = await auth.setUserRole(env, id, "user");
+    else if (body.action === "reset") result = await auth.resetUserPassword(env, id, body.password);
+    else return json({ error: "unknown action" }, 400, cors());
+    if (result.error) return json({ error: result.error }, 400, cors());
+    await auth.auditLog(env, user.id, "user_" + body.action, { email: result.user.email });
+    return json(result, 200, cors());
+  }
+
+  if (p === "/api/admin/stats" && method === "GET") {
+    return json(await auth.adminStats(env), 200, cors());
+  }
+
+  if (p === "/api/admin/report" && method === "GET") {
+    return json(await auth.adminReport(env), 200, cors());
+  }
+
+  if (p === "/api/admin/audit" && method === "GET") {
+    const opts = {};
+    if (url.searchParams.get("userId")) opts.userId = url.searchParams.get("userId");
+    if (url.searchParams.get("action")) opts.action = url.searchParams.get("action");
+    if (url.searchParams.get("limit")) opts.limit = Number(url.searchParams.get("limit"));
+    return json({ audit: await auth.adminAudit(env, opts) }, 200, cors());
+  }
+
+  return json({ error: "Not found" }, 404, cors());
+}
+
 async function handleApi(request, url, env, ctx) {
   if (request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: cors() });
+  }
+
+  if (isAuthPath(url.pathname)) {
+    return handleAuthApi(request, url, env);
   }
 
   if (url.pathname === "/api/health" && request.method === "GET") {

@@ -54,11 +54,21 @@ wrangler secret put FTP_BASE_URL   # public base for uploaded product photos
 # optional: wrangler secret put FTP_REMOTE_ROOT (default empty)
 ```
 
-3. Create the KV namespace (used by `/api/events`), then deploy:
+Auth/tasks/admin backend (users, sessions, tasks, audit stored in the `AUTH`
+KV namespace; bootstrap admin account created on first request):
+
+```bash
+# optional: wrangler secret put ADMIN_EMAIL   (default admin@colourdiam.com)
+# optional: wrangler secret put ADMIN_PASSWORD (default Admin2026! — force-change on first login)
+```
+
+3. Create the KV namespaces (used by `/api/events` and the auth system), then deploy:
 
 ```bash
 wrangler kv namespace create EVENTS
-# paste the returned id into wrangler.toml's [[kv_namespaces]] block
+# paste the returned id into wrangler.toml's [[kv_namespaces]] EVENTS block
+wrangler kv namespace create AUTH
+# paste the returned id into wrangler.toml's [[kv_namespaces]] AUTH block
 wrangler deploy
 ```
 

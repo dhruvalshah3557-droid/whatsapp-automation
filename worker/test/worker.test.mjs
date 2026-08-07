@@ -28,6 +28,37 @@ async function call(path, options = {}, extraEnv = {}) {
   return worker.fetch(req, { ...env, ...extraEnv }, ctx);
 }
 
+function mockAuthEnv(overrides = {}) {
+  return {
+    AUTH: mockKV(),
+    ADMIN_EMAIL: "admin@colourdiam.com",
+    ADMIN_PASSWORD: "Admin2026!",
+    AUTH_ITERATIONS: 1000,
+    ...overrides,
+  };
+}
+
+async function login(extraEnv, email, password) {
+  const res = await call("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  }, extraEnv);
+  return { status: res.status, data: await res.json() };
+}
+
+async function authCall(path, token, options = {}, extraEnv = {}) {
+  const headers = { ...(options.headers || {}) };
+  if (token) headers.Authorization = "Bearer " + token;
+  return call(path, { ...options, headers }, extraEnv);
+}
+
+async function adminToken(extraEnv = mockAuthEnv()) {
+  const r = await login(extraEnv, "admin@colourdiam.com", "Admin2026!");
+  assert.equal(r.status, 200, "admin login should succeed");
+  return r.data.token;
+}
+
 test("unknown route returns 404", async () => {
   const res = await call("/nope");
   assert.equal(res.status, 404);
@@ -534,4 +565,283 @@ test("GET /api/products derives images from ImgPathList and ModelImgPath", async
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+/* ------------------------- Auth / Tasks / Admin (KV-backed) ------------------------- */
+
+test("auth bootstraps admin and login returns a session token", async () => {
+  const aenv = mockAuthEnv();
+  const r = await login(aenv, "admin@colourdiam.com", "Admin2026!");
+  assert.equal(r.status, 200);
+  assert.ok(r.data.token, "token should be present");
+  assert.equal(r.data.user.role, "admin");
+  assert.equal(r.data.user.mustChangePassword, true);
+  assert.equal(r.data.user.active, true);
+});
+
+test("auth login rejects wrong password", async () => {
+  const aenv = mockAuthEnv();
+  const r = await login(aenv, "admin@colourdiam.com", "wrongpass");
+  assert.equal(r.status, 401);
+  assert.match(r.data.error, /Invalid email or password/);
+});
+
+test("auth /api/auth/me returns the user for a valid bearer token", async () => {
+  const aenv = mockAuthEnv();
+  const t = await adminToken(aenv);
+  const res = await authCall("/api/auth/me", t, {}, aenv);
+  assert.equal(res.status, 200);
+  const { user } = await res.json();
+  assert.equal(user.email, "admin@colourdiam.com");
+  assert.equal(user.role, "admin");
+});
+
+test("auth /api/auth/me rejects requests without a token", async () => {
+  const aenv = mockAuthEnv();
+  const res = await call("/api/auth/me", {}, aenv);
+  assert.equal(res.status, 401);
+});
+
+test("auth change-password updates the password and invalidates the old one", async () => {
+  const aenv = mockAuthEnv();
+  const t = await adminToken(aenv);
+  const res = await authCall("/api/auth/change-password", t, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ oldPassword: "Admin2026!", newPassword: "NewPass2026!" }),
+  }, aenv);
+  assert.equal(res.status, 200);
+  const old = await login(aenv, "admin@colourdiam.com", "Admin2026!");
+  assert.equal(old.status, 401);
+  const fresh = await login(aenv, "admin@colourdiam.com", "NewPass2026!");
+  assert.equal(fresh.status, 200);
+  assert.equal(fresh.data.user.mustChangePassword, false);
+});
+
+test("auth logout destroys the session", async () => {
+  const aenv = mockAuthEnv();
+  const t = await adminToken(aenv);
+  const out = await authCall("/api/auth/logout", t, { method: "POST" }, aenv);
+  assert.equal(out.status, 200);
+  const me = await authCall("/api/auth/me", t, {}, aenv);
+  assert.equal(me.status, 401);
+});
+
+test("auth forgot + reset flow issues a reset token and lets the user log in", async () => {
+  const aenv = mockAuthEnv();
+  const forgot = await call("/api/auth/forgot", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: "admin@colourdiam.com" }),
+  }, aenv);
+  assert.equal(forgot.status, 200);
+  const { resetToken } = await forgot.json();
+  assert.ok(resetToken, "resetToken should be returned");
+  const bad = await call("/api/auth/reset", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: "admin@colourdiam.com", token: "nope", newPassword: "ResetPass2026!" }),
+  }, aenv);
+  assert.equal(bad.status, 400);
+  const good = await call("/api/auth/reset", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: "admin@colourdiam.com", token: resetToken, newPassword: "ResetPass2026!" }),
+  }, aenv);
+  assert.equal(good.status, 200);
+  const r = await login(aenv, "admin@colourdiam.com", "ResetPass2026!");
+  assert.equal(r.status, 200);
+});
+
+test("auth forgot hides whether the email exists", async () => {
+  const aenv = mockAuthEnv();
+  const res = await call("/api/auth/forgot", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: "nobody@example.com" }),
+  }, aenv);
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), { ok: true });
+});
+
+test("auth tasks CRUD round-trip", async () => {
+  const aenv = mockAuthEnv();
+  const t = await adminToken(aenv);
+  const create = await authCall("/api/tasks", t, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title: "Ship order #100", status: "in_progress", progress: 40, priority: "high", dueDate: "2026-08-20" }),
+  }, aenv);
+  assert.equal(create.status, 201);
+  const task = (await create.json()).task;
+  assert.ok(task.id);
+  assert.equal(task.ownerId, task.assignedTo);
+  assert.equal(task.title, "Ship order #100");
+
+  const list = await authCall("/api/tasks", t, {}, aenv);
+  assert.equal(list.status, 200);
+  assert.equal((await list.json()).tasks.length, 1);
+
+  const patch = await authCall(`/api/tasks/${task.id}`, t, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: "completed" }),
+  }, aenv);
+  assert.equal(patch.status, 200);
+  assert.equal((await patch.json()).task.progress, 100);
+
+  const del = await authCall(`/api/tasks/${task.id}`, t, { method: "DELETE" }, aenv);
+  assert.equal(del.status, 200);
+  const after = await authCall("/api/tasks", t, {}, aenv);
+  assert.equal((await after.json()).tasks.length, 0);
+});
+
+test("auth task ownership is enforced between users", async () => {
+  const aenv = mockAuthEnv();
+  const admin = await adminToken(aenv);
+  for (const [name, email] of [["Alice", "alice@colourdiam.com"], ["Bob", "bob@colourdiam.com"]]) {
+    const r = await authCall("/api/admin/users", admin, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password: "UserPass2026!" }),
+    }, aenv);
+    assert.equal(r.status, 201);
+  }
+  const alice = await login(aenv, "alice@colourdiam.com", "UserPass2026!");
+  assert.equal(alice.status, 200);
+  const bob = await login(aenv, "bob@colourdiam.com", "UserPass2026!");
+  assert.equal(bob.status, 200);
+  const aliceTok = alice.data.token;
+  const bobTok = bob.data.token;
+
+  const create = await authCall("/api/tasks", aliceTok, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title: "Alice private task" }),
+  }, aenv);
+  assert.equal(create.status, 201);
+  const id = (await create.json()).task.id;
+
+  const steal = await authCall(`/api/tasks/${id}`, bobTok, { method: "DELETE" }, aenv);
+  assert.equal(steal.status, 403);
+
+  const own = await authCall(`/api/tasks/${id}`, aliceTok, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ description: "mine" }),
+  }, aenv);
+  assert.equal(own.status, 200);
+});
+
+test("auth non-admin cannot reassign tasks or read admin endpoints", async () => {
+  const aenv = mockAuthEnv();
+  const admin = await adminToken(aenv);
+  await authCall("/api/admin/users", admin, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: "Carol", email: "carol@colourdiam.com", password: "UserPass2026!" }),
+  }, aenv);
+  const carol = await login(aenv, "carol@colourdiam.com", "UserPass2026!");
+  const ctok = carol.data.token;
+
+  const stats = await authCall("/api/admin/stats", ctok, {}, aenv);
+  assert.equal(stats.status, 403);
+
+  const create = await authCall("/api/tasks", admin, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title: "team task" }),
+  }, aenv);
+  const id = (await create.json()).task.id;
+  const reassign = await authCall(`/api/tasks/${id}`, ctok, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ assignedTo: ctok }),
+  }, aenv);
+  assert.equal(reassign.status, 403);
+});
+
+test("auth admin creates, suspends and reactivates users", async () => {
+  const aenv = mockAuthEnv();
+  const admin = await adminToken(aenv);
+  const create = await authCall("/api/admin/users", admin, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: "Dave", email: "dave@colourdiam.com", password: "UserPass2026!" }),
+  }, aenv);
+  assert.equal(create.status, 201);
+  const { user } = await create.json();
+  assert.equal(user.role, "user");
+  assert.equal(user.active, true);
+
+  const list = await authCall("/api/admin/users", admin, {}, aenv);
+  const users = (await list.json()).users;
+  assert.ok(users.some((u) => u.email === "dave@colourdiam.com"));
+
+  const suspend = await authCall(`/api/admin/users/${user.id}/action`, admin, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "suspend" }),
+  }, aenv);
+  assert.equal(suspend.status, 200);
+  assert.equal((await suspend.json()).user.active, false);
+
+  const blocked = await login(aenv, "dave@colourdiam.com", "UserPass2026!");
+  assert.equal(blocked.status, 401);
+  assert.match(blocked.data.error, /suspended/);
+
+  const activate = await authCall(`/api/admin/users/${user.id}/action`, admin, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "activate" }),
+  }, aenv);
+  assert.equal(activate.status, 200);
+  assert.equal((await activate.json()).user.active, true);
+});
+
+test("auth admin cannot suspend the last active admin", async () => {
+  const aenv = mockAuthEnv();
+  const admin = await adminToken(aenv);
+  const me = await authCall("/api/auth/me", admin, {}, aenv);
+  const { user } = await me.json();
+  const res = await authCall(`/api/admin/users/${user.id}/action`, admin, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "suspend" }),
+  }, aenv);
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /last active admin/);
+});
+
+test("auth activity, stats, report and audit endpoints work for admins", async () => {
+  const aenv = mockAuthEnv();
+  const admin = await adminToken(aenv);
+  const created = await authCall("/api/tasks", admin, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title: "Order #42 follow-up", status: "completed", progress: 100 }),
+  }, aenv);
+  assert.equal(created.status, 201);
+
+  const activity = await authCall("/api/activity", admin, {}, aenv);
+  const acts = (await activity.json()).activity;
+  assert.ok(acts.some((a) => a.action === "login"));
+  assert.ok(acts.some((a) => a.action === "task_created"));
+
+  const stats = await authCall("/api/admin/stats", admin, {}, aenv);
+  const s = (await stats.json());
+  assert.equal(s.totals.users, 1);
+  assert.equal(s.totals.tasks, 1);
+  assert.equal(s.totals.tasksCompleted, 1);
+  assert.equal(s.totals.audit > 0, true);
+  assert.equal(s.users[0].total, 1);
+  assert.equal(s.users[0].avgProgress, 100);
+
+  const report = await authCall("/api/admin/report", admin, {}, aenv);
+  assert.equal((await report.json()).users.length, 1);
+
+  const audit = await authCall("/api/admin/audit?limit=5", admin, {}, aenv);
+  const entries = (await audit.json()).audit;
+  assert.ok(entries.length >= 3);
+  assert.ok(entries.every((e) => e.userId && e.action && e.at));
 });

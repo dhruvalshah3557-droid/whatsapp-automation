@@ -8,6 +8,12 @@ compatibility_date = "2026-08-04"
 binding = "EVENTS"
 id = "KV_PLACEHOLDER"
 
+# KV namespace backing the auth/tasks/admin system (users, sessions, tasks, audit).
+# The deploy workflow replaces AUTH_KV_PLACEHOLDER with a real namespace id on first deploy.
+[[kv_namespaces]]
+binding = "AUTH"
+id = "AUTH_KV_PLACEHOLDER"
+
 # Serve the messaging app (same origin as the API/webhooks) so one URL does everything.
 [assets]
 directory = "../messaging"

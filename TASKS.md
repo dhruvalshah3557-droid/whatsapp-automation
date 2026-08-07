@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Port auth/tasks/admin to the Cloudflare Worker (KV-backed) so the production app survives local shutdown — status: finished
+  - Done: new `worker/src/auth.js` KV-backed auth module mirroring `server/auth.js` (PBKDF2-SHA256 password hashing via Web Crypto since Workers lack scrypt, 256-bit bearer sessions TTL 12h in the `AUTH` KV, per-email+IP login lockout, append-only audit capped at 2000, lazy admin bootstrap from `ADMIN_EMAIL`/`ADMIN_PASSWORD`, default `admin@colourdiam.com`/`Admin2026!` force-change); wired all routes into `worker/src/index.js` (`/api/auth/login|forgot|reset|logout|me|change-password`, `/api/tasks` CRUD with ownership 403s, `/api/activity`, `/api/admin/users` GET/POST + `/action`, `/api/admin/stats|report|audit`) with CORS now allowing PATCH/DELETE; added `AUTH` KV binding to `worker/wrangler.toml` and generalized `worker-deploy.yml` to auto-create both `EVENTS` and `AUTH` namespaces idempotently + push `ADMIN_EMAIL`/`ADMIN_PASSWORD` secrets; documented the auth backend in `worker/README.md`; 14 new worker auth tests (36 → 50 worker tests); MONITOR OK (119/119 tests, previously 105).
+
 - [x] 260807: Add AI features + auto-show What's New on updates — status: finished
   - Done: all six requested features (en/zh/th i18n, all reuse the LLM via server proxy `/api/llm` first then the browser-configured key):
     - AI Reply Suggestions — sparkle button in the chat composer opens a bar with 3 smart draft replies in the customer's language; tap to fill the input.
