@@ -37,9 +37,8 @@ This file is the single source of truth for task status. A fresh session reads t
   - Still blocked on user: (2) regenerate a valid Facebook Page token (current one is invalid/expired); (3) provide a valid Instagram access token.
   - Once tokens are available: update `/workspace/server/.env` (local preview) + GitHub Actions secrets (worker deploy), then point Meta webhooks at `https://messaging-webhooks.messaging-webhooks-worker.workers.dev/webhook/facebook-hook` and `.../webhook/instagram-hook`, verify event flow, and mark this task finished.
 
-- [x] 260807: Remove the "Oval · 1.06ct SI1 · Fancy Deep Brownish Greenish Yellow · GIA" diamond (id 8171) from the app catalogue — status: finished
-  - Done: added a persistent `EXCLUDE_IDS` blocklist in `server/site-sync.js` (default `["8171"]`, extendable via `SYNC_EXCLUDE_IDS` env) and filter it at disk-load, sync, and enrich-progress points so an excluded diamond never reappears after a re-sync; `/api/products` now returns 741 items without id 8171 (verified live); site-sync tests updated to non-excluded fixture ids + new regression test for excluded-id filtering; 88 tests pass; MONITOR OK (commit `318a9ca`).
-  - Note: `backup` remote push to zebbern/no-cost-ai still denied with 403 (bot token lacks write access to that repo) — same known blocker, origin main pushed successfully.
+- [x] 260807: Remove the "Oval · 1.06ct SI1 · Fancy Deep Brownish Greenish Yellow · GIA" diamond (id 8171) from the app catalogue — status: reverted (not requested)
+  - Done: briefly added a persistent `EXCLUDE_IDS` blocklist in `server/site-sync.js` and filtered it at load/sync; then reverted the whole change because it was not requested (commit `2bbe60d`). Diamond 8171 is back in the catalogue; `/api/products` returns all 742 items.
 
 ## History
 
