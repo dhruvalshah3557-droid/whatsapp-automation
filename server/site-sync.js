@@ -45,21 +45,6 @@ export const syncConfig = {
   concurrency: Number(process.env.SYNC_CONCURRENCY) || ENRICH_CONCURRENCY,
 };
 
-// Product IDs to hide from the catalogue. Persistent across re-syncs so a
-// diamond removed here never comes back. Extend via SYNC_EXCLUDE_IDS (comma
-// separated) or by adding to the default set below.
-const DEFAULT_EXCLUDE_IDS = ["8171"];
-const envExclude = String(process.env.SYNC_EXCLUDE_IDS || "")
-  .split(",")
-  .map((s) => s.trim())
-  .filter(Boolean);
-export const EXCLUDE_IDS = new Set([...DEFAULT_EXCLUDE_IDS, ...envExclude]);
-
-function applyExclusions(list) {
-  if (!EXCLUDE_IDS.size) return list;
-  return list.filter((p) => !EXCLUDE_IDS.has(String(p.id || "")));
-}
-
 let inventory = { at: 0, list: [], status: "idle", total: 0, enriched: 0, error: null, lastSync: null };
 let syncRun = null;
 
@@ -269,7 +254,6 @@ export function loadInventoryFromDisk() {
         inventory = {
           ...inventory,
           ...parsed,
-          list: applyExclusions(parsed.list),
           status: parsed.status || "cached",
           error: parsed.error || null,
         };
@@ -356,7 +340,7 @@ export async function syncSite({ enrich = true, onProgress } = {}) {
           enrichedSoFar[n - 1] = item;
           if (onProgress) onProgress({ phase: "enrich", count: n, total: t });
           inventory.enriched = n;
-          inventory.list = applyExclusions(enrichedSoFar.filter(Boolean));
+          inventory.list = enrichedSoFar.filter(Boolean);
           if (n % SAVE_EVERY === 0) saveInventory();
         });
         inventory.enriched = mapped.filter((d) => d.clarity || d.shape).length;
@@ -364,7 +348,7 @@ export async function syncSite({ enrich = true, onProgress } = {}) {
         mapped = list.map((raw) => mapDiamond(raw, null));
         inventory.enriched = 0;
       }
-      inventory.list = applyExclusions(mapped);
+      inventory.list = mapped;
       inventory.status = "ready";
       inventory.at = Date.now();
       inventory.lastSync = new Date().toISOString();
