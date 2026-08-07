@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - worker/**
+      - messaging/**
       - .github/workflows/worker-deploy.yml
   workflow_dispatch:
 

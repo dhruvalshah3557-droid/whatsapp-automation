@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Auto-deploy worker on every app change — status: finished
+  - Done: `worker-deploy.yml` only triggered on `worker/**` changes, so the live Cloudflare Worker was stuck at `colourdiam-msg-v18` while local was v24; added `messaging/**` to the workflow `paths` so the worker redeploys on every app change (workflow file change itself also matches and redeploys); pushed, worker now serves v24.
+
 - [x] 260807: Fix admin tabs never showing after login (CSS !important bug) — status: finished
   - Done: `.admin-only { display: none !important; }` outranked the `body.is-admin .admin-only` show rules in the cascade, so the Admin/Users/Assign/Report tabs and menu items were permanently hidden even for an admin; removed the `!important` so the higher-specificity admin rules take effect; SW bumped to `colourdiam-msg-v24`; also reset the admin password via the forgot flow (`/api/auth/forgot` + `/api/auth/reset`) back to `Admin2026!` because the audit log showed it had been changed earlier; MONITOR OK (105/105 tests).
 
