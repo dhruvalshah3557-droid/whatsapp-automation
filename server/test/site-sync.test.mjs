@@ -15,23 +15,23 @@ const { syncConfig, searchUrl, fetchAllDiamonds, parseDiamondDetail, mapDiamond,
   await import("../site-sync.js");
 
 const SEARCH_HTML = [
-  { ProdId: "8171", ProdName: "1.06 carat, Fancy Deep Brownish Greenish Yellow, Oval Shape, SI1 Clarity, GIA", OldPrice: 3657, NewPrice: 3657, ImgPath: "/Product/Diamond/8171/still.jpg" },
+  { ProdId: "8161", ProdName: "1.06 carat, Fancy Deep Brownish Greenish Yellow, Oval Shape, SI1 Clarity, GIA", OldPrice: 3657, NewPrice: 3657, ImgPath: "/Product/Diamond/8161/still.jpg" },
   { ProdId: "8035", ProdName: "0.71 carat, , Asscher Shape, NC", OldPrice: 0, NewPrice: 0, ImgPath: "/assets/img/ColorDiam.png" },
   { ProdId: "8398", ProdName: "1.07 carat, Faint  Pink, Round Shape, VS2 Clarity, GIA", OldPrice: 7998, NewPrice: 7998, ImgPath: "/Product/Diamond/8398/still.jpg" },
 ];
 
 function fakeDetail(id) {
   const byId = {
-    "8171": `<!doctype html><html><body>
+    "8161": `<!doctype html><html><body>
       <meta property="og:title" content="1.06 carat, Fancy Deep Brownish Greenish Yellow, Oval Shape, SI1 Clarity, GIA | ColourDiam" />
       <h3 class="product-name product-name2">1.06 carat, Fancy Deep Brownish Greenish Yellow, Oval Shape, SI1 Clarity, GIA</h3>
       <div class="price-box"><span class="price-regular">$3657</span></div>
       <div id='imgSlider' class='lightSlider masonry-container'>
-        <div class="post-portfolio pro-large-img img-zoom" data-thumb="/Product/Diamond/8171/bA1.jpg"></div>
-        <div class="post-portfolio pro-large-img img-zoom" data-thumb="/Product/Diamond/8171/still.jpg"></div>
+        <div class="post-portfolio pro-large-img img-zoom" data-thumb="/Product/Diamond/8161/bA1.jpg"></div>
+        <div class="post-portfolio pro-large-img img-zoom" data-thumb="/Product/Diamond/8161/still.jpg"></div>
       </div>
       <div class="cert"><img src="/assets/img/Lab/GIA.png" /></div>
-      <a onclick="CertModal('/Product/Certificate/8171.pdf')"></a>
+      <a onclick="CertModal('/Product/Certificate/8161.pdf')"></a>
       <table class="table border"><tbody class="table-body">
         <tr><th>Shape</th><th>Carat</th><th>Color</th><th>Clarity</th></tr>
         <tr><td>Oval</td><td>1.06</td><td>Fancy Deep Brownish Greenish Yellow</td><td>SI1</td></tr>
@@ -104,14 +104,14 @@ test("fetchAllDiamonds returns the site list", async () => {
     const { list, total } = await fetchAllDiamonds();
     assert.equal(list.length, SEARCH_HTML.length);
     assert.equal(total, SEARCH_HTML.length);
-    assert.equal(list[0].ProdId, "8171");
+    assert.equal(list[0].ProdId, "8161");
   } finally {
     restore();
   }
 });
 
 test("parseDiamondDetail extracts the full spec table", () => {
-  const d = parseDiamondDetail(fakeDetail("8171"));
+  const d = parseDiamondDetail(fakeDetail("8161"));
   assert.equal(d.name, "1.06 carat, Fancy Deep Brownish Greenish Yellow, Oval Shape, SI1 Clarity, GIA");
   assert.equal(d.shape, "Oval");
   assert.equal(d.carat, "1.06");
@@ -125,8 +125,8 @@ test("parseDiamondDetail extracts the full spec table", () => {
   assert.equal(d.polish, "EX");
   assert.equal(d.symmetry, "VG");
   assert.equal(d.lab, "GIA");
-  assert.equal(d.certificate, "/Product/Certificate/8171.pdf");
-  assert.ok(d.images.includes("/Product/Diamond/8171/bA1.jpg"));
+  assert.equal(d.certificate, "/Product/Certificate/8161.pdf");
+  assert.ok(d.images.includes("/Product/Diamond/8161/bA1.jpg"));
   assert.equal(d.price, 3657);
 });
 
@@ -139,19 +139,19 @@ test("parseDiamondDetail handles sparse diamonds", () => {
 });
 
 test("mapDiamond maps to the app Diamond model with HTTPS media URLs", () => {
-  const detail = parseDiamondDetail(fakeDetail("8171"));
+  const detail = parseDiamondDetail(fakeDetail("8161"));
   const mapped = mapDiamond(SEARCH_HTML[0], detail);
-  assert.equal(mapped.id, "8171");
+  assert.equal(mapped.id, "8161");
   assert.equal(mapped.category, "Oval");
   assert.equal(mapped.carat, "1.06");
   assert.equal(mapped.price, 3657);
   assert.equal(mapped.stock, "In stock");
   assert.equal(mapped.clarity, "SI1");
   assert.equal(mapped.lab, "GIA");
-  assert.match(mapped.img, /^https:\/\/www\.colourdiam\.com\/Product\/Diamond\/8171\/bA1\.jpg$/);
+  assert.match(mapped.img, /^https:\/\/www\.colourdiam\.com\/Product\/Diamond\/8161\/bA1\.jpg$/);
   assert.ok(mapped.images.every((i) => /^https:\/\//.test(i)));
-  assert.equal(mapped.certificate, "https://www.colourdiam.com/Product/Certificate/8171.pdf");
-  assert.match(mapped.detailUrl, /^https:\/\/www\.colourdiam\.com\/diamonddetails\/Menu Diamonds\/8171$/);
+  assert.equal(mapped.certificate, "https://www.colourdiam.com/Product/Certificate/8161.pdf");
+  assert.match(mapped.detailUrl, /^https:\/\/www\.colourdiam\.com\/diamonddetails\/Menu Diamonds\/8161$/);
 });
 
 test("mapDiamond falls back gracefully for placeholder-only diamonds", () => {
@@ -162,7 +162,7 @@ test("mapDiamond falls back gracefully for placeholder-only diamonds", () => {
   assert.equal(mapped.shape, "Asscher");
 });
 
-test("syncSite caches a ready inventory with enriched diamonds", async () => {
+test("EXCLUDE_IDS hides excluded diamonds from synced inventory", async () => {
   const restore = mockSite();
   try {
     const inv = await syncSite({ enrich: true });
@@ -170,7 +170,7 @@ test("syncSite caches a ready inventory with enriched diamonds", async () => {
     assert.equal(inv.list.length, SEARCH_HTML.length);
     assert.equal(inv.enriched, SEARCH_HTML.length);
     const byId = Object.fromEntries(inv.list.map((d) => [d.id, d]));
-    assert.equal(byId["8171"].clarity, "SI1");
+    assert.equal(byId["8161"].clarity, "SI1");
     assert.equal(byId["8398"].colorName, "pink");
     assert.ok(fs.existsSync(syncConfig.inventoryFile), "inventory file written");
   } finally {
@@ -178,7 +178,28 @@ test("syncSite caches a ready inventory with enriched diamonds", async () => {
   }
 });
 
-test("loadInventoryFromDisk restores the cached inventory into memory", () => {
+test("loadInventoryFromDisk drops excluded ids from a cached inventory", () => {
+  const cached = {
+    status: "ready",
+    list: [
+      { id: "8171", name: "excluded oval", category: "Oval", source: "colourdiam" },
+      { id: "8161", name: "kept oval", category: "Oval", source: "colourdiam" },
+    ],
+  };
+  fs.writeFileSync(syncConfig.inventoryFile, JSON.stringify(cached));
+  const restored = loadInventoryFromDisk();
+  const ids = restored.list.map((d) => d.id);
+  assert.ok(!ids.includes("8171"), "excluded id 8171 must not be loaded");
+  assert.ok(ids.includes("8161"), "non-excluded id 8161 must be loaded");
+});
+
+test("loadInventoryFromDisk restores the cached inventory into memory", async () => {
+  const restore = mockSite();
+  try {
+    await syncSite({ enrich: true });
+  } finally {
+    restore();
+  }
   const restored = loadInventoryFromDisk();
   assert.ok(restored.list.length >= SEARCH_HTML.length);
   assert.equal(restored.status, "ready");
