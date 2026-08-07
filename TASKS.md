@@ -9,6 +9,10 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Refresh stale preview URL again — status: finished
+  - Done: old preview `8099-94416e0ed3edebff.monkeycode-ai.live` was dead again (HTTP 521, origin tunnel down); requested a fresh preview `8099-e1ac3c1ab16f7e9e.monkeycode-ai.live` (health 200) and updated `PREVIEW_URL` in `scripts/monitor.mjs` + `scripts/agent.mjs`; MONITOR OK (105/105 tests); origin push done (commit `a605e8d`).
+  - Blocked (pre-existing): `git push backup main:colourdiam-messaging` still 403 (bot token has no write access to `zebbern/no-cost-ai`); `backup` remote was missing from git config again and has been re-added so the push goes through automatically once the user grants access.
+
 - [x] 260807: Admin dashboard cards clickable + voice commands + reminders/calendar sync + iPad layout — status: finished
   - Done: admin stat cards now navigate (Users/Active/Suspended → Users view, Total/Completed/Overdue → Assign view, Audit → Activity view) with hover style; added voice commands via Web Speech API (topbar mic button, en/zh/th recognition, navigates to any view by name, "lock app", opens chats by customer name; unsupported-browser fallback); new Reminders view (add/complete/delete reminders with datetime, persisted in localStorage) + "Sync to calendar" ICS export; iPad support: scrollable bottom tabbar on narrow screens (9 tabs now) and horizontally scrollable top nav for the 900-1180px tablet range; SW bumped to `colourdiam-msg-v30`; MONITOR OK (105/105 tests).
 
