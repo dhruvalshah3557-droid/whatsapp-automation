@@ -79,7 +79,7 @@ function buildSandbox() {
     localStorage,
     sessionStorage: localStorage,
     navigator: { userAgent: "test", language: "en", platform: "linux", vibrate: () => {} },
-    location: { href: "https://example.com/index.html", origin: "https://example.com", pathname: "/index.html" },
+    location: { href: "https://example.com/index.html", origin: "https://example.com", pathname: "/index.html", reload: () => {} },
     console,
     setTimeout: () => 0,
     clearTimeout: () => {},
@@ -259,4 +259,64 @@ test("What's New shows only unseen versions", () => {
   const seen2 = run("WHATS_NEW.filter(function(e){ return Number(e.v.slice(1)) > Number(localStorage.getItem('mc_whatsnew_v1') || 0); })");
   assert.equal(seen2.length, 0, "after marking seen, nothing is new");
   run("localStorage.removeItem('mc_whatsnew_v1')");
+});
+
+test("memory backup uploads all data to the local server AND the Cloudflare worker", async () => {
+  const sb = evalSandbox();
+  const calls = [];
+  sb.ctx.fetch = async (url, opts = {}) => {
+    calls.push({ url: String(url), method: opts.method || "GET" });
+    return { ok: true, status: 200, json: async () => ({ ok: true }) };
+  };
+  sb.run("localStorage.clear(); localStorage.setItem('mc_chat_v2', JSON.stringify({ contacts: [{ name: 'A' }] }));");
+  await sb.run("backupMemory()");
+  const memCalls = calls.filter((c) => c.url.includes("/api/memory"));
+  assert.equal(memCalls.length, 2, "memory should be posted to both targets");
+  assert.ok(memCalls.some((c) => c.url.startsWith("https://example.com")), "local server should receive the memory POST");
+  assert.ok(memCalls.some((c) => c.url.startsWith("https://messaging-webhooks.messaging-webhooks-worker.workers.dev")), "Cloudflare worker should receive the memory POST");
+  assert.ok(memCalls.every((c) => c.method === "POST"));
+  assert.ok(sb.run("localStorage.getItem('mc_memory_at')"), "last-backup timestamp should be stored");
+});
+
+test("memory backup skips the Cloudflare duplicate when the worker is the configured server", async () => {
+  const sb = evalSandbox();
+  const calls = [];
+  sb.ctx.fetch = async (url, opts = {}) => {
+    calls.push(String(url));
+    return { ok: true, status: 200, json: async () => ({ ok: true }) };
+  };
+  sb.run("localStorage.clear(); localStorage.setItem('mc_cfg_v3', JSON.stringify({ server_url: 'https://messaging-webhooks.messaging-webhooks-worker.workers.dev' })); localStorage.setItem('mc_chat_v2', JSON.stringify({ contacts: [{ name: 'A' }] }));");
+  await sb.run("backupMemory()");
+  const memCalls = calls.filter((c) => c.includes("/api/memory"));
+  assert.equal(memCalls.length, 1, "only one memory POST when the worker is already the server");
+  assert.equal(sb.run("localStorage.getItem('mc_memory_at')") !== null, true);
+});
+
+test("memory restore prefers the newest copy across server and Cloudflare", async () => {
+  const sb = evalSandbox();
+  sb.ctx.fetch = async (url, opts = {}) => {
+    if (String(url).startsWith("https://example.com")) {
+      return { ok: true, status: 200, json: async () => ({ ok: true, memory: { mc_chat_v2: { contacts: [{ name: "Old" }] } }, at: 100 }) };
+    }
+    return { ok: true, status: 200, json: async () => ({ ok: true, memory: { mc_chat_v2: { contacts: [{ name: "New" }] } }, at: 200 }) };
+  };
+  sb.run("localStorage.clear();");
+  await sb.run("restoreMemory()");
+  const contacts = sb.run("JSON.parse(localStorage.getItem('mc_chat_v2'))");
+  assert.equal(contacts.contacts[0].name, "New");
+  assert.equal(sb.run("localStorage.getItem('mc_memory_at')"), "200");
+});
+
+test("memory restore keeps local data when it is newer than both server and Cloudflare", async () => {
+  const sb = evalSandbox();
+  sb.ctx.fetch = async (url, opts = {}) => {
+    if (String(url).startsWith("https://example.com")) {
+      return { ok: true, status: 200, json: async () => ({ ok: true, memory: { mc_chat_v2: { contacts: [{ name: "Old" }] } }, at: 100 }) };
+    }
+    return { ok: true, status: 200, json: async () => ({ ok: true, memory: { mc_chat_v2: { contacts: [{ name: "Old" }] } }, at: 50 }) };
+  };
+  sb.run("localStorage.clear(); localStorage.setItem('mc_memory_at', '300'); localStorage.setItem('mc_chat_v2', JSON.stringify({ contacts: [{ name: 'Local' }] }));");
+  await sb.run("restoreMemory()");
+  const contacts = sb.run("JSON.parse(localStorage.getItem('mc_chat_v2'))");
+  assert.equal(contacts.contacts[0].name, "Local");
 });

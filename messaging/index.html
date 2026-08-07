@@ -2075,6 +2075,7 @@ async function apiCall(path, opts = {}) {
 
 /* ==================== App memory (server-backed persistence) ==================== */
 const MEMORY_AT_KEY = "mc_memory_at";
+const CLOUD_BACKUP_URL = DEFAULT_SERVER_URL;
 let memTimer = null;
 let memSaving = false;
 function memoryKeys() { return [CHAT_KEY, UI_KEY, CFG_KEY, AUTH_KEY, RM_KEY, REPLIES_KEY, AI_KEY, AI_MSG_KEY, MEDIA_KEY]; }
@@ -2088,6 +2089,32 @@ function collectMemory() {
   }
   return data;
 }
+function cloudBackupTarget() {
+  const s = serverCfg();
+  return s.url && s.url !== CLOUD_BACKUP_URL ? CLOUD_BACKUP_URL : "";
+}
+async function postMemory(url, data, at) {
+  try {
+    const res = await fetch(url + "/api/memory", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data, at }),
+    });
+    return res.ok;
+  } catch (err) {
+    return false;
+  }
+}
+async function fetchMemory(url) {
+  try {
+    const res = await fetch(url + "/api/memory");
+    if (!res.ok) return null;
+    const data = await res.json();
+    return { memory: data.memory, at: Number(data.at) || 0 };
+  } catch (err) {
+    return null;
+  }
+}
 function scheduleMemoryBackup() {
   if (memSaving) return;
   clearTimeout(memTimer);
@@ -2100,31 +2127,50 @@ async function backupMemory() {
     const data = collectMemory();
     if (!Object.keys(data).length) return;
     const at = Date.now();
-    await apiCall("/api/memory", { method: "POST", body: JSON.stringify({ data, at }) });
-    localStorage.setItem(MEMORY_AT_KEY, String(at));
+    let ok = false;
+    const s = serverCfg();
+    if (s.url) {
+      try {
+        await apiCall("/api/memory", { method: "POST", body: JSON.stringify({ data, at }) });
+        ok = true;
+      } catch (err) { /* local server offline — cloud may still succeed */ }
+    }
+    const cloud = cloudBackupTarget();
+    if (cloud) ok = (await postMemory(cloud, data, at)) || ok;
+    if (ok) localStorage.setItem(MEMORY_AT_KEY, String(at));
   } catch (err) { /* offline — retry on next save */ }
   finally { memSaving = false; }
 }
 async function restoreMemory() {
-  try {
-    const r = await apiCall("/api/memory");
-    const mem = r.memory;
-    if (!mem || typeof mem !== "object" || !Object.keys(mem).length) return;
-    const serverAt = Number(r.at) || 0;
-    const localAt = Number(localStorage.getItem(MEMORY_AT_KEY) || 0);
-    if (serverAt <= localAt) return;
-    let changed = false;
-    for (const k of Object.keys(mem)) {
-      if (!memoryKeys().includes(k)) continue;
-      try {
-        if (localStorage.getItem(k) !== JSON.stringify(mem[k])) { localStorage.setItem(k, JSON.stringify(mem[k])); changed = true; }
-      } catch (e) { /* skip */ }
-    }
-    if (changed) {
-      localStorage.setItem(MEMORY_AT_KEY, String(serverAt));
-      location.reload();
-    }
-  } catch (err) { /* no server yet */ }
+  const candidates = [];
+  const s = serverCfg();
+  if (s.url) {
+    const local = await fetchMemory(s.url);
+    if (local && local.memory) candidates.push(local);
+  }
+  const cloud = cloudBackupTarget();
+  if (cloud) {
+    const c = await fetchMemory(cloud);
+    if (c && c.memory) candidates.push(c);
+  }
+  const best = candidates
+    .filter((m) => m.memory && typeof m.memory === "object" && Object.keys(m.memory).length)
+    .sort((a, b) => b.at - a.at)[0];
+  if (!best) return;
+  const serverAt = best.at;
+  const localAt = Number(localStorage.getItem(MEMORY_AT_KEY) || 0);
+  if (serverAt <= localAt) return;
+  let changed = false;
+  for (const k of Object.keys(best.memory)) {
+    if (!memoryKeys().includes(k)) continue;
+    try {
+      if (localStorage.getItem(k) !== JSON.stringify(best.memory[k])) { localStorage.setItem(k, JSON.stringify(best.memory[k])); changed = true; }
+    } catch (e) { /* skip */ }
+  }
+  if (changed) {
+    localStorage.setItem(MEMORY_AT_KEY, String(serverAt));
+    location.reload();
+  }
 }
 
 /* ==================== What's New (auto-show feature updates) ==================== */
