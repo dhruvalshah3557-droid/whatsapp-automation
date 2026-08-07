@@ -244,6 +244,8 @@ test("GET /api/products proxies and normalizes ColourDiam catalogue", async () =
     assert.equal(yellow.img, "https://www.colourdiam.com/Product/Jewellery/1003/CENTER.jpg");
     const green = products.find((p) => p.id === "1263");
     assert.equal(green.emoji, "💚");
+    assert.equal(yellow.type, "jewelry", "18K/gm jewellery names are typed jewelry");
+    assert.equal(green.type, "jewelry", "ImgPath under /Product/Jewellery/ is typed jewelry");
     assert.ok(products.every((p) => p.name && p.id));
   } finally {
     globalThis.fetch = originalFetch;

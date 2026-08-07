@@ -746,7 +746,12 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
         <div class="prod-filter">
           <div class="pf-field"><label data-i18n="prod_search">Search</label><input id="pf-search" type="search" placeholder="Search products..." data-i18n-ph="prod_search" oninput="renderProducts()"></div>
           <div class="pf-grid">
-            <div class="pf-field"><label data-i18n="prod_category">Category</label><select id="pf-category" data-i18n-title="prod_category" onchange="renderProducts()"></select></div>
+            <div class="pf-field"><label data-i18n="prod_type">Product</label><select id="pf-type" data-i18n-title="prod_type" onchange="renderProducts()">
+              <option value="" data-i18n="filter_any">Any</option>
+              <option value="diamond" data-i18n="type_diamond">Diamond</option>
+              <option value="jewelry" data-i18n="type_jewelry">Jewelry</option>
+            </select></div>
+            <div class="pf-field"><label data-i18n="prod_shape">Shape</label><select id="pf-shape" data-i18n-title="prod_shape" onchange="renderProducts()"></select></div>
             <div class="pf-field"><label data-i18n="prod_color">Color</label><select id="pf-color" data-i18n-title="prod_color" onchange="renderProducts()"></select></div>
             <div class="pf-field"><label data-i18n="prod_carat">Carat</label><select id="pf-carat" data-i18n-title="prod_carat" onchange="renderProducts()">
               <option value="" data-i18n="filter_any">Any</option>
@@ -1037,7 +1042,7 @@ const I18N = {
     sec_enabled: "Biometric unlock enabled", sec_disabled: "Biometric unlock disabled",
     err_no_chat: "No chats found", lang_label: "Language",
     uploaded: "Image attached", drop_hint: "Drop files to attach",
-    prod_search: "Search products...", prod_category: "Category", prod_color: "Color", prod_carat: "Carat", prod_price: "Price", prod_sort: "Sort",
+    prod_search: "Search products...", prod_type: "Product", type_diamond: "Diamond", type_jewelry: "Jewelry", prod_shape: "Shape", prod_color: "Color", prod_carat: "Carat", prod_price: "Price", prod_sort: "Sort",
     filter_any: "Any", filter_clear: "Clear filters",
     carat_u05: "≤ 0.5 ct", carat_05_1: "0.5 – 1 ct", carat_1_2: "1 – 2 ct", carat_2up: "≥ 2 ct",
     price_u1k: "Under $1,000", price_1k5k: "$1,000 – $4,999", price_5k10k: "$5,000 – $9,999", price_10kup: "$10,000+",
@@ -1111,7 +1116,7 @@ const I18N = {
     sec_enabled: "已启用生物识别解锁", sec_disabled: "已停用生物识别解锁",
     err_no_chat: "未找到聊天", lang_label: "语言",
     uploaded: "图片已附加", drop_hint: "拖放文件以附加",
-    prod_search: "搜索产品...", prod_category: "类别", prod_color: "颜色", prod_carat: "克拉", prod_price: "价格", prod_sort: "排序",
+    prod_search: "搜索产品...", prod_type: "产品", type_diamond: "钻石", type_jewelry: "珠宝", prod_shape: "形状", prod_color: "颜色", prod_carat: "克拉", prod_price: "价格", prod_sort: "排序",
     filter_any: "全部", filter_clear: "清除筛选",
     carat_u05: "≤ 0.5 克拉", carat_05_1: "0.5 – 1 克拉", carat_1_2: "1 – 2 克拉", carat_2up: "≥ 2 克拉",
     price_u1k: "低于 $1,000", price_1k5k: "$1,000 – $4,999", price_5k10k: "$5,000 – $9,999", price_10kup: "$10,000+",
@@ -1185,7 +1190,7 @@ const I18N = {
     sec_enabled: "เปิดใช้การปลดล็อกด้วยไบโอเมตริกแล้ว", sec_disabled: "ปิดการปลดล็อกด้วยไบโอเมตริกแล้ว",
     err_no_chat: "ไม่พบแชท", lang_label: "ภาษา",
     uploaded: "แนบรูปภาพแล้ว", drop_hint: "ลากไฟล์เพื่อแนบ",
-    prod_search: "ค้นหาสินค้า...", prod_category: "หมวดหมู่", prod_color: "สี", prod_carat: "กะรัต", prod_price: "ราคา", prod_sort: "จัดเรียง",
+    prod_search: "ค้นหาสินค้า...", prod_type: "สินค้า", type_diamond: "เพชร", type_jewelry: "จิวเวลรี่", prod_shape: "รูปทรง", prod_color: "สี", prod_carat: "กะรัต", prod_price: "ราคา", prod_sort: "จัดเรียง",
     filter_any: "ทั้งหมด", filter_clear: "ล้างตัวกรอง",
     carat_u05: "≤ 0.5 กะรัต", carat_05_1: "0.5 – 1 กะรัต", carat_1_2: "1 – 2 กะรัต", carat_2up: "≥ 2 กะรัต",
     price_u1k: "ต่ำกว่า $1,000", price_1k5k: "$1,000 – $4,999", price_5k10k: "$5,000 – $9,999", price_10kup: "$10,000+",
@@ -2386,7 +2391,7 @@ const MEDIA_KEY = "mc_media_v1";
 function productMedia(pid) { return (load(MEDIA_KEY) || {})[pid] || null; }
 function productFilterValues() {
   const g = (id) => { const el = document.getElementById(id); return el ? el.value || "" : ""; };
-  return { q: g("pf-search").toLowerCase(), category: g("pf-category"), color: g("pf-color"), carat: g("pf-carat"), price: g("pf-price"), sort: g("pf-sort") };
+  return { q: g("pf-search").toLowerCase(), type: g("pf-type"), shape: g("pf-shape"), color: g("pf-color"), carat: g("pf-carat"), price: g("pf-price"), sort: g("pf-sort") };
 }
 function caratInRange(carat, range) {
   const c = Number(carat || 0);
@@ -2411,14 +2416,14 @@ function sortProducts(arr, sort) {
   else if (sort === "name_az") arr.sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
 }
 function populateProductFilters() {
-  const catSel = document.getElementById("pf-category");
+  const shapeSel = document.getElementById("pf-shape");
   const colSel = document.getElementById("pf-color");
-  if (!catSel || !colSel) return;
-  const cats = [...new Set(PRODUCTS.map((p) => p.category).filter(Boolean))].sort();
+  if (!shapeSel || !colSel) return;
+  const shapes = [...new Set(PRODUCTS.map((p) => p.shape || p.category).filter(Boolean))].sort();
   const cols = [...new Set(PRODUCTS.map((p) => p.colorName).filter(Boolean))].sort();
-  if (catSel.dataset.last !== cats.join("|")) {
-    catSel.dataset.last = cats.join("|");
-    catSel.innerHTML = `<option value="">${t("filter_any")}</option>` + cats.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  if (shapeSel.dataset.last !== shapes.join("|")) {
+    shapeSel.dataset.last = shapes.join("|");
+    shapeSel.innerHTML = `<option value="">${t("filter_any")}</option>` + shapes.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
   }
   if (colSel.dataset.last !== cols.join("|")) {
     colSel.dataset.last = cols.join("|");
@@ -2426,7 +2431,7 @@ function populateProductFilters() {
   }
 }
 function clearProductFilters() {
-  ["pf-search", "pf-category", "pf-color", "pf-carat", "pf-price", "pf-sort"].forEach((id) => {
+  ["pf-search", "pf-type", "pf-shape", "pf-color", "pf-carat", "pf-price", "pf-sort"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.value = "";
   });
@@ -2458,7 +2463,8 @@ function renderProducts() {
   const f = productFilterValues();
   let arr = PRODUCTS.filter(p => {
     if (f.q && !(p.name || "").toLowerCase().includes(f.q)) return false;
-    if (f.category && p.category !== f.category) return false;
+    if (f.type && (p.type || "diamond") !== f.type) return false;
+    if (f.shape && (p.shape || p.category) !== f.shape) return false;
     if (f.color && p.colorName !== f.color) return false;
     if (f.carat && !caratInRange(p.carat, f.carat)) return false;
     if (f.price && !priceInRange(p.price, f.price)) return false;

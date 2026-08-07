@@ -142,7 +142,7 @@ test("i18n contains the FTP and product-filter keys in every language", () => {
     "ftp_title", "ftp_host", "ftp_port", "ftp_user", "ftp_pass", "ftp_base", "ftp_root",
     "ftp_load", "ftp_save", "ftp_test", "ftp_hint", "ftp_worker_hint", "ftp_ok", "ftp_error",
     "ftp_testing", "ftp_saved", "ftp_loaded", "ftp_configured", "ftp_not_configured",
-    "prod_search", "prod_category", "prod_color", "prod_carat", "prod_price", "prod_sort",
+    "prod_search", "prod_type", "type_diamond", "type_jewelry", "prod_shape", "prod_color", "prod_carat", "prod_price", "prod_sort",
     "filter_any", "filter_clear", "upload_media", "media_uploading", "media_uploaded", "media_error",
   ];
   for (const lang of ["en", "zh", "th"]) {
@@ -192,7 +192,7 @@ test("required HTML element ids exist", () => {
     "progress-label", "platforms", "env-out", "msg", "tab-msg-badge", "toast-msg", "lightbox",
     "lightbox-img", "lock-screen", "lock-hint", "lock-fab", "lock-skip-btn", "file-input",
     "settings-lang", "reply-input",
-    "pf-search", "pf-category", "pf-color", "pf-carat", "pf-price", "pf-sort",
+    "pf-search", "pf-type", "pf-shape", "pf-color", "pf-carat", "pf-price", "pf-sort",
     "ftp-host", "ftp-port", "ftp-user", "ftp-pass", "ftp-base", "ftp-root",
     "ftp-load-btn", "ftp-save-btn", "ftp-test-btn", "ftp-status", "ftp-status-txt",
     "ftp-msg", "ftp-worker-hint",

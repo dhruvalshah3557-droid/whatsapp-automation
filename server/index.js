@@ -139,6 +139,14 @@ function colourdiamProductImg(p) {
   return cand || null;
 }
 
+function colourdiamType(name, imgPath) {
+  const p = String(imgPath || "");
+  const n = String(name || "");
+  if (/\/Product\/Jewellery\//i.test(p)) return "jewelry";
+  if (/\b18K\b/i.test(n) || /\d+(\.\d+)?\s*gm\b/i.test(n)) return "jewelry";
+  return "diamond";
+}
+
 function normalizeColourdiamProduct(p) {
   const name = String(p.ProdName || "").trim();
   const meta = colourDiamondMeta(name);
@@ -147,6 +155,7 @@ function normalizeColourdiamProduct(p) {
   return {
     id: String(p.ProdId || p.TagNo || "cd-" + Math.random().toString(36).slice(2, 8)),
     name,
+    type: colourdiamType(name, imgPath),
     category: (name.match(/Fancy\s+\w+/i) || [])[0] || "Diamond",
     carat,
     price: Number(p.NewPrice || p.OldPrice || 0),

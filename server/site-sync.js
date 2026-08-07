@@ -213,6 +213,7 @@ export function mapDiamond(raw, detail) {
   return {
     id: String(raw.ProdId || raw.TagNo || "cd-" + Math.random().toString(36).slice(2, 8)),
     name,
+    type: "diamond",
     category: detail && detail.shape ? detail.shape : "Diamond",
     carat,
     price: Number(detail && detail.price ? detail.price : (raw.NewPrice || raw.OldPrice || 0)),
