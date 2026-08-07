@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Make the Products display bigger, like colourdiam.com — status: finished
+  - Done: enlarged product cards to match the ColourDiam site style — media image 150px → 250px, name 14px → 17px, price 15px → 19px, bigger buy button; Products view widened (`#view-products .feed-inner` 1000px → 1240px) and the grid uses larger 280px+ columns with 18px gaps; SW bumped to `colourdiam-msg-v21`; MONITOR OK (92/92 tests).
+
 - [x] 260807: Add Lab filter to the Products page — status: finished
   - Done: new `Lab` select in the product filter bar (populated from unique `p.lab` values: GIA/IGI/ARGYLE/CGL/HRD/AGL/GII), wired into `productFilterValues()`, `populateProductFilters()`, `clearProductFilters()`, and the `renderProducts()` predicate; en/zh/th labels; SW bumped to `colourdiam-msg-v20`; MONITOR OK (92/92 tests).
 
