@@ -32,7 +32,7 @@ jobs:
         id: kv-setup
         shell: bash
         run: |
-          for ENTRY in "KV_PLACEHOLDER EVENTS" "AUTH_KV_PLACEHOLDER AUTH"; do
+          for ENTRY in "EVENTS_KV_ID EVENTS" "AUTH_KV_ID AUTH"; do
             set -- $ENTRY
             PLACEHOLDER=$1
             TITLE=$2
