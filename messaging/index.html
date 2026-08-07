@@ -251,7 +251,7 @@ input, textarea, select { font-family: inherit; }
 .day-divider { text-align: center; margin: 12px 0 8px; }
 .day-divider span { background: var(--card); border: 1px solid var(--border); color: var(--muted); font-size: 11px; font-weight: 700; padding: 3px 14px; border-radius: 999px; box-shadow: var(--shadow-sm); letter-spacing: .04em; }
 
-.msg-row { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 3px; animation: msgIn .22s ease both; }
+  .msg-row { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 3px; animation: msgIn .22s ease both; content-visibility: auto; contain-intrinsic-size: auto 120px; }
 @keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 .msg-row.new-run { margin-top: 10px; }
 .msg-row.in { justify-content: flex-start; }
@@ -474,7 +474,7 @@ input, textarea, select { font-family: inherit; }
 #view-products .feed-inner { max-width: 1240px; }
 #products-list { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
 
-.customer-card, .product-card, .order-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; transition: all var(--ease); box-shadow: var(--shadow-sm); }
+  .customer-card, .product-card, .order-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; transition: all var(--ease); box-shadow: var(--shadow-sm); content-visibility: auto; contain-intrinsic-size: auto 380px; }
 .customer-card:hover, .product-card:hover, .order-card:hover { border-color: var(--gold); box-shadow: var(--shadow-md); transform: translateY(-2px); }
 .customer-card .cc-top { display: flex; align-items: center; gap: 10px; }
 .customer-card .avatar { width: 44px; height: 44px; font-size: 14px; }
@@ -2517,7 +2517,7 @@ function richBody(m) {
   if (m.type === "image" || m.type === "video") {
     const src = esc(m.src || "");
     if (m.type === "video") return `<video class="rich-video" controls preload="metadata" src="${src}"></video>`;
-    return `<img class="rich-img" src="${src}" alt="" onclick="openLightbox('${src}')">`;
+    return `<img class="rich-img" src="${src}" alt="" loading="lazy" decoding="async" onclick="openLightbox('${src}')">`;
   }
   if (m.type === "voice") return `<div class="rich rich-voice"><audio controls preload="none" src="${esc(m.audio || "")}"></audio>${m.duration ? `<span class="time">${esc(m.duration)}</span>` : ""}</div>`;
   if (m.type === "doc") return `<div class="rich rich-file"><div class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg></div><div><div class="fname">${esc(m.fname || m.text || "document")}</div><div class="fsize">${esc(m.fsize || "")}</div></div></div>`;
@@ -2549,7 +2549,7 @@ function renderChat(c) {
   let lastKey = "";
   let prev = null;
   let html = "";
-  c.messages.forEach((msg) => {
+  c.messages.forEach((msg, i) => {
     const k = dayKey(msg);
     const divider = (k !== lastKey) ? `<div class="day-divider"><span>${dayLabel(k)}</span></div>` : "";
     lastKey = k;
@@ -2559,7 +2559,7 @@ function renderChat(c) {
     const av = isMe ? '<div class="msg-avatar me">CD</div>' : `<div class="msg-avatar" style="background:${c.color}">${esc(c.initials)}</div>`;
     const name = (!isMe && newRun) ? `<div class="msg-name">${esc(c.name)}</div>` : "";
     const cls = `${isMe ? "out" : "in"}${newRun ? " new-run" : ""}`;
-    const tr = (msg.from === "them" && msg.type === "text") ? `<div class="msg-meta"><button class="translate-btn" onclick="toggleTranslate('${c.id}',${c.messages.indexOf(msg)})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h7"/><path d="M9 3v2c0 4-2 7-5 8"/><path d="M5 9c1 3 3.5 5 6 6"/><path d="m12 20 4-9 4 9"/><path d="M13.8 16.5h4.4"/></svg>${t("translate")}</button></div>` : "";
+    const tr = (msg.from === "them" && msg.type === "text") ? `<div class="msg-meta"><button class="translate-btn" onclick="toggleTranslate('${c.id}',${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h7"/><path d="M9 3v2c0 4-2 7-5 8"/><path d="M5 9c1 3 3.5 5 6 6"/><path d="m12 20 4-9 4 9"/><path d="M13.8 16.5h4.4"/></svg>${t("translate")}</button></div>` : "";
     const trDiv = msg.translation ? `<div class="msg-translation">${t("translated")}: ${esc(msg.translation)}</div>` : "";
     const bubbleCls = isMe ? "" : (msg.type === "text" ? "" : " no-pad");
     html += `${divider}<div class="msg-row ${cls}">${av}<div class="msg-body">${name}<div class="bubble${bubbleCls}">${richBody(msg)}${ticksHtml(msg)}<span class="time">${esc(msg.time)}</span></div>${trDiv}${tr}</div></div>`;

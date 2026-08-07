@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Keep upgrading the app for speed (render perf) — status: finished
+  - Done: chat images now load lazily + async-decode (`loading="lazy" decoding="async"` on rich images); `renderChat()` no longer calls `c.messages.indexOf(msg)` per message inside the loop (was O(n²), now uses the forEach index); `content-visibility: auto` + `contain-intrinsic-size` added to message rows and customer/product/order cards so off-screen DOM work is skipped until scrolled into view; SW bumped to `colourdiam-msg-v36`; MONITOR OK (127/127 tests).
+
 - [x] 260807: Upgrade the standing agent to solve ALL issues automatically (worker health, failed-deploy auto-retry, git state, stale-preview detection) — status: finished
   - Done: new shared `scripts/health-lib.mjs` (single source of truth for every check) consumed by both `scripts/monitor.mjs` (single pass, exit code) and `scripts/agent.mjs` (60s self-healing loop, rotating `logs/agent.log`, `--once`/`--interval`). New checks beyond the old suite: live worker API + app version (`sw.js` version vs repo), worker webhook handshakes (`VERIFY_TOKEN` default = the verified `change_me_verify_token`), worker deploy status via GitHub API (`workflow_runs` of `worker-deploy.yml`, `head_sha` vs current HEAD) with **auto re-run of a failed deploy** (`rerun-failed-jobs` POST, guarded against re-running the same run), git working-tree + ahead/behind-origin-main sync checks. Auto-heals: restarts the local server (kills stale `:8099` process), re-runs failed worker deploys. Verified live: all checks green against the worker, deploy run success (`7996f29`), preview refreshed `8099-94416e0ed3edebff.monkeycode-ai.live` (old tunnel was HTTP 530).
   - Note: the git working-tree check correctly flags uncommitted files until this change is committed+pushes itself.
