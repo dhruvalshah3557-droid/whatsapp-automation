@@ -61,7 +61,7 @@ function runTests() {
   return new Promise((resolve) => {
     const t = spawn(
       process.execPath,
-      ["--test", "messaging/test/messaging.test.mjs", "server/test/server.test.mjs", "server/test/site-sync.test.mjs", "worker/test/worker.test.mjs"],
+      ["--test", "messaging/test/messaging.test.mjs", "server/test/server.test.mjs", "server/test/site-sync.test.mjs", "server/test/auth.test.mjs", "worker/test/worker.test.mjs"],
       { cwd: ROOT, stdio: ["ignore", "pipe", "pipe"] }
     );
     let out = "";

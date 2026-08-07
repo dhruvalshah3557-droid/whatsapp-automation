@@ -24,6 +24,9 @@ const ENV = {
   MEDIA_CONFIG_FILE: path.join(__dirname, "tmp-media-config.json"),
   INVENTORY_FILE: path.join(__dirname, "tmp-inventory.json"),
   SYNC_ON_START: "0",
+  AUTH_DATA_DIR: path.join(__dirname, "tmp-auth"),
+  ADMIN_EMAIL: "admin@test.local",
+  ADMIN_PASSWORD: "AdminTest123!",
 };
 
 let child;

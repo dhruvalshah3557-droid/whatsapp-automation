@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ftpList, ftpStore, ftpMkdirs } from "./ftp.js";
 import { loadInventoryFromDisk, getInventory, getSyncStatus, syncSite } from "./site-sync.js";
+import * as auth from "./auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -220,6 +221,8 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+auth.initAuth();
+
 server.listen(PORT, () => {
   console.log(`webhook server listening on port ${PORT}`);
   const inv = loadInventoryFromDisk();
@@ -294,10 +297,166 @@ function requireAuth(req) {
   return header === "Bearer " + env.API_KEY;
 }
 
+function isAuthPath(path) {
+  return path.startsWith("/api/auth/") ||
+    path === "/api/tasks" || path.startsWith("/api/tasks/") ||
+    path === "/api/activity" ||
+    path.startsWith("/api/admin/");
+}
+
+function parseJsonBody(raw) {
+  try { return raw ? JSON.parse(raw) : {}; } catch (err) { return null; }
+}
+
+async function handleAuthApi(req, res, url) {
+  const raw = await readBody(req);
+  const body = parseJsonBody(raw);
+  const method = req.method;
+  const p = url.pathname;
+  const user = auth.sessionUser(req);
+  const ip = auth.clientIp(req);
+
+  if (p === "/api/auth/login" && method === "POST") {
+    if (!body) return sendJson(res, 400, { error: "Invalid JSON" }, corsHeaders());
+    const result = auth.attemptLogin(body.email, body.password, ip);
+    if (result.error) return sendJson(res, 401, { error: result.error }, corsHeaders());
+    return sendJson(res, 200, result, corsHeaders());
+  }
+
+  if (p === "/api/auth/forgot" && method === "POST") {
+    if (!body) return sendJson(res, 400, { error: "Invalid JSON" }, corsHeaders());
+    const result = auth.issueResetToken(body.email);
+    if (result.error) return sendJson(res, 200, { ok: true }, corsHeaders());
+    return sendJson(res, 200, result, corsHeaders());
+  }
+
+  if (p === "/api/auth/reset" && method === "POST") {
+    if (!body) return sendJson(res, 400, { error: "Invalid JSON" }, corsHeaders());
+    const result = auth.consumeResetToken(body.email, body.token, body.newPassword);
+    if (result.error) return sendJson(res, 400, { error: result.error }, corsHeaders());
+    return sendJson(res, 200, result, corsHeaders());
+  }
+
+  if (!user) return sendJson(res, 401, { error: "Unauthorized — please log in" }, corsHeaders());
+
+  if (p === "/api/auth/logout" && method === "POST") {
+    const t = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+    auth.destroySession(t);
+    auth.auditLog(user.id, "logout", { ip });
+    return sendJson(res, 200, { ok: true }, corsHeaders());
+  }
+
+  if (p === "/api/auth/me" && method === "GET") {
+    return sendJson(res, 200, { user: auth.publicUser(user) }, corsHeaders());
+  }
+
+  if (p === "/api/auth/change-password" && method === "POST") {
+    if (!body) return sendJson(res, 400, { error: "Invalid JSON" }, corsHeaders());
+    const result = auth.changePassword(user, body.oldPassword, body.newPassword);
+    if (result.error) return sendJson(res, 400, { error: result.error }, corsHeaders());
+    return sendJson(res, 200, result, corsHeaders());
+  }
+
+  if (p === "/api/activity" && method === "GET") {
+    return sendJson(res, 200, { activity: auth.activityFor(user.id) }, corsHeaders());
+  }
+
+  if (p === "/api/tasks" && method === "GET") {
+    const opts = {};
+    if (url.searchParams.get("status")) opts.status = url.searchParams.get("status");
+    if (auth.isAdmin(user) && url.searchParams.get("assignedTo")) opts.assignedTo = url.searchParams.get("assignedTo");
+    return sendJson(res, 200, { tasks: auth.listTasks(user, opts) }, corsHeaders());
+  }
+
+  if (p === "/api/tasks" && method === "POST") {
+    if (!body) return sendJson(res, 400, { error: "Invalid JSON" }, corsHeaders());
+    const result = auth.createTask(body, user);
+    if (result.error) return sendJson(res, 400, { error: result.error }, corsHeaders());
+    return sendJson(res, 201, result, corsHeaders());
+  }
+
+  const taskMatch = p.match(/^\/api\/tasks\/([^/]+)$/);
+  if (taskMatch) {
+    const id = decodeURIComponent(taskMatch[1]);
+    if (method === "GET") {
+      const result = auth.getTask(id, user);
+      if (result.error) return sendJson(res, result.error === "not allowed" ? 403 : 404, { error: result.error }, corsHeaders());
+      return sendJson(res, 200, result, corsHeaders());
+    }
+    if (method === "PATCH") {
+      if (!body) return sendJson(res, 400, { error: "Invalid JSON" }, corsHeaders());
+      const result = auth.updateTask(id, body, user);
+      if (result.error) return sendJson(res, result.error === "not allowed" ? 403 : 400, { error: result.error }, corsHeaders());
+      return sendJson(res, 200, result, corsHeaders());
+    }
+    if (method === "DELETE") {
+      const result = auth.deleteTask(id, user);
+      if (result.error) return sendJson(res, result.error === "not allowed" ? 403 : 404, { error: result.error }, corsHeaders());
+      return sendJson(res, 200, result, corsHeaders());
+    }
+  }
+
+  if (!auth.isAdmin(user)) {
+    return sendJson(res, 403, { error: "Admin access required" }, corsHeaders());
+  }
+
+  if (p === "/api/admin/users" && method === "GET") {
+    const stats = auth.adminStats();
+    return sendJson(res, 200, { users: stats.users, totals: stats.totals }, corsHeaders());
+  }
+
+  if (p === "/api/admin/users" && method === "POST") {
+    if (!body) return sendJson(res, 400, { error: "Invalid JSON" }, corsHeaders());
+    const result = auth.createUser(body);
+    if (result.error) return sendJson(res, 400, { error: result.error }, corsHeaders());
+    auth.auditLog(user.id, "user_created", { email: result.user.email, role: result.user.role });
+    return sendJson(res, 201, result, corsHeaders());
+  }
+
+  const userMatch = p.match(/^\/api\/admin\/users\/([^/]+)\/action$/);
+  if (userMatch && method === "POST") {
+    if (!body) return sendJson(res, 400, { error: "Invalid JSON" }, corsHeaders());
+    const id = decodeURIComponent(userMatch[1]);
+    let result;
+    if (body.action === "activate") result = auth.setUserActive(id, true);
+    else if (body.action === "suspend") result = auth.setUserActive(id, false);
+    else if (body.action === "promote") result = auth.setUserRole(id, "admin");
+    else if (body.action === "demote") result = auth.setUserRole(id, "user");
+    else if (body.action === "reset") result = auth.resetUserPassword(id, body.password);
+    else return sendJson(res, 400, { error: "unknown action" }, corsHeaders());
+    if (result.error) return sendJson(res, 400, { error: result.error }, corsHeaders());
+    auth.auditLog(user.id, "user_" + body.action, { email: result.user.email });
+    return sendJson(res, 200, result, corsHeaders());
+  }
+
+  if (p === "/api/admin/stats" && method === "GET") {
+    return sendJson(res, 200, auth.adminStats(), corsHeaders());
+  }
+
+  if (p === "/api/admin/report" && method === "GET") {
+    return sendJson(res, 200, auth.adminReport(), corsHeaders());
+  }
+
+  if (p === "/api/admin/audit" && method === "GET") {
+    const opts = {};
+    if (url.searchParams.get("userId")) opts.userId = url.searchParams.get("userId");
+    if (url.searchParams.get("action")) opts.action = url.searchParams.get("action");
+    if (url.searchParams.get("limit")) opts.limit = Number(url.searchParams.get("limit"));
+    return sendJson(res, 200, { audit: auth.adminAudit(opts) }, corsHeaders());
+  }
+
+  sendJson(res, 404, { error: "Not found" }, corsHeaders());
+}
+
 async function handleApi(req, res, url) {
   if (req.method === "OPTIONS") {
     res.writeHead(204, corsHeaders());
     res.end();
+    return;
+  }
+
+  if (isAuthPath(url.pathname)) {
+    await handleAuthApi(req, res, url);
     return;
   }
 

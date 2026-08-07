@@ -22,6 +22,14 @@ server/test/tmp-inventory.json
 server/media-config.json
 server/test/tmp-media-config.json
 
+# Auth + workspace runtime data (users, sessions, tasks, audit log)
+server/users.json
+server/sessions.json
+server/tasks.json
+server/audit.json
+server/test/tmp-auth/
+server/test/tmp-auth-*.json
+
 # OS files
 .DS_Store
 

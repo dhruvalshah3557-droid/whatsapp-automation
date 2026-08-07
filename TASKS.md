@@ -9,6 +9,10 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Secure login + user management + admin dashboard + tasks + audit log — status: finished
+  - Done: full auth system in `server/auth.js` (scrypt-hashed passwords, 256-bit bearer sessions with TTL, per-email+IP login lockout, admin bootstrap from `ADMIN_EMAIL`/`ADMIN_PASSWORD`); API wired in `server/index.js` (`/api/auth/*`, `/api/tasks`, `/api/activity`, `/api/admin/*`) with auth on every protected endpoint, 403 for non-owners/non-admins, append-only audit log; frontend in `messaging/index.html` gains login/forgot/reset/forced-change screens, per-user dashboard, My Tasks, My Activity, Admin dashboard/user mgmt/task assignment/report views, admin-only tabs, user chip + logout; en/zh/th i18n; tests: new 13-test `server/test/auth.test.mjs`, fixed server-restart-per-test isolation so password-change/forgot tests no longer cascade lockouts; restored `tryInstallApp`/settings element bindings accidentally dropped while wiring auth; SW bumped to `colourdiam-msg-v22`; MONITOR OK (105/105 tests).
+  - Blocked (pre-existing): `git push backup main:colourdiam-messaging` still 403 — needs user grant/token for `zebbern/no-cost-ai`.
+
 - [x] 260807: Make the Products display bigger, like colourdiam.com — status: finished
   - Done: enlarged product cards to match the ColourDiam site style — media image 150px → 250px, name 14px → 17px, price 15px → 19px, bigger buy button; Products view widened (`#view-products .feed-inner` 1000px → 1240px) and the grid uses larger 280px+ columns with 18px gaps; SW bumped to `colourdiam-msg-v21`; MONITOR OK (92/92 tests).
 

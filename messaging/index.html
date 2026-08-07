@@ -633,6 +633,81 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+/* ==================== Auth + workspace ==================== */
+.auth-screen { position: fixed; inset: 0; z-index: 1000; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+.auth-card { width: 100%; max-width: 400px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 28px; box-shadow: var(--shadow-md); }
+.auth-card .auth-logo { font-family: var(--font-serif); font-size: 30px; font-weight: 800; text-align: center; color: var(--gold-deep); margin-bottom: 4px; }
+.auth-card .auth-sub { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 22px; }
+.auth-card label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+.auth-card input { width: 100%; background: var(--bg-2); border: 1px solid var(--border); color: var(--text); padding: 11px 12px; border-radius: 11px; font-size: 14px; outline: none; box-sizing: border-box; margin-bottom: 12px; }
+.auth-card input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,148,58,.14); }
+.auth-err { background: rgba(190,60,50,.1); border: 1px solid rgba(190,60,50,.35); color: #b53d30; padding: 9px 12px; border-radius: 10px; font-size: 13px; margin-bottom: 12px; display: none; }
+.auth-err.show { display: block; }
+.auth-link { color: var(--gold-deep); font-size: 13px; cursor: pointer; text-align: center; display: block; margin-top: 12px; text-decoration: underline; }
+.auth-foot { text-align: center; color: var(--muted); font-size: 11px; margin-top: 16px; }
+.user-chip { display: flex; align-items: center; gap: 8px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px; padding: 4px 6px 4px 10px; font-size: 13px; }
+.user-chip .u-dot { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg,#f7e08a,#b8943a); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
+.user-chip .u-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.user-chip button { background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 4px 6px; border-radius: 8px; }
+.user-chip button:hover { color: var(--gold-deep); background: var(--sidebar-h); }
+.role-badge { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; padding: 2px 7px; border-radius: 999px; }
+.role-badge.admin { background: rgba(184,148,58,.16); color: var(--gold-deep); }
+.role-badge.user { background: rgba(46,125,91,.14); color: var(--green); }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: var(--shadow-sm); }
+.stat-card .s-num { font-size: 28px; font-weight: 800; color: var(--gold-deep); }
+.stat-card .s-label { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.task-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: var(--shadow-sm); margin-bottom: 12px; }
+.task-card:hover { border-color: var(--gold); box-shadow: var(--shadow-md); }
+.task-card .t-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.task-card .t-title { font-weight: 700; font-size: 15px; }
+.task-card .t-desc { font-size: 13px; color: var(--text-soft); margin-top: 4px; }
+.task-card .t-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.task-card .t-chip { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--border); }
+.t-chip.st { color: var(--muted); }
+.t-chip.p-low { color: var(--green); } .t-chip.p-medium { color: var(--gold-deep); } .t-chip.p-high { color: #c97a2e; } .t-chip.p-urgent { color: #b53d30; }
+.t-progress { height: 7px; background: var(--bg-2); border-radius: 999px; margin-top: 12px; overflow: hidden; }
+.t-progress > div { height: 100%; background: linear-gradient(90deg,#f7e08a,#b8943a); border-radius: 999px; }
+.t-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.t-actions select, .t-actions button { font-size: 12px; padding: 7px 11px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg-2); color: var(--text); cursor: pointer; }
+.t-actions button:hover { border-color: var(--gold); color: var(--gold-deep); }
+.people-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.person-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: var(--shadow-sm); }
+.person-card .p-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.person-card .p-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg,#f7e08a,#b8943a); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+.person-card .p-name { font-weight: 700; font-size: 14px; }
+.person-card .p-email { font-size: 12px; color: var(--muted); }
+.person-card .p-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 0; }
+.person-card .p-stat { background: var(--bg-2); border-radius: 10px; padding: 7px; text-align: center; }
+.person-card .p-stat b { display: block; font-size: 15px; color: var(--gold-deep); }
+.person-card .p-stat span { font-size: 10px; color: var(--muted); }
+.person-card .p-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.person-card .p-actions button { font-size: 11px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-2); color: var(--text); cursor: pointer; }
+.person-card .p-actions button:hover { border-color: var(--gold); color: var(--gold-deep); }
+.audit-row { display: flex; gap: 10px; align-items: flex-start; padding: 10px 2px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.audit-row .a-time { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.audit-row .a-act { font-weight: 700; color: var(--gold-deep); }
+.audit-row .a-detail { color: var(--text-soft); font-size: 12px; margin-top: 2px; word-break: break-word; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.admin-table th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: 8px 6px; border-bottom: 1px solid var(--border); }
+.admin-table td { padding: 9px 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.admin-table tr:hover td { background: var(--bg-2); }
+.tab-item.ws { display: none; }
+.ws-on .tab-item.ws { display: flex; }
+.admin-only { display: none !important; }
+body.is-admin .admin-only { display: inline-flex; }
+body.is-admin .nav-tabs .admin-only { display: inline-block; }
+@media (max-width: 900px) {
+  .nav-tabs .ws { display: none !important; }
+}
+.task-modal-backdrop { position: fixed; inset: 0; z-index: 900; background: rgba(0,0,0,.45); display: flex; align-items: flex-start; justify-content: center; padding: 30px 16px; overflow-y: auto; }
+.task-modal { width: 100%; max-width: 520px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 22px; box-shadow: var(--shadow-md); }
+.task-modal h3 { font-family: var(--font-serif); margin-bottom: 14px; }
+.task-modal label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin: 10px 0 5px; }
+.task-modal input, .task-modal select, .task-modal textarea { width: 100%; background: var(--bg-2); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 10px; font-size: 13px; outline: none; box-sizing: border-box; }
+.task-modal input:focus, .task-modal select:focus, .task-modal textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,148,58,.14); }
+.task-modal .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 </style>
 </head>
 <body>
@@ -653,7 +728,20 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
         <button data-view="settings" onclick="switchView('settings')" data-i18n="tab_settings">Settings</button>
         <button data-view="ai" onclick="switchView('ai')" data-i18n="tab_ai">AI</button>
         <button data-view="connector" onclick="switchView('connector')" data-i18n="tab_connector">Connector</button>
+        <button class="ws-tab" data-view="dashboard" onclick="switchView('dashboard')" data-i18n="ws_dashboard">Dashboard</button>
+        <button class="ws-tab" data-view="tasks" onclick="switchView('tasks')" data-i18n="ws_my_tasks">Tasks</button>
+        <button class="ws-tab" data-view="activity" onclick="switchView('activity')" data-i18n="ws_my_activity">Activity</button>
+        <button class="ws-tab admin-only" data-view="admin" onclick="switchView('admin')" data-i18n="ws_admin_dashboard">Admin</button>
+        <button class="ws-tab admin-only" data-view="admin-users" onclick="switchView('admin-users')" data-i18n="ws_admin_users">Users</button>
+        <button class="ws-tab admin-only" data-view="admin-tasks" onclick="switchView('admin-tasks')" data-i18n="ws_admin_tasks">Assign</button>
+        <button class="ws-tab admin-only" data-view="admin-report" onclick="switchView('admin-report')" data-i18n="ws_admin_report">Report</button>
       </nav>
+      <div class="user-chip" id="user-chip" style="display:none">
+        <span class="u-dot" id="user-chip-dot">?</span>
+        <span class="u-name" id="user-chip-name"></span>
+        <span class="role-badge admin" id="user-chip-role" style="display:none">admin</span>
+        <button onclick="authLogout()" title="Log out" aria-label="Log out">⏻</button>
+      </div>
       <button class="top-icon-btn" onclick="lockApp()" title="Lock app" aria-label="Lock app">
         <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg>
       </button>
@@ -801,6 +889,13 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
           <button class="menu-item" onclick="switchView('products')"><span class="m-ico">💎</span><span data-i18n="m_products">Products</span></button>
           <button class="menu-item" onclick="switchView('ai')"><span class="m-ico">✦</span><span data-i18n="m_ai">AI Assistant</span></button>
           <button class="menu-item" onclick="switchView('connector')"><span class="m-ico">🔌</span><span data-i18n="m_connector">Connector settings</span></button>
+          <button class="menu-item" onclick="switchView('dashboard')"><span class="m-ico">📊</span><span data-i18n="ws_dashboard">My Dashboard</span></button>
+          <button class="menu-item" onclick="switchView('tasks')"><span class="m-ico">✅</span><span data-i18n="ws_my_tasks">My Tasks</span></button>
+          <button class="menu-item" onclick="switchView('activity')"><span class="m-ico">🕓</span><span data-i18n="ws_my_activity">My Activity</span></button>
+          <button class="menu-item admin-only" onclick="switchView('admin')"><span class="m-ico">🏛</span><span data-i18n="ws_admin_dashboard">Admin Dashboard</span></button>
+          <button class="menu-item admin-only" onclick="switchView('admin-users')"><span class="m-ico">👥</span><span data-i18n="ws_admin_users">User Management</span></button>
+          <button class="menu-item admin-only" onclick="switchView('admin-tasks')"><span class="m-ico">📝</span><span data-i18n="ws_admin_tasks">Task Assignment</span></button>
+          <button class="menu-item admin-only" onclick="switchView('admin-report')"><span class="m-ico">📈</span><span data-i18n="ws_admin_report">Progress Report</span></button>
           <button class="menu-item" onclick="tryInstallApp()"><span class="m-ico">⬇</span><span data-i18n="m_install">Install app</span></button>
           <a class="menu-item" href="https://www.colourdiam.com" target="_blank" rel="noopener"><span class="m-ico">🌐</span><span data-i18n="m_website">Website</span></a>
         </div>
@@ -927,6 +1022,78 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
         <p class="note" style="text-align:center;margin-top:16px" data-i18n="cfg_saved">Config is saved locally on this device. Tokens never leave your browser.</p>
       </div></div>
     </div>
+
+    <!-- ===================== My dashboard view ===================== -->
+    <div id="view-dashboard" class="view">
+      <div class="feed-wrap"><div class="feed-inner" style="max-width:1000px">
+        <div class="feed-header"><h2 data-i18n="ws_dashboard">My Dashboard</h2><div id="dash-user-chip"></div></div>
+        <div class="stat-grid" id="dash-stats"></div>
+        <div class="card">
+          <div class="card-head"><div class="card-title"><span data-i18n="ws_my_tasks">My Tasks</span></div><button class="btn btn-ghost" style="padding:6px 12px" onclick="switchView('tasks')" data-i18n="ws_open">Open</button></div>
+          <div id="dash-tasks"></div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ===================== My tasks view ===================== -->
+    <div id="view-tasks" class="view">
+      <div class="feed-wrap"><div class="feed-inner" style="max-width:1000px">
+        <div class="feed-header"><h2 data-i18n="ws_my_tasks">My Tasks</h2>
+          <button class="btn btn-ghost" onclick="taskForm()" data-i18n="ws_new_task">New task</button>
+        </div>
+        <div class="stat-grid" id="tasks-stats"></div>
+        <div id="tasks-list"></div>
+      </div></div>
+    </div>
+
+    <!-- ===================== My activity view ===================== -->
+    <div id="view-activity" class="view">
+      <div class="feed-wrap"><div class="feed-inner" style="max-width:900px">
+        <div class="feed-header"><h2 data-i18n="ws_my_activity">My Activity</h2></div>
+        <div id="activity-list"></div>
+      </div></div>
+    </div>
+
+    <!-- ===================== Admin dashboard view ===================== -->
+    <div id="view-admin" class="view">
+      <div class="feed-wrap"><div class="feed-inner" style="max-width:1200px">
+        <div class="feed-header"><h2 data-i18n="ws_admin_dashboard">Admin Dashboard</h2></div>
+        <div class="stat-grid" id="admin-stats"></div>
+        <div class="card">
+          <div class="card-head"><div class="card-title"><span data-i18n="ws_recent_activity">Recent Activity</span></div></div>
+          <div id="admin-recent"></div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ===================== Admin user management view ===================== -->
+    <div id="view-admin-users" class="view">
+      <div class="feed-wrap"><div class="feed-inner" style="max-width:1200px">
+        <div class="feed-header"><h2 data-i18n="ws_admin_users">User Management</h2>
+          <button class="btn btn-ghost" onclick="userForm()" data-i18n="ws_new_user">New user</button>
+        </div>
+        <div class="people-grid" id="admin-users-list"></div>
+      </div></div>
+    </div>
+
+    <!-- ===================== Admin task assignment view ===================== -->
+    <div id="view-admin-tasks" class="view">
+      <div class="feed-wrap"><div class="feed-inner" style="max-width:1200px">
+        <div class="feed-header"><h2 data-i18n="ws_admin_tasks">Task Assignment</h2>
+          <button class="btn btn-ghost" onclick="taskForm()" data-i18n="ws_new_task">New task</button>
+        </div>
+        <div class="stat-grid" id="admin-tasks-stats"></div>
+        <div id="admin-tasks-list"></div>
+      </div></div>
+    </div>
+
+    <!-- ===================== Admin progress & activity report view ===================== -->
+    <div id="view-admin-report" class="view">
+      <div class="feed-wrap"><div class="feed-inner" style="max-width:1200px">
+        <div class="feed-header"><h2 data-i18n="ws_admin_report">Progress &amp; Activity Report</h2></div>
+        <div id="admin-report"></div>
+      </div></div>
+    </div>
   </main>
 
   <!-- Mobile bottom nav -->
@@ -935,11 +1102,62 @@ input[type="password"] { font-family: "SF Mono", Menlo, monospace; }
     <button class="tab-item" data-view="customers" onclick="switchView('customers')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-1.5a6.5 6.5 0 0 1 13 0V20"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18.5 20v-1.5c0-1.9-.8-3.6-2.2-4.7"/></svg></span><span data-i18n="tab_customers">Customers</span></button>
     <button class="tab-item" data-view="products" onclick="switchView('products')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v7c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V5l-8-3Z"/><path d="M9 12l2 2 4-4"/></svg></span><span data-i18n="tab_products">Products</span></button>
     <button class="tab-item" data-view="orders" onclick="switchView('orders')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.2 13H4.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg></span><span data-i18n="tab_orders">Orders</span></button>
-    <button class="tab-item" data-view="settings" onclick="switchView('settings')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.1-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1.1 1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.01a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.01a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1Z"/></svg></span><span data-i18n="tab_settings">Settings</span></button>
+    <button class="tab-item ws" data-view="dashboard" onclick="switchView('dashboard')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span><span data-i18n="ws_dashboard">Dashboard</span></button>
+    <button class="tab-item ws" data-view="tasks" onclick="switchView('tasks')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></span><span data-i18n="ws_my_tasks">Tasks</span></button>
+    <button class="tab-item admin-only ws" data-view="admin" onclick="switchView('admin')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v7c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V5l-8-3Z"/></svg></span><span data-i18n="ws_admin_dashboard">Admin</span></button>
+    <button class="tab-item settings" data-view="settings" onclick="switchView('settings')"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.1-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1.1 1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.01a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.01a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1Z"/></svg></span><span data-i18n="tab_settings">Settings</span></button>
   </nav>
 </div>
 
 <div class="toast" id="toast-msg"></div>
+
+<!-- Auth gate (login / forgot / reset / change password) -->
+<div class="auth-screen" id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">💎 ColourDiam</div>
+    <div class="auth-sub" id="auth-sub" data-i18n="auth_signin">Sign in to your workspace</div>
+    <div class="auth-err" id="auth-err"></div>
+
+    <form id="auth-login-form" onsubmit="authLogin(event)">
+      <label data-i18n="auth_email">Email</label>
+      <input id="auth-email" type="email" autocomplete="username" required>
+      <label data-i18n="auth_password">Password</label>
+      <input id="auth-password" type="password" autocomplete="current-password" required>
+      <button class="btn" style="width:100%" type="submit" data-i18n="auth_signin_btn">Sign In</button>
+      <span class="auth-link" onclick="authShow('forgot')" data-i18n="auth_forgot">Forgot password?</span>
+    </form>
+
+    <form id="auth-forgot-form" style="display:none" onsubmit="authForgot(event)">
+      <label data-i18n="auth_email">Email</label>
+      <input id="auth-forgot-email" type="email" required>
+      <button class="btn" style="width:100%" type="submit" data-i18n="auth_send_reset">Send reset link</button>
+      <span class="auth-link" onclick="authShow('login')" data-i18n="auth_back">Back to sign in</span>
+    </form>
+
+    <form id="auth-reset-form" style="display:none" onsubmit="authReset(event)">
+      <label data-i18n="auth_email">Email</label>
+      <input id="auth-reset-email" type="email" required>
+      <label data-i18n="auth_reset_token">Reset token</label>
+      <input id="auth-reset-token" type="text" required>
+      <label data-i18n="auth_new_password">New password</label>
+      <input id="auth-reset-pass" type="password" minlength="8" required>
+      <button class="btn" style="width:100%" type="submit" data-i18n="auth_reset_btn">Reset password</button>
+      <span class="auth-link" onclick="authShow('login')" data-i18n="auth_back">Back to sign in</span>
+    </form>
+
+    <form id="auth-change-form" style="display:none" onsubmit="authChange(event)">
+      <div class="auth-err" id="auth-change-err"></div>
+      <p class="hint" data-i18n="auth_must_change">For security, please choose a new password before continuing.</p>
+      <label data-i18n="auth_current_password">Current password</label>
+      <input id="auth-change-old" type="password" autocomplete="current-password" required>
+      <label data-i18n="auth_new_password">New password</label>
+      <input id="auth-change-new" type="password" minlength="8" autocomplete="new-password" required>
+      <button class="btn" style="width:100%" type="submit" data-i18n="auth_change_btn">Change password</button>
+    </form>
+
+    <div class="auth-foot" data-i18n="auth_foot">Secure login · your data stays on the Colour Diam server</div>
+  </div>
+</div>
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')"><button class="lb-close" onclick="document.getElementById('lightbox').classList.remove('open')">&times;</button><img id="lightbox-img" alt=""></div>
 
 <div class="lock-screen" id="lock-screen" hidden>
@@ -1057,7 +1275,31 @@ const I18N = {
     ftp_configured: "FTP configured", ftp_not_configured: "FTP not configured",
     ftp_hint: "Upload product media to an FTP host (cPanel, hosting or a CDN-adjacent FTP). The Public Base URL builds the image links shown in the catalogue.",
     ftp_hint_products: "FTP media is not loaded. If you connected FTP, make sure the server this app points to (Server URL in Connector) has the same FTP config saved, then open the Products tab again.",
-    ftp_worker_hint: "On the Cloudflare Worker the FTP config comes from worker secrets / GitHub Actions secrets (FTP_HOST, FTP_USER, FTP_PASS, FTP_BASE_URL). Saving is only available on the standalone server."
+    ftp_worker_hint: "On the Cloudflare Worker the FTP config comes from worker secrets / GitHub Actions secrets (FTP_HOST, FTP_USER, FTP_PASS, FTP_BASE_URL). Saving is only available on the standalone server.",
+    auth_signin: "Sign in to your workspace", auth_email: "Email", auth_password: "Password", auth_signin_btn: "Sign In",
+    auth_forgot: "Forgot password?", auth_send_reset: "Send reset link", auth_back: "Back to sign in",
+    auth_reset_token: "Reset token", auth_new_password: "New password", auth_reset_btn: "Reset password",
+    auth_current_password: "Current password", auth_change_btn: "Change password", auth_must_change: "For security, please choose a new password before continuing.",
+    auth_foot: "Secure login · your data stays on the Colour Diam server",
+    ws_dashboard: "Dashboard", ws_my_tasks: "My Tasks", ws_my_activity: "My Activity",
+    ws_admin_dashboard: "Admin Dashboard", ws_admin_users: "User Management", ws_admin_tasks: "Task Assignment", ws_admin_report: "Progress Report",
+    ws_open: "Open", ws_new_task: "New task", ws_new_user: "New user", ws_recent_activity: "Recent Activity",
+    ws_total: "Total tasks", ws_pending: "Pending", ws_completed: "Completed", ws_overdue: "Overdue", ws_progress: "Avg progress",
+    ws_assigned: "Assigned", ws_active: "Active", ws_suspended: "Suspended", ws_users: "Users", ws_audit: "Audit entries",
+    ws_last_login: "Last login", ws_status: "Status", ws_role: "Role", ws_created: "Created",
+    ws_activate: "Activate", ws_suspend: "Suspend", ws_reset_pass: "Reset password", ws_promote: "Promote", ws_demote: "Demote",
+    ws_no_tasks: "No tasks yet. Create one to get started.", ws_no_activity: "No activity recorded yet.",
+    ws_title: "Title", ws_description: "Description", ws_assigned_to: "Assigned to", ws_status_lbl: "Status",
+    ws_progress_lbl: "Progress %", ws_priority: "Priority", ws_start: "Start date", ws_due: "Due date", ws_notes: "Notes",
+    ws_save: "Save task", ws_cancel: "Cancel", ws_edit: "Edit", ws_delete: "Delete", ws_add_note: "Add note",
+    ws_created_you: "Created by you", ws_me: "me",
+    st_not_started: "Not Started", st_in_progress: "In Progress", st_blocked: "Blocked", st_completed: "Completed",
+    pr_low: "Low", pr_medium: "Medium", pr_high: "High", pr_urgent: "Urgent",
+    act_login: "Signed in", act_logout: "Signed out", act_task_created: "Task created", act_task_updated: "Task updated",
+    act_task_deleted: "Task deleted", act_user_created: "User created", act_user_activate: "User activated", act_user_suspend: "User suspended",
+    act_user_reset: "Password reset", act_user_promote: "User promoted", act_user_demote: "User demoted",
+    act_password_change: "Password changed", act_password_reset_requested: "Reset requested", act_password_reset: "Password reset via token",
+    ws_logged_in_as: "Logged in as", ws_logout: "Log out"
   },
   zh: {
     messaging: "消息", lock: "锁定应用", language: "语言",
@@ -1131,7 +1373,31 @@ const I18N = {
     ftp_configured: "FTP 已配置", ftp_not_configured: "FTP 未配置",
     ftp_hint: "将产品媒体上传到 FTP 主机（cPanel、主机托管或靠近 CDN 的 FTP）。公开基础 URL 用于构建目录中显示的图片链接。",
     ftp_hint_products: "未加载 FTP 媒体。如果您已连接 FTP，请确保此应用指向的服务器（Connector 中的服务器地址）保存了相同的 FTP 配置，然后重新打开产品标签页。",
-    ftp_worker_hint: "在 Cloudflare Worker 上，FTP 配置来自 worker 密钥 / GitHub Actions 密钥（FTP_HOST、FTP_USER、FTP_PASS、FTP_BASE_URL）。只有独立服务器支持从应用保存。"
+    ftp_worker_hint: "在 Cloudflare Worker 上，FTP 配置来自 worker 密钥 / GitHub Actions 密钥（FTP_HOST、FTP_USER、FTP_PASS、FTP_BASE_URL）。只有独立服务器支持从应用保存。",
+    auth_signin: "登录工作区", auth_email: "邮箱", auth_password: "密码", auth_signin_btn: "登录",
+    auth_forgot: "忘记密码？", auth_send_reset: "发送重置链接", auth_back: "返回登录",
+    auth_reset_token: "重置令牌", auth_new_password: "新密码", auth_reset_btn: "重置密码",
+    auth_current_password: "当前密码", auth_change_btn: "修改密码", auth_must_change: "出于安全考虑，请先设置新密码。",
+    auth_foot: "安全登录 · 您的数据仅保存在 Colour Diam 服务器上",
+    ws_dashboard: "工作台", ws_my_tasks: "我的任务", ws_my_activity: "我的动态",
+    ws_admin_dashboard: "管理后台", ws_admin_users: "用户管理", ws_admin_tasks: "任务分配", ws_admin_report: "进度报告",
+    ws_open: "打开", ws_new_task: "新建任务", ws_new_user: "新建用户", ws_recent_activity: "最近动态",
+    ws_total: "任务总数", ws_pending: "待处理", ws_completed: "已完成", ws_overdue: "已逾期", ws_progress: "平均进度",
+    ws_assigned: "已分配", ws_active: "启用", ws_suspended: "停用", ws_users: "用户", ws_audit: "审计记录",
+    ws_last_login: "最后登录", ws_status: "状态", ws_role: "角色", ws_created: "创建时间",
+    ws_activate: "启用", ws_suspend: "停用", ws_reset_pass: "重置密码", ws_promote: "提升", ws_demote: "降级",
+    ws_no_tasks: "还没有任务，先创建一个吧。", ws_no_activity: "暂无活动记录。",
+    ws_title: "标题", ws_description: "描述", ws_assigned_to: "分配给", ws_status_lbl: "状态",
+    ws_progress_lbl: "进度 %", ws_priority: "优先级", ws_start: "开始日期", ws_due: "截止日期", ws_notes: "备注",
+    ws_save: "保存任务", ws_cancel: "取消", ws_edit: "编辑", ws_delete: "删除", ws_add_note: "添加备注",
+    ws_created_you: "由你创建", ws_me: "我",
+    st_not_started: "未开始", st_in_progress: "进行中", st_blocked: "受阻", st_completed: "已完成",
+    pr_low: "低", pr_medium: "中", pr_high: "高", pr_urgent: "紧急",
+    act_login: "登录", act_logout: "退出", act_task_created: "创建任务", act_task_updated: "更新任务",
+    act_task_deleted: "删除任务", act_user_created: "创建用户", act_user_activate: "启用用户", act_user_suspend: "停用用户",
+    act_user_reset: "重置密码", act_user_promote: "提升用户", act_user_demote: "降级用户",
+    act_password_change: "修改密码", act_password_reset_requested: "请求重置", act_password_reset: "通过令牌重置密码",
+    ws_logged_in_as: "已登录为", ws_logout: "退出登录"
   },
   th: {
     messaging: "ข้อความ", lock: "ล็อกแอป", language: "ภาษา",
@@ -1205,7 +1471,31 @@ const I18N = {
     ftp_configured: "ตั้งค่า FTP แล้ว", ftp_not_configured: "ยังไม่ได้ตั้งค่า FTP",
     ftp_hint: "อัปโหลดสื่อสินค้าไปยัง FTP host (cPanel โฮสติ้ง หรือ FTP ที่ใกล้ CDN) Public Base URL ใช้สร้างลิงก์รูปภาพที่แสดงในแคตตาล็อก",
     ftp_hint_products: "ยังไม่ได้โหลดสื่อ FTP หากคุณเชื่อมต่อ FTP แล้ว โปรดตรวจสอบว่าเซิร์ฟเวอร์ที่แอปนี้ชี้ไป (Server URL ใน Connector) มีการตั้งค่า FTP เดียวกันบันทึกไว้ แล้วเปิดแท็บ Products อีกครั้ง",
-    ftp_worker_hint: "บน Cloudflare Worker การตั้งค่า FTP มาจาก worker secrets / GitHub Actions secrets (FTP_HOST, FTP_USER, FTP_PASS, FTP_BASE_URL) การบันทึกทำได้เฉพาะบนเซิร์ฟเวอร์สแตนด์อโลนเท่านั้น"
+    ftp_worker_hint: "บน Cloudflare Worker การตั้งค่า FTP มาจาก worker secrets / GitHub Actions secrets (FTP_HOST, FTP_USER, FTP_PASS, FTP_BASE_URL) การบันทึกทำได้เฉพาะบนเซิร์ฟเวอร์สแตนด์อโลนเท่านั้น",
+    auth_signin: "เข้าสู่ระบบพื้นที่ทำงาน", auth_email: "อีเมล", auth_password: "รหัสผ่าน", auth_signin_btn: "เข้าสู่ระบบ",
+    auth_forgot: "ลืมรหัสผ่าน?", auth_send_reset: "ส่งลิงก์รีเซ็ต", auth_back: "กลับไปเข้าสู่ระบบ",
+    auth_reset_token: "รหัสรีเซ็ต", auth_new_password: "รหัสผ่านใหม่", auth_reset_btn: "รีเซ็ตรหัสผ่าน",
+    auth_current_password: "รหัสผ่านปัจจุบัน", auth_change_btn: "เปลี่ยนรหัสผ่าน", auth_must_change: "เพื่อความปลอดภัย โปรดตั้งรหัสผ่านใหม่ก่อนดำเนินการต่อ",
+    auth_foot: "เข้าสู่ระบบอย่างปลอดภัย · ข้อมูลของคุณอยู่บนเซิร์ฟเวอร์ Colour Diam",
+    ws_dashboard: "แดชบอร์ด", ws_my_tasks: "งานของฉัน", ws_my_activity: "กิจกรรมของฉัน",
+    ws_admin_dashboard: "แดชบอร์ดผู้ดูแล", ws_admin_users: "จัดการผู้ใช้", ws_admin_tasks: "มอบหมายงาน", ws_admin_report: "รายงานความคืบหน้า",
+    ws_open: "เปิด", ws_new_task: "งานใหม่", ws_new_user: "ผู้ใช้ใหม่", ws_recent_activity: "กิจกรรมล่าสุด",
+    ws_total: "งานทั้งหมด", ws_pending: "รอดำเนินการ", ws_completed: "เสร็จสิ้น", ws_overdue: "เลยกำหนด", ws_progress: "ความคืบหน้าเฉลี่ย",
+    ws_assigned: "มอบหมาย", ws_active: "ใช้งาน", ws_suspended: "ระงับ", ws_users: "ผู้ใช้", ws_audit: "รายการตรวจสอบ",
+    ws_last_login: "เข้าสู่ระบบล่าสุด", ws_status: "สถานะ", ws_role: "บทบาท", ws_created: "สร้างเมื่อ",
+    ws_activate: "เปิดใช้งาน", ws_suspend: "ระงับ", ws_reset_pass: "รีเซ็ตรหัสผ่าน", ws_promote: "เลื่อน", ws_demote: "ลด",
+    ws_no_tasks: "ยังไม่มีงาน สร้างงานแรกของคุณ", ws_no_activity: "ยังไม่มีกิจกรรม",
+    ws_title: "หัวข้อ", ws_description: "คำอธิบาย", ws_assigned_to: "มอบหมายให้", ws_status_lbl: "สถานะ",
+    ws_progress_lbl: "ความคืบหน้า %", ws_priority: "ความสำคัญ", ws_start: "วันที่เริ่ม", ws_due: "วันที่ครบกำหนด", ws_notes: "บันทึก",
+    ws_save: "บันทึกงาน", ws_cancel: "ยกเลิก", ws_edit: "แก้ไข", ws_delete: "ลบ", ws_add_note: "เพิ่มบันทึก",
+    ws_created_you: "สร้างโดยคุณ", ws_me: "ฉัน",
+    st_not_started: "ยังไม่เริ่ม", st_in_progress: "กำลังดำเนินการ", st_blocked: "ติดขัด", st_completed: "เสร็จสิ้น",
+    pr_low: "ต่ำ", pr_medium: "ปานกลาง", pr_high: "สูง", pr_urgent: "เร่งด่วน",
+    act_login: "เข้าสู่ระบบ", act_logout: "ออกจากระบบ", act_task_created: "สร้างงาน", act_task_updated: "อัปเดตงาน",
+    act_task_deleted: "ลบงาน", act_user_created: "สร้างผู้ใช้", act_user_activate: "เปิดใช้งานผู้ใช้", act_user_suspend: "ระงับผู้ใช้",
+    act_user_reset: "รีเซ็ตรหัสผ่าน", act_user_promote: "เลื่อนผู้ใช้", act_user_demote: "ลดผู้ใช้",
+    act_password_change: "เปลี่ยนรหัสผ่าน", act_password_reset_requested: "ขอดูรีเซ็ต", act_password_reset: "รีเซ็ตรหัสผ่านผ่านโทเค็น",
+    ws_logged_in_as: "เข้าสู่ระบบเป็น", ws_logout: "ออกจากระบบ"
   }
 };
 function t(k) {
@@ -1376,6 +1666,13 @@ function switchView(v) {
   if (v === "products") { renderProducts(); loadProducts(); loadProductMedia(); }
   if (v === "orders") renderOrders();
   if (v === "settings") renderSettingsPanel();
+  if (v === "dashboard") renderDashboard();
+  if (v === "tasks") renderTasksView();
+  if (v === "activity") renderActivity();
+  if (v === "admin") renderAdmin();
+  if (v === "admin-users") renderAdminUsers();
+  if (v === "admin-tasks") renderAdminTasks();
+  if (v === "admin-report") renderAdminReport();
 }
 
 /* ==================== Connector ==================== */
@@ -2905,6 +3202,465 @@ vtInput.addEventListener("input", () => { const c = load(CFG_KEY); c.verify_toke
 srvUrlInput.addEventListener("input", () => { const c = load(CFG_KEY); c.server_url = srvUrlInput.value; save(CFG_KEY, c); maybeStartPolling(); });
 srvKeyInput.addEventListener("input", () => { const c = load(CFG_KEY); c.server_api_key = srvKeyInput.value; save(CFG_KEY, c); });
 
+/* ==================== Auth + Workspace ==================== */
+const AUTH_KEY = "mc_auth_v1";
+const TASK_STATUSES = ["not_started", "in_progress", "blocked", "completed"];
+const TASK_PRIORITIES = ["low", "medium", "high", "urgent"];
+let USER_MAP = {};
+let TASK_EDIT_ID = null;
+
+function authState() { return load(AUTH_KEY) || {}; }
+function setAuthState(s) { save(AUTH_KEY, s); updateAuthUI(); }
+function authToken() { return authState().token || ""; }
+function currentUser() { return authState().user || null; }
+function isAdminUser() { const u = currentUser(); return !!(u && u.role === "admin"); }
+async function authFetch(path, opts = {}) {
+  const s = serverCfg();
+  if (!s.url) throw new Error("Server URL not configured");
+  const headers = { "Content-Type": "application/json" };
+  const token = authToken();
+  if (token) headers.Authorization = "Bearer " + token;
+  const res = await fetch(s.url + path, { ...opts, headers: { ...headers, ...(opts.headers || {}) } });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw Object.assign(new Error(data.error || "HTTP " + res.status), { status: res.status, data });
+  return data;
+}
+
+function authErr(msg) {
+  const el = document.getElementById("auth-err");
+  if (el) { el.textContent = msg; el.classList.add("show"); }
+}
+function hideAuthScreen() {
+  const scr = document.getElementById("auth-screen");
+  if (scr) scr.style.display = "none";
+}
+function authShow(mode) {
+  const scr = document.getElementById("auth-screen");
+  if (scr) scr.style.display = "flex";
+  ["login", "forgot", "reset", "change"].forEach((f) => {
+    const el = document.getElementById("auth-" + f + "-form");
+    if (el) el.style.display = f === mode ? "block" : "none";
+  });
+  const sub = document.getElementById("auth-sub");
+  if (sub) sub.textContent = t("auth_signin");
+  const err = document.getElementById("auth-err");
+  if (err) { err.classList.remove("show"); err.textContent = ""; }
+}
+function updateAuthUI() {
+  const u = currentUser();
+  const chip = document.getElementById("user-chip");
+  const name = document.getElementById("user-chip-name");
+  const dot = document.getElementById("user-chip-dot");
+  const role = document.getElementById("user-chip-role");
+  document.body.classList.toggle("is-admin", isAdminUser());
+  if (u) {
+    if (chip) chip.style.display = "flex";
+    if (name) name.textContent = u.name;
+    if (dot) dot.textContent = (u.name || "?").charAt(0).toUpperCase();
+    if (role) role.style.display = u.role === "admin" ? "inline-block" : "none";
+  } else if (chip) {
+    chip.style.display = "none";
+  }
+}
+async function authLogin(ev) {
+  ev.preventDefault();
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value;
+  try {
+    const d = await authFetch("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+    setAuthState({ token: d.token, user: d.user });
+    if (d.user.mustChangePassword) { authShow("change"); return; }
+    hideAuthScreen();
+    switchView("dashboard");
+    toastMsg(t("ws_logged_in_as") + " " + d.user.name);
+  } catch (err) { authErr(err.message); }
+}
+async function authForgot(ev) {
+  ev.preventDefault();
+  const email = document.getElementById("auth-forgot-email").value.trim();
+  try {
+    const d = await authFetch("/api/auth/forgot", { method: "POST", body: JSON.stringify({ email }) });
+    if (d.resetToken) {
+      authShow("reset");
+      document.getElementById("auth-reset-email").value = email;
+      document.getElementById("auth-reset-token").value = d.resetToken;
+    } else {
+      toastMsg(t("auth_foot"));
+      authShow("login");
+    }
+  } catch (err) { authErr(err.message); }
+}
+async function authReset(ev) {
+  ev.preventDefault();
+  const email = document.getElementById("auth-reset-email").value.trim();
+  const token = document.getElementById("auth-reset-token").value.trim();
+  const newPassword = document.getElementById("auth-reset-pass").value;
+  try {
+    await authFetch("/api/auth/reset", { method: "POST", body: JSON.stringify({ email, token, newPassword }) });
+    toastMsg("Password reset — sign in with your new password");
+    authShow("login");
+    document.getElementById("auth-email").value = email;
+  } catch (err) { authErr(err.message); }
+}
+async function authChange(ev) {
+  ev.preventDefault();
+  const oldPassword = document.getElementById("auth-change-old").value;
+  const newPassword = document.getElementById("auth-change-new").value;
+  try {
+    await authFetch("/api/auth/change-password", { method: "POST", body: JSON.stringify({ oldPassword, newPassword }) });
+    const u = currentUser() || {};
+    setAuthState({ token: authToken(), user: { ...u, mustChangePassword: false } });
+    hideAuthScreen();
+    switchView("dashboard");
+    toastMsg("Password updated");
+  } catch (err) { authErr(err.message); }
+}
+async function authLogout() {
+  try { await authFetch("/api/auth/logout", { method: "POST" }); } catch (e) {}
+  setAuthState({});
+  authShow("login");
+}
+async function authGate() {
+  updateAuthUI();
+  const token = authToken();
+  if (!token) { authShow("login"); return; }
+  try {
+    const d = await authFetch("/api/auth/me");
+    const u = d.user;
+    setAuthState({ token, user: u });
+    hideAuthScreen();
+    if (u.mustChangePassword) { authShow("change"); return; }
+    switchView("dashboard");
+  } catch (err) {
+    setAuthState({});
+    authShow("login");
+  }
+}
+
+/* ---------- workspace renderers ---------- */
+function statCards(items) {
+  return items.map(([ico, label, val]) => `<div class="stat-card"><div class="s-num">${val}</div><div class="s-label">${ico} ${esc(label)}</div></div>`).join("");
+}
+function fmtDate(iso) { if (!iso) return "—"; try { return new Date(iso).toLocaleDateString(); } catch (e) { return "—"; } }
+function fmtDT(iso) { if (!iso) return "—"; try { return new Date(iso).toLocaleString(); } catch (e) { return "—"; } }
+function taskStatusLabel(s) { return t("st_" + s) || s; }
+function taskPriorityLabel(p) { return t("pr_" + p) || p; }
+function taskStats(tasks) {
+  const now = new Date();
+  return {
+    total: tasks.length,
+    pending: tasks.filter((x) => x.status !== "completed").length,
+    completed: tasks.filter((x) => x.status === "completed").length,
+    overdue: tasks.filter((x) => x.status !== "completed" && x.dueDate && new Date(x.dueDate) < now).length,
+    avg: tasks.length ? Math.round(tasks.reduce((s, x) => s + (x.progress || 0), 0) / tasks.length) : 0,
+  };
+}
+function userName(id) {
+  if (!id) return "";
+  if (currentUser() && id === currentUser().id) return t("ws_me");
+  if (USER_MAP[id]) return USER_MAP[id].name;
+  return id.slice(0, 8);
+}
+async function refreshUserMap() {
+  if (!isAdminUser()) return;
+  try {
+    const d = await authFetch("/api/admin/users");
+    USER_MAP = {};
+    (d.users || []).forEach((u) => { USER_MAP[u.id] = u; });
+  } catch (e) {}
+}
+function taskCardHtml(task) {
+  const pct = Math.round(task.progress || 0);
+  const overdue = task.status !== "completed" && task.dueDate && new Date(task.dueDate) < new Date();
+  const meta = [
+    `<span class="t-chip st">${esc(taskStatusLabel(task.status))}</span>`,
+    `<span class="t-chip p-${task.priority}">${esc(taskPriorityLabel(task.priority))}</span>`,
+    `<span class="t-chip">→ ${esc(fmtDate(task.dueDate))}</span>`,
+    `<span class="t-chip">👤 ${esc(userName(task.assignedTo))}</span>`,
+  ];
+  if (overdue) meta.push(`<span class="t-chip" style="color:#b53d30;border-color:rgba(190,60,50,.4)">⚠</span>`);
+  return `<div class="task-card">
+    <div class="t-head"><div>
+      <div class="t-title">${esc(task.title)}</div>
+      ${task.description ? `<div class="t-desc">${esc(task.description)}</div>` : ""}
+    </div></div>
+    <div class="t-meta">${meta.join("")}</div>
+    <div class="t-progress"><div style="width:${pct}%"></div></div>
+    <div class="t-actions">
+      <select onchange="taskSet('${task.id}',{status:this.value})" title="Status">${TASK_STATUSES.map((s) => `<option value="${s}" ${task.status === s ? "selected" : ""}>${esc(taskStatusLabel(s))}</option>`).join("")}</select>
+      <input type="number" min="0" max="100" value="${pct}" style="width:72px" title="Progress %" onchange="taskSet('${task.id}',{progress:Number(this.value)})">
+      <button onclick="taskForm('${task.id}')">${t("ws_edit")}</button>
+      <button onclick="taskDelete('${task.id}')">${t("ws_delete")}</button>
+    </div>
+  </div>`;
+}
+async function taskSet(id, patch) {
+  try {
+    await authFetch("/api/tasks/" + id, { method: "PATCH", body: JSON.stringify(patch) });
+    const v = document.querySelector(".view.active");
+    if (v && v.id === "view-admin-tasks") renderAdminTasks(); else renderTasksView();
+  } catch (err) { toastMsg(err.message); }
+}
+async function taskDelete(id) {
+  if (!confirm(t("ws_delete") + "?")) return;
+  try {
+    await authFetch("/api/tasks/" + id, { method: "DELETE" });
+    const v = document.querySelector(".view.active");
+    if (v && v.id === "view-admin-tasks") renderAdminTasks(); else renderTasksView();
+  } catch (err) { toastMsg(err.message); }
+}
+async function taskForm(id) {
+  TASK_EDIT_ID = id || null;
+  let task = { title: "", description: "", assignedTo: (currentUser() || {}).id, status: "not_started", progress: 0, priority: "medium", startDate: "", dueDate: "", notes: "" };
+  if (id) { try { const d = await authFetch("/api/tasks/" + id); task = d.task || task; } catch (e) {} }
+  await refreshUserMap();
+  let assignOpts = "";
+  if (isAdminUser()) {
+    assignOpts = Object.values(USER_MAP).map((u) => `<option value="${u.id}" ${u.id === task.assignedTo ? "selected" : ""}>${esc(u.name)}</option>`).join("");
+  }
+  const html = `
+  <div class="task-modal-backdrop" onclick="if(event.target===this)taskFormClose()">
+    <div class="task-modal">
+      <h3>${id ? t("ws_edit") : t("ws_new_task")}</h3>
+      <label>${t("ws_title")}</label><input id="t-title" value="${esc(task.title)}">
+      <label>${t("ws_description")}</label><textarea id="t-desc" rows="2">${esc(task.description)}</textarea>
+      <div class="form-row">
+        <div><label>${t("ws_assigned_to")}</label><select id="t-assign">${assignOpts || `<option value="${esc(task.assignedTo)}">${esc(userName(task.assignedTo))}</option>`}</select></div>
+        <div><label>${t("ws_status_lbl")}</label><select id="t-status">${TASK_STATUSES.map((s) => `<option value="${s}" ${task.status === s ? "selected" : ""}>${esc(taskStatusLabel(s))}</option>`).join("")}</select></div>
+      </div>
+      <div class="form-row">
+        <div><label>${t("ws_progress_lbl")}</label><input id="t-progress" type="number" min="0" max="100" value="${task.progress || 0}"></div>
+        <div><label>${t("ws_priority")}</label><select id="t-priority">${TASK_PRIORITIES.map((p) => `<option value="${p}" ${task.priority === p ? "selected" : ""}>${esc(taskPriorityLabel(p))}</option>`).join("")}</select></div>
+      </div>
+      <div class="form-row">
+        <div><label>${t("ws_start")}</label><input id="t-start" type="date" value="${task.startDate || ""}"></div>
+        <div><label>${t("ws_due")}</label><input id="t-due" type="date" value="${task.dueDate || ""}"></div>
+      </div>
+      <label>${t("ws_notes")}</label><textarea id="t-notes" rows="3">${esc(task.notes)}</textarea>
+      <div class="form-row">
+        <button class="btn" onclick="taskSave()">${t("ws_save")}</button>
+        <button class="btn btn-ghost" onclick="taskFormClose()">${t("ws_cancel")}</button>
+      </div>
+    </div>
+  </div>`;
+  let host = document.getElementById("task-modal-host");
+  if (!host) { host = document.createElement("div"); host.id = "task-modal-host"; document.body.appendChild(host); }
+  host.innerHTML = html;
+}
+function taskFormClose() {
+  const h = document.getElementById("task-modal-host");
+  if (h) h.innerHTML = "";
+}
+async function taskSave() {
+  const g = (id) => document.getElementById(id);
+  const data = {
+    title: g("t-title").value,
+    description: g("t-desc").value,
+    status: g("t-status").value,
+    progress: Number(g("t-progress").value || 0),
+    priority: g("t-priority").value,
+    startDate: g("t-start").value || null,
+    dueDate: g("t-due").value || null,
+    notes: g("t-notes").value,
+  };
+  const sel = g("t-assign");
+  if (sel && sel.value) data.assignedTo = sel.value;
+  try {
+    if (TASK_EDIT_ID) await authFetch("/api/tasks/" + TASK_EDIT_ID, { method: "PATCH", body: JSON.stringify(data) });
+    else await authFetch("/api/tasks", { method: "POST", body: JSON.stringify(data) });
+    taskFormClose();
+    const v = document.querySelector(".view.active");
+    if (v && v.id === "view-admin-tasks") renderAdminTasks(); else renderTasksView();
+  } catch (err) { toastMsg(err.message); }
+}
+async function renderTasksView() {
+  try {
+    await refreshUserMap();
+    const d = await authFetch("/api/tasks");
+    const tasks = d.tasks || [];
+    const s = taskStats(tasks);
+    document.getElementById("tasks-stats").innerHTML = statCards([
+      ["💼", t("ws_total"), s.total], ["⏳", t("ws_pending"), s.pending], ["✅", t("ws_completed"), s.completed], ["⚠️", t("ws_overdue"), s.overdue], ["📈", t("ws_progress"), s.avg + "%"],
+    ]);
+    document.getElementById("tasks-list").innerHTML = tasks.length ? tasks.map(taskCardHtml).join("") : `<div class="empty-state"><div class="big">✅</div><p>${t("ws_no_tasks")}</p></div>`;
+  } catch (err) { document.getElementById("tasks-list").innerHTML = `<p class="hint" style="color:var(--error)">${esc(err.message)}</p>`; }
+}
+async function renderDashboard() {
+  const me = currentUser();
+  const chip = document.getElementById("dash-user-chip");
+  if (chip && me) chip.innerHTML = `<div class="user-chip"><span class="u-dot">${esc((me.name || "?").charAt(0))}</span><span class="u-name">${esc(me.name)}</span></div>`;
+  try {
+    const d = await authFetch("/api/tasks");
+    const tasks = d.tasks || [];
+    const s = taskStats(tasks);
+    document.getElementById("dash-stats").innerHTML = statCards([
+      ["💼", t("ws_total"), s.total], ["⏳", t("ws_pending"), s.pending], ["✅", t("ws_completed"), s.completed], ["⚠️", t("ws_overdue"), s.overdue], ["📈", t("ws_progress"), s.avg + "%"],
+    ]);
+    document.getElementById("dash-tasks").innerHTML = tasks.slice(0, 5).map(taskCardHtml).join("") || `<p class="hint">${t("ws_no_tasks")}</p>`;
+  } catch (err) { document.getElementById("dash-tasks").innerHTML = `<p class="hint" style="color:var(--error)">${esc(err.message)}</p>`; }
+}
+function auditRowHtml(a) {
+  let detail = "";
+  if (a.action === "task_updated" && a.detail && a.detail.changed) {
+    const bits = [];
+    if (a.detail.changed.status) bits.push(`status: ${a.detail.changed.status[0]} → ${a.detail.changed.status[1]}`);
+    if (a.detail.changed.progress) bits.push(`progress: ${a.detail.changed.progress[0]} → ${a.detail.changed.progress[1]}%`);
+    if (a.detail.changed.assignedTo) bits.push("reassigned");
+    detail = bits.join(", ");
+  } else if (a.detail) {
+    detail = Object.entries(a.detail).filter(([k]) => k !== "email").map(([k, v]) => `${k}: ${v}`).join(", ");
+  }
+  const label = t("act_" + a.action) || a.action;
+  return `<div class="audit-row">
+    <div class="a-time">${esc(fmtDT(a.at))}</div>
+    <div>
+      <span class="a-act">${esc(label)}</span>
+      <div class="a-detail">${esc(detail)}</div>
+    </div>
+  </div>`;
+}
+async function renderActivity() {
+  const list = document.getElementById("activity-list");
+  try {
+    const d = await authFetch("/api/activity");
+    const acts = d.activity || [];
+    list.innerHTML = acts.length ? acts.map(auditRowHtml).join("") : `<p class="hint">${t("ws_no_activity")}</p>`;
+  } catch (err) { list.innerHTML = `<p class="hint" style="color:var(--error)">${esc(err.message)}</p>`; }
+}
+async function renderAdmin() {
+  try {
+    const d = await authFetch("/api/admin/stats");
+    const tot = d.totals || {};
+    document.getElementById("admin-stats").innerHTML = statCards([
+      ["👥", t("ws_users"), tot.users], ["🟢", t("ws_active"), tot.active], ["🚫", t("ws_suspended"), tot.suspended],
+      ["💼", t("ws_total"), tot.tasks], ["✅", t("ws_completed"), tot.tasksCompleted], ["⚠️", t("ws_overdue"), tot.tasksOverdue], ["🕓", t("ws_audit"), tot.audit],
+    ]);
+    const r = await authFetch("/api/admin/audit?limit=15");
+    document.getElementById("admin-recent").innerHTML = (r.audit || []).map(auditRowHtml).join("") || `<p class="hint">${t("ws_no_activity")}</p>`;
+  } catch (err) { document.getElementById("admin-recent").innerHTML = `<p class="hint" style="color:var(--error)">${esc(err.message)}</p>`; }
+}
+function personCardHtml(u) {
+  const me = currentUser();
+  const statusBadge = u.active
+    ? `<span class="role-badge" style="background:rgba(46,125,91,.14);color:var(--green)">${t("ws_active")}</span>`
+    : `<span class="role-badge" style="background:rgba(190,60,50,.14);color:#b53d30">${t("ws_suspended")}</span>`;
+  const roleBadge = u.role === "admin" ? `<span class="role-badge admin">admin</span>` : `<span class="role-badge user">user</span>`;
+  let actions = "";
+  if (me && u.id === me.id) {
+    actions = `<span class="hint">${t("ws_me")}</span>`;
+  } else {
+    actions += u.active ? `<button onclick="userAction('${u.id}','suspend')">${t("ws_suspend")}</button>` : `<button onclick="userAction('${u.id}','activate')">${t("ws_activate")}</button>`;
+    actions += `<button onclick="userAction('${u.id}','reset')">${t("ws_reset_pass")}</button>`;
+    actions += u.role === "admin" ? `<button onclick="userAction('${u.id}','demote')">${t("ws_demote")}</button>` : `<button onclick="userAction('${u.id}','promote')">${t("ws_promote")}</button>`;
+  }
+  return `<div class="person-card">
+    <div class="p-top">
+      <div class="p-avatar">${esc((u.name || "?").charAt(0))}</div>
+      <div><div class="p-name">${esc(u.name)} ${statusBadge} ${roleBadge}</div><div class="p-email">${esc(u.email)}</div></div>
+    </div>
+    <div class="p-stats">
+      <div class="p-stat"><b>${u.total || 0}</b><span>${t("ws_total")}</span></div>
+      <div class="p-stat"><b>${u.overdue || 0}</b><span>${t("ws_overdue")}</span></div>
+      <div class="p-stat"><b>${u.avgProgress || 0}%</b><span>${t("ws_progress")}</span></div>
+    </div>
+    <div style="font-size:12px;color:var(--muted)">${t("ws_last_login")}: ${esc(fmtDT(u.lastLogin))}</div>
+    <div class="p-actions">${actions}</div>
+  </div>`;
+}
+async function renderAdminUsers() {
+  const list = document.getElementById("admin-users-list");
+  try {
+    const d = await authFetch("/api/admin/users");
+    USER_MAP = {};
+    (d.users || []).forEach((u) => { USER_MAP[u.id] = u; });
+    list.innerHTML = (d.users || []).map(personCardHtml).join("") || `<p class="hint">No users</p>`;
+  } catch (err) { list.innerHTML = `<p class="hint" style="color:var(--error)">${esc(err.message)}</p>`; }
+}
+async function userAction(id, action) {
+  let payload = { action };
+  if (action === "reset") {
+    const password = prompt("New temporary password (min 8 chars):");
+    if (!password) return;
+    payload.password = password;
+  }
+  try {
+    await authFetch(`/api/admin/users/${id}/action`, { method: "POST", body: JSON.stringify(payload) });
+    renderAdminUsers();
+    renderAdmin();
+    toastMsg("Done");
+  } catch (err) { toastMsg(err.message); }
+}
+async function userForm() {
+  let host = document.getElementById("task-modal-host");
+  if (!host) { host = document.createElement("div"); host.id = "task-modal-host"; document.body.appendChild(host); }
+  host.innerHTML = `
+  <div class="task-modal-backdrop" onclick="if(event.target===this)taskFormClose()">
+    <div class="task-modal">
+      <h3>${t("ws_new_user")}</h3>
+      <label>Name</label><input id="u-name">
+      <label>${t("auth_email")}</label><input id="u-email" type="email">
+      <label>${t("ws_role")}</label>
+      <select id="u-role"><option value="user">user</option><option value="admin">admin</option></select>
+      <label>${t("auth_new_password")}</label><input id="u-pass" type="text" placeholder="temporary password, min 8 chars">
+      <p class="hint">${t("auth_must_change")}</p>
+      <div class="form-row">
+        <button class="btn" onclick="userSave()">${t("ws_new_user")}</button>
+        <button class="btn btn-ghost" onclick="taskFormClose()">${t("ws_cancel")}</button>
+      </div>
+    </div>
+  </div>`;
+}
+async function userSave() {
+  const name = document.getElementById("u-name").value.trim();
+  const email = document.getElementById("u-email").value.trim();
+  const role = document.getElementById("u-role").value;
+  const password = document.getElementById("u-pass").value;
+  try {
+    await authFetch("/api/admin/users", { method: "POST", body: JSON.stringify({ name, email, role, password }) });
+    taskFormClose();
+    renderAdminUsers();
+    toastMsg("User created — must change password on first login");
+  } catch (err) { toastMsg(err.message); }
+}
+async function renderAdminTasks() {
+  try {
+    await refreshUserMap();
+    const d = await authFetch("/api/tasks");
+    const tasks = d.tasks || [];
+    const s = taskStats(tasks);
+    document.getElementById("admin-tasks-stats").innerHTML = statCards([
+      ["💼", t("ws_total"), s.total], ["⏳", t("ws_pending"), s.pending], ["✅", t("ws_completed"), s.completed], ["⚠️", t("ws_overdue"), s.overdue],
+    ]);
+    document.getElementById("admin-tasks-list").innerHTML = tasks.length ? tasks.map(taskCardHtml).join("") : `<p class="hint">${t("ws_no_tasks")}</p>`;
+  } catch (err) { document.getElementById("admin-tasks-list").innerHTML = `<p class="hint" style="color:var(--error)">${esc(err.message)}</p>`; }
+}
+function taskRowHtml(task) {
+  return `<div class="audit-row">
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:600">${esc(task.title)}</div>
+      <div class="a-detail">${esc(taskStatusLabel(task.status))} · ${Math.round(task.progress || 0)}% · ${esc(taskPriorityLabel(task.priority))} · due ${esc(fmtDate(task.dueDate))}</div>
+    </div>
+    <div class="t-progress" style="width:120px;margin-top:8px;flex-shrink:0"><div style="width:${Math.round(task.progress || 0)}%"></div></div>
+  </div>`;
+}
+async function renderAdminReport() {
+  const host = document.getElementById("admin-report");
+  try {
+    const d = await authFetch("/api/admin/report");
+    const users = d.users || [];
+    host.innerHTML = users.map((u) => {
+      const rows = (u.tasks || []).map(taskRowHtml).join("");
+      return `<div class="card" style="margin-bottom:14px">
+        <div class="card-head">
+          <div class="card-title">${esc(u.name)} <span class="role-badge ${u.role === "admin" ? "admin" : "user"}">${u.role}</span> ${u.active ? "" : "· " + t("ws_suspended")}</div>
+          <div style="font-size:12px;color:var(--muted)">${t("ws_total")}: ${u.total} · ${t("ws_completed")}: ${u.completed} · ${t("ws_pending")}: ${u.pending} · ${t("ws_overdue")}: ${u.overdue} · ${t("ws_progress")}: ${u.avgProgress}%</div>
+        </div>
+        ${rows || `<p class="hint">${t("ws_no_tasks")}</p>`}
+      </div>`;
+    }).join("");
+  } catch (err) { host.innerHTML = `<p class="hint" style="color:var(--error)">${esc(err.message)}</p>`; }
+}
+
 (function init() {
   const cfg = load(CFG_KEY);
   urlInput.value = cfg.n8n_url || "https://dhruval.n8n-hub.site";
@@ -2927,6 +3683,7 @@ srvKeyInput.addEventListener("input", () => { const c = load(CFG_KEY); c.server_
   loadProducts();
   aiRefreshStatus();
   if (UI.sec && UI.sec.touchid && UI.sec.cred) setTimeout(lockApp, 500);
+  authGate();
 })();
 </script>
 </body>
