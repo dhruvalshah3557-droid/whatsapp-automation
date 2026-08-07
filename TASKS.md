@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Create the permanent QA/Maintenance agent from the provided QA prompt — status: finished
+  - Done: read the 1086-line QA/maintenance prompt (`appoint agent`, moved to `/tmp/opencode/appoint-agent-qa-prompt.txt`) and turned it into an opencode subagent at `.opencode/agent/qa-maintainer.md` (frontmatter: description, mode subagent, model) with the full role condensed: mission, issue tracking, severity levels, bug-fixing/root-cause rules, messaging/ERP/API/frontend/UI monitoring, security, permission testing, regression tests, deploy checks, health score, session report format, autonomous execution, commit+push discipline per AGENTS.md.
+
 - [x] 260807: Upload everything to Cloudflare + GitHub (full sync verification) — status: finished
   - Done: GitHub — working tree clean, all commits pushed to `origin main` (HEAD `5d8c064`). Cloudflare — Worker (`worker-deploy.yml`) and Pages (`pages.yml`) both `completed/success` for the latest commit `5d8c064`, so the live worker serves `colourdiam-msg-v36`; Worker KV holds the real app data (`/api/memory` with chat/ui/auth buckets), 2 inbound events in `EVENTS` KV, and the bootstrapped admin in `AUTH` KV (verified live). The local 77-byte `server/app-memory.json` is stale test data (`at:1234567`) so it was NOT pushed to the worker to avoid overwriting the newer Cloudflare copy. No code changed in this pass.
   - Still blocked (pre-existing): `git push backup main:colourdiam-messaging` → 403 (`monkeycode-global[bot]` needs write access to `zebbern/no-cost-ai`).
