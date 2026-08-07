@@ -1,4 +1,4 @@
-const CACHE = "colourdiam-msg-v31";
+const CACHE = "colourdiam-msg-v32";
 const ASSETS = [
   "./",
   "./index.html",
@@ -22,6 +22,10 @@ self.addEventListener("activate", (event) => {
       Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("fetch", (event) => {

@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Auto-update the app without manual refresh — status: finished
+  - Done: previously a new SW version took control but the open page never reloaded, so you had to refresh to see updates; the app now registers `updatefound`/`SKIP_WAITING` messaging (activates a newer SW immediately) and auto-reloads itself on `controllerchange` (guarded so first-ever visits don't reload), plus a 30-minute `reg.update()` poll so long-open tabs pick up new deploys; SW bumped to `colourdiam-msg-v32`; MONITOR OK (105/105 tests).
+
 - [x] 260807: Add jewellery type filter (ring/pendant/earrings etc) to Products — status: finished
   - Done: new `Jewellery type` select in the product filter bar (populated from unique jewellery `category` slugs: ring/earring/bracelet/pendant/necklace, capitalized labels), wired into `productFilterValues()`/`populateProductFilters()`/`clearProductFilters()`/the `renderProducts()` predicate (only filters `type === "jewelry"`), en/zh/th i18n (`prod_jtype`); SW bumped to `colourdiam-msg-v31`; MONITOR OK (105/105 tests).
 

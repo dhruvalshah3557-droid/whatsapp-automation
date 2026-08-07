@@ -1221,7 +1221,30 @@ body.is-admin .nav-tabs .admin-only { display: inline-block; }
 
 <script>
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => { navigator.serviceWorker.register("./sw.js").catch(() => {}); });
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").then((reg) => {
+      if (reg.waiting && navigator.serviceWorker.controller) {
+        reg.waiting.postMessage({ type: "SKIP_WAITING" });
+      }
+      reg.addEventListener("updatefound", () => {
+        const nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener("statechange", () => {
+          if (nw.state === "installed" && navigator.serviceWorker.controller) {
+            nw.postMessage({ type: "SKIP_WAITING" });
+          }
+        });
+      });
+      setInterval(() => { reg.update().catch(() => {}); }, 30 * 60 * 1000);
+    }).catch(() => {});
+  });
+  let autoRefreshing = false;
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (autoRefreshing || !hadController) return;
+    autoRefreshing = true;
+    window.location.reload();
+  });
 }
 
 /* ==================== Utilities ==================== */
