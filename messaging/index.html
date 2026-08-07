@@ -2843,6 +2843,19 @@ function sendProduct(pid) {
   switchView("messages");
   openChat(c.id);
   toastMsg(t("sent_product"));
+  if (c.liveKey) {
+    const text = `${p.name}${p.carat ? " · " + p.carat + "ct" : ""}${p.price ? " · $" + Number(p.price).toLocaleString() : ""}`;
+    sendLive(c, text).then(() => {
+      const d2 = chatData(); const c2 = d2.contacts.find(x => x.id === c.id); if (!c2) return;
+      const last = c2.messages[c2.messages.length - 1];
+      if (last && last.from === "me" && last.ticks) last.ticks = 2;
+      save(CHAT_KEY, d2); renderContacts(); renderChat(c2);
+    }).catch((err) => {
+      const d2 = chatData(); const c2 = d2.contacts.find(x => x.id === c.id); if (!c2) return;
+      c2.messages.push({ from: "system", type: "text", text: "Failed to send via server: " + err.message, time: timeFmt(), date: new Date().toISOString() });
+      save(CHAT_KEY, d2); renderContacts(); renderChat(c2); scrollBottom();
+    });
+  }
 }
 
 /* ---------------- Customers / Orders views ---------------- */

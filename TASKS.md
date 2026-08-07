@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Make "Send to customer" actually deliver via /api/send — status: finished
+  - Done: `sendProduct()` only added the product card to the local chat (localStorage) and never called the server, so customers never received it; it now reuses `sendLive()` → `POST /api/send` when the selected contact has a `liveKey` (sends name + carat + price as text, marks ticks delivered, system error message on failure); SW bumped to `colourdiam-msg-v25`; MONITOR OK.
+
 - [x] 260807: Auto-deploy worker on every app change — status: finished
   - Done: `worker-deploy.yml` only triggered on `worker/**` changes, so the live Cloudflare Worker was stuck at `colourdiam-msg-v18` while local was v24; added `messaging/**` to the workflow `paths` so the worker redeploys on every app change (workflow file change itself also matches and redeploys); pushed, worker now serves v24.
 
