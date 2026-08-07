@@ -1,10 +1,46 @@
 // Minimal FTP client used by /api/media/* endpoints.
-// Implements login (USER/PASS), passive data connections (PASV), directory
-// listing (LIST) and binary upload (STOR) over node:net. No third-party deps.
+// Implements login (USER/PASS), explicit TLS upgrade (AUTH TLS / PBSZ / PROT P),
+// passive data connections (PASV), directory listing (LIST) and binary upload
+// (STOR) over node:net / node:tls. No third-party deps.
 
 import net from "node:net";
+import tls from "node:tls";
 
 const FTP_TIMEOUT = 10000;
+
+function onSocketData(sess, socket, data) {
+  if (socket !== sess.socket) return;
+  sess.buf += data.toString();
+  let idx;
+  while ((idx = sess.buf.indexOf("\r\n")) !== -1) {
+    const line = sess.buf.slice(0, idx + 2);
+    sess.buf = sess.buf.slice(idx + 2);
+    handleLine(sess, line);
+  }
+}
+
+function attachSocket(sess, socket) {
+  sess.socket = socket;
+  socket.setTimeout(FTP_TIMEOUT);
+  socket.on("timeout", () => {
+    sess.closed = true;
+    socket.destroy();
+    if (sess.rejectConnect) sess.rejectConnect(new Error("FTP connection timed out"));
+  });
+  socket.on("error", (err) => {
+    if (!sess.closed) sess.closed = true;
+    if (sess.wait) { const w = sess.wait; sess.wait = null; w(err); }
+    if (sess.rejectConnect) sess.rejectConnect(err);
+  });
+  socket.on("close", () => {
+    if (!sess.closed) {
+      sess.closed = true;
+      if (sess.wait) { const w = sess.wait; sess.wait = null; w(new Error("FTP connection closed")); }
+    }
+    if (sess.rejectConnect) sess.rejectConnect(new Error("FTP connection closed"));
+  });
+  socket.on("data", (data) => onSocketData(sess, socket, data));
+}
 
 function ftpConnect(cfg) {
   const host = String(cfg.host || "").trim();
@@ -13,47 +49,67 @@ function ftpConnect(cfg) {
   return new Promise((resolve, reject) => {
     const sess = {
       socket: net.createConnection({ host, port }),
+      host,
+      secure: false,
       buf: "",
       reply: null,
       wait: null,
       closed: false,
       ready: false,
     };
-    const timer = setTimeout(() => {
-      sess.closed = true;
-      sess.socket.destroy();
-      reject(new Error("FTP connection timed out"));
-    }, FTP_TIMEOUT);
-    sess.socket.setTimeout(FTP_TIMEOUT);
-    sess.socket.on("timeout", () => {
-      sess.closed = true;
-      sess.socket.destroy();
-      reject(new Error("FTP connection timed out"));
-    });
-    sess.socket.on("error", (err) => {
-      if (!sess.closed) { sess.closed = true; reject(err); }
-    });
-    sess.socket.on("close", () => {
-      if (!sess.closed) {
-        sess.closed = true;
-        if (sess.wait) { const w = sess.wait; sess.wait = null; w(new Error("FTP connection closed")); }
-      }
-    });
-    sess.socket.on("data", (data) => {
-      sess.buf += data.toString();
-      let idx;
-      while ((idx = sess.buf.indexOf("\r\n")) !== -1) {
-        const line = sess.buf.slice(0, idx + 2);
-        sess.buf = sess.buf.slice(idx + 2);
-        handleLine(sess, line);
-      }
-    });
+    attachSocket(sess, sess.socket);
     sess.readyResolve = () => {
-      clearTimeout(timer);
       sess.ready = true;
       resolve(sess);
     };
+    sess.rejectConnect = (err) => {
+      if (!sess.ready) {
+        sess.closed = true;
+        reject(err);
+      }
+    };
   });
+}
+
+async function ftpUpgradeTls(sess, cfg) {
+  const auth = await cmd(sess, "AUTH TLS");
+  if (!auth.code.startsWith("2")) return;
+  sess.secure = true;
+  const upgraded = tls.connect({
+    socket: sess.socket,
+    servername: sess.host,
+    rejectUnauthorized: false,
+  });
+  sess.socket = upgraded;
+  upgraded.setTimeout(FTP_TIMEOUT);
+  upgraded.on("timeout", () => { sess.closed = true; upgraded.destroy(); });
+  upgraded.on("error", (err) => {
+    if (!sess.closed) sess.closed = true;
+    if (sess.wait) { const w = sess.wait; sess.wait = null; w(err); }
+  });
+  upgraded.on("close", () => {
+    if (!sess.closed) {
+      sess.closed = true;
+      if (sess.wait) { const w = sess.wait; sess.wait = null; w(new Error("FTP connection closed")); }
+    }
+  });
+  upgraded.on("data", (data) => {
+    sess.buf += data.toString();
+    let idx;
+    while ((idx = sess.buf.indexOf("\r\n")) !== -1) {
+      const line = sess.buf.slice(0, idx + 2);
+      sess.buf = sess.buf.slice(idx + 2);
+      handleLine(sess, line);
+    }
+  });
+  await new Promise((res, rej) => {
+    upgraded.once("secureConnect", res);
+    upgraded.once("error", rej);
+  });
+  await cmd(sess, "PBSZ 0");
+  await cmd(sess, "PROT P");
+  sess.socket.setTimeout(FTP_TIMEOUT);
+  return sess;
 }
 
 function handleLine(sess, line) {
@@ -100,6 +156,7 @@ function closeSess(sess) {
 async function ftpLogin(cfg) {
   const sess = await ftpConnect(cfg);
   try {
+    await ftpUpgradeTls(sess, cfg);
     const user = await cmd(sess, "USER " + String(cfg.user || "anonymous"));
     if (!(user.code.startsWith("2") || user.code === "331")) {
       throw new Error("FTP login failed: " + user.code + " " + user.parts.join(" "));
@@ -121,11 +178,16 @@ function pasvAddress(text) {
   return { host: [m[1], m[2], m[3], m[4]].join("."), port: Number(m[5]) * 256 + Number(m[6]) };
 }
 
-function openData(addr) {
+function openData(addr, secure) {
   return new Promise((resolve, reject) => {
-    const ds = net.createConnection({ host: addr.host, port: addr.port });
-    ds.once("connect", () => resolve(ds));
-    ds.once("error", reject);
+    const raw = net.createConnection({ host: addr.host, port: addr.port });
+    raw.once("error", reject);
+    raw.once("connect", () => {
+      if (!secure) return resolve(raw);
+      const ds = tls.connect({ socket: raw, servername: addr.host, rejectUnauthorized: false });
+      ds.once("secureConnect", () => resolve(ds));
+      ds.once("error", reject);
+    });
   });
 }
 
@@ -142,7 +204,7 @@ async function ftpData(cfg, remotePath, transfer) {
     const pasv = await cmd(sess, "PASV");
     const addr = pasvAddress(pasv.parts.join(" ") || pasv.parts[0]);
     if (!addr) throw new Error("PASV failed: " + pasv.parts.join(" "));
-    const ds = await openData(addr);
+    const ds = await openData(addr, sess.secure);
     const done = new Promise((res, rej) => { ds.on("error", rej); ds.on("end", res); });
     const replyP = cmd(sess, "STOR " + remotePath);
     transfer(ds);
@@ -168,7 +230,7 @@ async function ftpList(cfg, remotePath) {
     const pasv = await cmd(sess, "PASV");
     const addr = pasvAddress(pasv.parts.join(" ") || pasv.parts[0]);
     if (!addr) throw new Error("PASV failed: " + pasv.parts.join(" "));
-    const ds = await openData(addr);
+    const ds = await openData(addr, sess.secure);
     const chunks = [];
     ds.on("data", (d) => chunks.push(d));
     const listDone = new Promise((res, rej) => { ds.on("end", res); ds.on("error", rej); });

@@ -393,6 +393,8 @@ function startFakeFtp() {
           dataSock.end();
         }
         sock.write("226 Directory send OK\r\n");
+      } else if (cmd === "AUTH") {
+        sock.write("500 AUTH not supported\r\n");
       } else if (cmd === "MKD") {
         sock.write("257 \"/new\" created\r\n");
       } else if (cmd === "STOR") {
