@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Add Lab filter to the Products page — status: finished
+  - Done: new `Lab` select in the product filter bar (populated from unique `p.lab` values: GIA/IGI/ARGYLE/CGL/HRD/AGL/GII), wired into `productFilterValues()`, `populateProductFilters()`, `clearProductFilters()`, and the `renderProducts()` predicate; en/zh/th labels; SW bumped to `colourdiam-msg-v20`; MONITOR OK (92/92 tests).
+
 - [x] 260807: Refresh stale preview URL + restore missing backup remote — status: finished
   - Done: the old preview `8099-20c91de3a23a0ad5.monkeycode-ai.live` was dead (origin down → HTTP 521, `/sw.js` only served from Cloudflare cache, serving stale v18); requested a fresh preview `8099-252fcace2abd99bd.monkeycode-ai.live` (health 200, SW v19) and updated `PREVIEW_URL` in `scripts/monitor.mjs` + `scripts/agent.mjs`; the `backup` remote (`zebbern/no-cost-ai`) was missing from git config and has been re-added; `MONITOR OK` (92/92 tests pass).
 
