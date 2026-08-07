@@ -20,20 +20,23 @@ git add -A
 git commit -m "<concise description of the change>"
 ```
 
-3. Push to the remote:
+3. Push to the remote (the project is backed up to two remotes):
 
 ```bash
 git push origin main
+git push backup main:colourdiam-messaging
 ```
 
 ### Rules
 
 - Always push after committing. Never leave commits only on the local machine.
+- `origin` = `github.com/dhruvalshah3557-droid/whatsapp-automation` (branch `main`). `backup` = `github.com/zebbern/no-cost-ai`, pushed to branch `colourdiam-messaging` so the existing project in that repo is preserved.
 - If the push fails due to divergent branches, pull with rebase first, then push:
 
 ```bash
 git pull --rebase origin main
 git push origin main
+git push backup main:colourdiam-messaging
 ```
 
 - Branch names follow the convention `YYMMDD-(feat|fix|chore|refactor)-short-description`.

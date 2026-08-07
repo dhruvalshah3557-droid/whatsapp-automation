@@ -5,8 +5,12 @@ This file is the single source of truth for task status. A fresh session reads t
 - Pending: `- [ ] YYMMDD: <description> — status: pending`
 - Finished: `- [x] YYMMDD: <description> — status: finished`
 - Always commit and push this file together with code changes so status survives interruption.
+- Auto-save pushes to `origin` (github.com/dhruvalshah3557-droid/whatsapp-automation, branch `main`) AND to the backup remote `backup` (github.com/zebbern/no-cost-ai, branch `colourdiam-messaging` so the existing project there is preserved).
 
 ## Active Task
+
+- [x] 260806: Back up the project to the zebbern/no-cost-ai repo — status: finished
+  - Done: added `backup` remote = `https://github.com/zebbern/no-cost-ai.git`; `AGENTS.md` auto-save rule now pushes to `origin main` and `backup main:colourdiam-messaging`; the existing free-AI-index project in that repo is preserved on its own main branch.
 
 - [x] 260806: Keep a standing check-and-fix agent running — status: finished
   - Done: started `scripts/agent.mjs` in a background terminal (`term_1786038809642_1`, interval 60s); it runs the full health suite every cycle (server, preview API, Meta webhook handshakes, SW cache guard, served app freshness, 73 tests) and auto-heals (restarts server, kills stale port process); first cycle `AGENT OK`; logs to `logs/agent.log` and the terminal log.
