@@ -82,7 +82,11 @@ const JEWELLERY_DETAIL = `<!doctype html><html><body>
   <div class="price-box"><span class="price-regular">$17825</span></div>
   <div class="cert"><img src="/assets/img/Lab/AGL.png" /></div>
   <a onclick="CertModal('/Product/Certificate/1003.pdf')"></a>
-  <div id='imgSlider'><div class="post-portfolio" data-thumb="/Product/Jewellery/1003/white45/CENTER.jpg"></div></div>
+  <div id='imgSlider'>
+    <div class="post-portfolio" data-thumb="/Product/Jewellery/1003/white45/1.jpg"></div>
+    <div class="post-portfolio" data-thumb="/Product/Jewellery/1003/white45/2.jpg"></div>
+    <div class="post-portfolio" data-thumb="/Product/Jewellery/1003/white45/center.jpg"></div>
+  </div>
   <table class="table border"><tbody class="table-body">
     <tr><td>Gold</td><td>18K</td><td>3.810</td></tr>
   </tbody></table>
@@ -259,7 +263,8 @@ test("parseJewelleryDetail extracts metal and diamond spec", () => {
   assert.equal(d.cts, "1.05");
   assert.equal(d.lab, "AGL");
   assert.equal(d.price, 17825);
-  assert.ok(d.images.includes("/Product/Jewellery/1003/white45/CENTER.jpg"));
+  assert.ok(d.images.includes("/Product/Jewellery/1003/white45/1.jpg"));
+  assert.ok(d.images.includes("/Product/Jewellery/1003/white45/center.jpg"));
 });
 
 test("mapJewellery maps to the jewelry type with HTTPS media", () => {
@@ -275,7 +280,9 @@ test("mapJewellery maps to the jewelry type with HTTPS media", () => {
   assert.equal(mapped.weight, "3.810");
   assert.equal(mapped.colorGrade, "Fancy Yellow");
   assert.equal(mapped.lab, "AGL");
-  assert.match(mapped.img, /^https:\/\/www\.colourdiam\.com\/Product\/Jewellery\/1003\/white45\/CENTER\.jpg$/);
+  assert.match(mapped.img, /^https:\/\/www\.colourdiam\.com\/Product\/Jewellery\/1003\/white45\/center\.jpg$/, "center.jpg wins over earlier 1.jpg/2.jpg");
+  assert.ok(mapped.images.includes("https://www.colourdiam.com/Product/Jewellery/1003/white45/1.jpg"), "non-center images kept in gallery");
+  assert.ok(mapped.images.includes("https://www.colourdiam.com/Product/Jewellery/1003/white45/center.jpg"));
   assert.equal(mapped.certificate, "https://www.colourdiam.com/Product/Certificate/1003.pdf");
   assert.match(mapped.detailUrl, /^https:\/\/www\.colourdiam\.com\/productdetail\/1003$/);
 });

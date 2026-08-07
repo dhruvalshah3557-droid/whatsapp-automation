@@ -349,9 +349,13 @@ export function mapJewellery(raw, detail, categorySlug) {
   const meta = colourMeta(name);
   const carat = parseCarat(name, detail && detail.cts);
   const real = (id) => id && !String(id).startsWith("/assets/");
-  const imgPath = (detail && detail.images && detail.images[0]) ||
-    (real(raw.ImgPath) ? raw.ImgPath : (real(raw.ModelImgPath) ? raw.ModelImgPath : null)) ||
-    (Array.isArray(raw.ImgPathList) ? raw.ImgPathList.find(real) : null);
+  const isCenter = (p) => /\/center(?:\.jpe?g)$/i.test(String(p || ""));
+  const detailImgs = (detail && detail.images ? detail.images : []).map(toHttps);
+  const mainImg =
+    detailImgs.find(isCenter) ||
+    detailImgs[0] ||
+    toHttps(real(raw.ImgPath) ? raw.ImgPath : (real(raw.ModelImgPath) ? raw.ModelImgPath : null)) ||
+    toHttps(Array.isArray(raw.ImgPathList) ? raw.ImgPathList.find(real) : null);
   return {
     id: String(raw.ProdId || raw.TagNo || "cd-" + Math.random().toString(36).slice(2, 8)),
     name,
@@ -364,7 +368,7 @@ export function mapJewellery(raw, detail, categorySlug) {
     emoji: meta.emoji,
     color: meta.bg,
     colorName: meta.colorName,
-    img: imgPath ? toHttps(imgPath) : null,
+    img: mainImg || null,
     shape: (detail && detail.shape) || "",
     clarity: "",
     colorGrade: (detail && detail.colour) || "",
