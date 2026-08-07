@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
 const PORT = process.env.MONITOR_PORT || "8099";
 const LOCAL = `http://127.0.0.1:${PORT}`;
-const PUBLIC = process.env.PREVIEW_URL || "https://8099-20c91de3a23a0ad5.monkeycode-ai.live";
+const PUBLIC = process.env.PREVIEW_URL || "https://8099-252fcace2abd99bd.monkeycode-ai.live";
 const VERIFY_TOKEN = process.env.MONITOR_VERIFY_TOKEN || "change_me_verify_token";
 const FIX = process.argv.includes("--fix");
 

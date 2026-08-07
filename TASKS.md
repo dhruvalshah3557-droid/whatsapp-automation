@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260807: Refresh stale preview URL + restore missing backup remote — status: finished
+  - Done: the old preview `8099-20c91de3a23a0ad5.monkeycode-ai.live` was dead (origin down → HTTP 521, `/sw.js` only served from Cloudflare cache, serving stale v18); requested a fresh preview `8099-252fcace2abd99bd.monkeycode-ai.live` (health 200, SW v19) and updated `PREVIEW_URL` in `scripts/monitor.mjs` + `scripts/agent.mjs`; the `backup` remote (`zebbern/no-cost-ai`) was missing from git config and has been re-added; `MONITOR OK` (92/92 tests pass).
+
 - [x] 260806: Back up the project to the zebbern/no-cost-ai repo — status: pending (needs user access grant)
   - Done: added `backup` remote = `https://github.com/zebbern/no-cost-ai.git`; `AGENTS.md` auto-save rule now pushes to `origin main` and `backup main:colourdiam-messaging`; the existing free-AI-index project in that repo is preserved on its own main branch (commit `3f3885e`).
   - Blocked on user: `git push backup main:colourdiam-messaging` is denied with 403 — the available GitHub token (fine-grained `ghs_`) can write to `whatsapp-automation` but not `zebbern/no-cost-ai`. User must either grant the bot/app write access to `zebbern/no-cost-ai` or provide a token with push access to that repo; then the backup push will go through automatically on future saves.
