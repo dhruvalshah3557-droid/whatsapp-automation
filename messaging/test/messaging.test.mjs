@@ -202,6 +202,14 @@ test("required HTML element ids exist", () => {
   }
 });
 
+test("productMainImgName picks still.jpg for diamonds and center.jpg for jewellery", () => {
+  const run = sandbox.run;
+  assert.equal(run("productMainImgName({ img: 'https://www.colourdiam.com/Product/Diamond/9585/bA1.jpg', name: 'Fancy Yellow 1.05 SI1' })"), "still.jpg");
+  assert.equal(run("productMainImgName({ img: 'https://www.colourdiam.com/Product/Jewellery/1003/CENTER.jpg', name: 'Fancy Yellow 1.05 SI1 18K 4.072 gm' })"), "center.jpg");
+  assert.equal(run("productMainImgName({ img: null, name: 'Fancy Green 0.30 VS 18K 5.180 gm' })"), "center.jpg");
+  assert.equal(run("productMainImgName({ img: null, name: 'Fancy Intense Yellow 1.02 SI1' })"), "still.jpg");
+});
+
 test("key functions are defined", () => {
   const required = [
     "t", "setLang", "applyI18n", "switchView", "setFilter", "toggleShowArchived", "openChat",
@@ -218,7 +226,7 @@ test("key functions are defined", () => {
     "productMedia", "productFilterValues", "caratInRange", "priceInRange", "sortProducts",
     "populateProductFilters", "clearProductFilters", "productCardHtml", "uploadProductFiles",
     "uploadProductMedia", "ftpFillForm", "ftpFormBody", "ftpLoad", "ftpSave", "ftpTest",
-    "setFtpMsg", "setFtpStatus", "setFtpHint", "loadProductMedia",
+    "setFtpMsg", "setFtpStatus", "setFtpHint", "loadProductMedia", "productMainImgName",
   ];
   for (const fn of required) {
     assert.ok(sandbox.run(`typeof ${fn} === 'function'`), `function missing: ${fn}`);

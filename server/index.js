@@ -130,10 +130,19 @@ function parseColourdiamCarat(name) {
   return m ? m[1] : "";
 }
 
+function colourdiamProductImg(p) {
+  const real = (id) => id && !String(id).startsWith("/assets/");
+  const cand = real(p.ImgPath)
+    ? p.ImgPath
+    : (Array.isArray(p.ImgPathList) ? p.ImgPathList.find(real) : null) || (real(p.ModelImgPath) ? p.ModelImgPath : null);
+  return cand || null;
+}
+
 function normalizeColourdiamProduct(p) {
   const name = String(p.ProdName || "").trim();
   const meta = colourDiamondMeta(name);
   const carat = parseColourdiamCarat(name);
+  const imgPath = colourdiamProductImg(p);
   return {
     id: String(p.ProdId || p.TagNo || "cd-" + Math.random().toString(36).slice(2, 8)),
     name,
@@ -145,7 +154,7 @@ function normalizeColourdiamProduct(p) {
     emoji: meta.emoji,
     color: meta.bg,
     colorName: meta.colorName,
-    img: p.ImgPath ? productImgBase() + p.ImgPath : null,
+    img: imgPath ? productImgBase() + imgPath : null,
   };
 }
 

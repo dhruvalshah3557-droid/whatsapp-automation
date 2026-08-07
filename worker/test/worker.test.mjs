@@ -503,3 +503,27 @@ test("GET /api/products rewrites image URLs to FTP_BASE_URL when set", async () 
     globalThis.fetch = originalFetch;
   }
 });
+
+test("GET /api/products derives images from ImgPathList and ModelImgPath", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    return new Response(JSON.stringify({
+      searchProductsList: [
+        { ProdId: "1263", ProdName: "Fancy Green 0.30 VS 18K 5.180 gm", NewPrice: 2070, ImgPath: null, ImgPathList: ["/Product/Jewellery/Model images/1263/center.jpeg"] },
+        { ProdId: "1385", ProdName: "Fancy Yellowish Green 2.00 SI2 18K 7.618 gm", NewPrice: 3000, ImgPath: null, ImgPathList: ["/assets/img/ColorDiam.png"], ModelImgPath: "/Product/Jewellery/Model images/1385/center.jpeg" },
+        { ProdId: "1135", ProdName: "Fancy Intense Yellow 1.02 I1 18K 5.550 gm", NewPrice: 5750, ImgPath: null, ImgPathList: ["/assets/img/ColorDiam.png"], ModelImgPath: "" },
+      ],
+    }), { status: 200, headers: { "Content-Type": "application/json" } });
+  };
+  try {
+    const res = await call("/api/products", {}, {});
+    assert.equal(res.status, 200);
+    const { products } = await res.json();
+    const byId = Object.fromEntries(products.map((p) => [p.id, p]));
+    assert.equal(byId["1263"].img, "https://www.colourdiam.com/Product/Jewellery/Model images/1263/center.jpeg");
+    assert.equal(byId["1385"].img, "https://www.colourdiam.com/Product/Jewellery/Model images/1385/center.jpeg");
+    assert.equal(byId["1135"].img, null, "placeholder-only products stay null");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

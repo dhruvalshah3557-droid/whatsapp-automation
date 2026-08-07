@@ -163,6 +163,14 @@ function productImgBase(env) {
   return (env.FTP_BASE_URL || "").trim().replace(/\/+$/, "") || "https://www.colourdiam.com";
 }
 
+function colourdiamProductImg(p) {
+  const real = (id) => id && !String(id).startsWith("/assets/");
+  const cand = real(p.ImgPath)
+    ? p.ImgPath
+    : (Array.isArray(p.ImgPathList) ? p.ImgPathList.find(real) : null) || (real(p.ModelImgPath) ? p.ModelImgPath : null);
+  return cand || null;
+}
+
 function parseColourdiamCarat(name) {
   const m = name.match(/(\d+\.\d+)/);
   return m ? m[1] : "";
@@ -183,7 +191,7 @@ function normalizeColourdiamProduct(p, env) {
     emoji: meta.emoji,
     color: meta.bg,
     colorName: meta.colorName,
-    img: p.ImgPath ? productImgBase(env) + p.ImgPath : null,
+    img: colourdiamProductImg(p) ? productImgBase(env) + colourdiamProductImg(p) : null,
   };
 }
 
