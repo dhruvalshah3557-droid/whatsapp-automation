@@ -840,14 +840,20 @@ function parseWeChatXml(xml) {
 }
 
 async function postGraph(env, endpoint, token, payload) {
-  return fetch(`https://graph.facebook.com/v19.0/${endpoint}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(payload),
-  });
+  try {
+    return await fetch(`https://graph.facebook.com/v19.0/${endpoint}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(5000),
+    });
+  } catch (err) {
+    console.error(`Graph API ${endpoint} error:`, (err && err.message) || err);
+    return null;
+  }
 }
 
 async function cryptoDigest(algo, text) {

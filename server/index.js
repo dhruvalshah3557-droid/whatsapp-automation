@@ -1232,21 +1232,31 @@ function parseWeChatXml(xml) {
 }
 
 async function postGraph(endpoint, token, payload) {
-  const res = await fetch(`https://graph.facebook.com/v19.0/${endpoint}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    try {
-      const copy = res.clone();
-      console.error(`Graph API ${endpoint} failed:`, res.status, await copy.text());
-    } catch (err) {}
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 5000);
+  try {
+    const res = await fetch(`https://graph.facebook.com/v19.0/${endpoint}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      try {
+        const copy = res.clone();
+        console.error(`Graph API ${endpoint} failed:`, res.status, await copy.text());
+      } catch (err) {}
+    }
+    return res;
+  } catch (err) {
+    console.error(`Graph API ${endpoint} error:`, (err && err.message) || err);
+    return null;
+  } finally {
+    clearTimeout(timer);
   }
-  return res;
 }
 
 function readBody(req) {

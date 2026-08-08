@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260808: Fix monitor false-FAIL after heal + flaky Graph API webhook test — status: finished
+  - Done: `MONITOR FAILED` despite all-OK output was caused by `checkServer()` counting the pre-heal failure even when the heal succeeded — now the down-check is only reported if healing fails. Second flake: server webhook tests made real network calls to `graph.facebook.com` (no timeout, errors propagated → 500 → intermittent test failure). `postGraph` on the server and worker now aborts after 5s and swallows errors so a failed reply never breaks the webhook response. MONITOR OK, 127/127 tests.
+
 - [x] 260807: Create the permanent QA/Maintenance agent from the provided QA prompt — status: finished
   - Done: read the 1086-line QA/maintenance prompt (`appoint agent`, moved to `/tmp/opencode/appoint-agent-qa-prompt.txt`) and turned it into an opencode subagent at `.opencode/agent/qa-maintainer.md` (frontmatter: description, mode subagent, model) with the full role condensed: mission, issue tracking, severity levels, bug-fixing/root-cause rules, messaging/ERP/API/frontend/UI monitoring, security, permission testing, regression tests, deploy checks, health score, session report format, autonomous execution, commit+push discipline per AGENTS.md.
 

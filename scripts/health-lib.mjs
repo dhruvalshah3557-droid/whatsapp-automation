@@ -117,9 +117,10 @@ export async function healServer() {
 
 export async function checkServer(heal = false) {
   if (await serverUp()) { report("local server", true, `up on :${PORT}`); return true; }
-  report("local server", false, `down on :${PORT}`);
-  if (heal) return healServer();
-  return false;
+  if (!heal) { report("local server", false, `down on :${PORT}`); return false; }
+  const healed = await healServer();
+  if (!healed) report("local server", false, `down on :${PORT}`);
+  return healed;
 }
 
 export async function checkPublic() {
