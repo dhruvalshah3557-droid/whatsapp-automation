@@ -93,16 +93,27 @@ export function waitForServer(ms = 10000) {
 }
 
 export function killPort() {
+  const pids = new Set();
   try {
     const out = execFileSync("lsof", ["-ti", ":" + PORT], { encoding: "utf8" }).trim();
-    if (out) {
-      for (const pid of out.split("\n")) {
-        try { process.kill(Number(pid), "SIGKILL"); } catch {}
-      }
-      return true;
-    }
+    if (out) for (const pid of out.split("\n")) pids.add(Number(pid));
   } catch {}
-  return false;
+  if (pids.size === 0) {
+    try {
+      // lsof not installed (common on slim images) — use ss instead.
+      const out = execFileSync("ss", ["-tlnp"], { encoding: "utf8" });
+      for (const line of out.split("\n")) {
+        if (!line.includes(":" + PORT)) continue;
+        const m = line.match(/pid=(\d+)/);
+        if (m) pids.add(Number(m[1]));
+      }
+    } catch {}
+  }
+  let killed = false;
+  for (const pid of pids) {
+    try { process.kill(pid, "SIGKILL"); killed = true; } catch {}
+  }
+  return killed;
 }
 
 export async function healServer() {

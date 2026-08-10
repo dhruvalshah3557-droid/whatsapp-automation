@@ -38,11 +38,11 @@ export const FREE_LLM_PROVIDERS = [
     id: "openrouter",
     name: "OpenRouter",
     base: "https://openrouter.ai/api/v1",
-    model: "deepseek/deepseek-chat-v3-0324:free",
+    model: "poolside/laguna-s-2.1:free",
     keyVar: "OPENROUTER_API_KEY",
     tier: "free",
     signup: "https://openrouter.ai",
-    note: "Free model routes (deepseek, llama, qwen).",
+    note: "Free model routes (deepseek, llama, qwen, etc.).",
   },
   {
     id: "cerebras",

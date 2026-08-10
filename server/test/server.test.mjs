@@ -20,6 +20,8 @@ const ENV = {
   TIKTOK_ACCESS_TOKEN: "tt_token",
   WECHAT_TOKEN: "wx_token",
   API_KEY: "test_api_key",
+  USER_LLM_BASE_URL: "",
+  USER_LLM_API_KEY: "",
   EVENTS_FILE: path.join(__dirname, "tmp-events.json"),
   MEDIA_CONFIG_FILE: path.join(__dirname, "tmp-media-config.json"),
   INVENTORY_FILE: path.join(__dirname, "tmp-inventory.json"),
