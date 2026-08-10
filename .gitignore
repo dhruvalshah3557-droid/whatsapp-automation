@@ -38,3 +38,7 @@ server/app-memory.json
 
 # n8n exports with credentials
 *.n8n
+
+# Free API hunter runtime data + user-provided keys (never commit keys)
+store/free-api-keys.conf
+store/free-api-state.json

@@ -272,6 +272,24 @@ export async function checkGitState() {
   return ok;
 }
 
+/* ---------------- Free API hunter ---------------- */
+
+export async function checkFreeApi() {
+  try {
+    const { readState } = await import("./free-api-lib.mjs");
+    const state = readState();
+    const prov = state.provider || {};
+    const live = Object.entries(prov).filter(([, v]) => v.reachable).length;
+    const keyed = Object.entries(prov).filter(([, v]) => v.keyStatus === "key-ok").map(([id]) => id);
+    const detail = `free-api state: ${live}/${Object.keys(prov).length} providers reachable, ${keyed.length ? "key-ok: " + keyed.join(",") : "no working key on file"}`;
+    report("free-api hunter", Object.keys(prov).length > 0, detail);
+    return true;
+  } catch (err) {
+    report("free-api hunter", true, "not yet run — " + err.message);
+    return true;
+  }
+}
+
 /* ---------------- Tests ---------------- */
 
 function runTests() {
@@ -307,6 +325,7 @@ export async function runHealthPass(opts = {}) {
   await checkWorker();
   await checkDeploy(opts.autoFix);
   await checkGitState();
+  await checkFreeApi();
   await checkTests();
   return failureCount() === 0;
 }

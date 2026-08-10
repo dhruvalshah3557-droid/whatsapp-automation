@@ -71,6 +71,17 @@ node scripts/agent.mjs --interval 60
 
   Run it with `--once` for a single check+heal pass. Check the agent's live output with the background terminal log; any `FAIL` line means an issue was found that must be fixed.
 
+### Free API hunter (keep finding free LLM/APIs)
+
+A standing agent (`scripts/free-api-hunter.mjs`) keeps watching for free LLM providers and keyless public APIs so the user doesn't have to keep supplying keys. Each cycle it probes every provider/API in `scripts/free-api-lib.mjs`, tests any free keys the user stored in `store/free-api-keys.conf` (git-ignored, template at `store/free-api-keys.example`), and auto-provisions the first working provider into the app (`server/.env` + GitHub Actions secret, then restarts the local server). Logs to `logs/free-api.log`, state in `store/free-api-state.json`.
+
+```bash
+node scripts/free-api-hunter.mjs --once          # single pass
+node scripts/free-api-hunter.mjs --interval 900  # watch every 15 min (standing)
+```
+
+Boundary: it only reads keys the user deliberately stores — no environment scanning, no key scraping, no account registration.
+
 ### When a new task arrives
 
 1. Add a pending entry to `TASKS.md`:
