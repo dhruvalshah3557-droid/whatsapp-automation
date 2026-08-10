@@ -26,6 +26,8 @@ const ENV = {
   MEDIA_CONFIG_FILE: path.join(__dirname, "tmp-media-config.json"),
   INVENTORY_FILE: path.join(__dirname, "tmp-inventory.json"),
   SYNC_ON_START: "0",
+  WA_AUTO_START: "0",
+  WA_SESSION_DIR: path.join(__dirname, "tmp-wa-session"),
   AUTH_DATA_DIR: path.join(__dirname, "tmp-auth"),
   ADMIN_EMAIL: "admin@test.local",
   ADMIN_PASSWORD: "AdminTest123!",
@@ -515,3 +517,24 @@ test("POST /api/media/test works end-to-end against the fake FTP server", async 
     fake.close();
   }
 });
+
+test("GET /api/wa/status reports idle when not connected", async () => {
+  const { status, text } = await req("/api/wa/status");
+  assert.equal(status, 200);
+  const data = JSON.parse(text);
+  assert.equal(data.ok, true);
+  assert.equal(data.connected, false);
+  assert.equal(data.pairing, false);
+  assert.ok(typeof data.qrId === "number" || data.qrId === null);
+});
+
+test("POST /api/wa/send returns 400 when WhatsApp Web is not connected", async () => {
+  const { status, text } = await req("/api/wa/send", {
+    method: "POST",
+    body: JSON.stringify({ to: "15551234567", text: "hello" }),
+  });
+  assert.equal(status, 400);
+  const data = JSON.parse(text);
+  assert.match(data.error, /not connected/i);
+});
+

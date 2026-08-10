@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { ftpList, ftpStore, ftpMkdirs } from "./ftp.js";
 import { loadInventoryFromDisk, getInventory, getSyncStatus, syncSite } from "./site-sync.js";
 import * as auth from "./auth.js";
+import { startWa, waStatus, waLogout, waSend, setWaEventSink, waIsConnected } from "./wa.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -301,6 +302,16 @@ server.listen(PORT, () => {
     }).catch((err) => {
       console.error("site-sync: background sync failed:", (err && err.message) || err);
     });
+  }
+  setWaEventSink((platform, from, text) => recordEvent(platform, from, text));
+  if (env.WA_AUTO_START !== "0") {
+    startWa().then((st) => {
+      console.log(`wa: WhatsApp Web ${st.connected ? "connected" : "awaiting QR pairing"} (enabled)`);
+    }).catch((err) => {
+      console.error("wa: start failed:", (err && err.message) || err);
+    });
+  } else {
+    console.log("wa: WhatsApp Web auto-start disabled (WA_AUTO_START=0)");
   }
 });
 
@@ -707,6 +718,37 @@ async function handleApi(req, res, url) {
     return;
   }
 
+  if (url.pathname === "/api/wa/status" && req.method === "GET") {
+    sendJson(res, 200, waStatus(), corsHeaders());
+    return;
+  }
+
+  if (url.pathname === "/api/wa/start" && req.method === "POST") {
+    const st = await startWa();
+    sendJson(res, 200, st, corsHeaders());
+    return;
+  }
+
+  if (url.pathname === "/api/wa/logout" && req.method === "POST") {
+    const r = await waLogout();
+    sendJson(res, 200, r, corsHeaders());
+    return;
+  }
+
+  if (url.pathname === "/api/wa/send" && req.method === "POST") {
+    const raw = await readBody(req);
+    let body;
+    try {
+      body = JSON.parse(raw);
+    } catch (err) {
+      sendJson(res, 400, { error: "Invalid JSON" }, corsHeaders());
+      return;
+    }
+    const result = await waSend(body.to, body.text);
+    sendJson(res, result.status, result.body, corsHeaders());
+    return;
+  }
+
   sendJson(res, 404, { error: "Not found" }, corsHeaders());
 }
 
@@ -1012,6 +1054,9 @@ async function apiSend(body) {
           text: { body: text },
         });
         break;
+      }
+      case "whatsapp-web": {
+        return waSend(to, text);
       }
       case "instagram": {
         const senderId = env.INSTAGRAM_SENDER_ID;

@@ -33,6 +33,10 @@ server/test/tmp-auth-*.json
 # App memory backup (server-side localStorage snapshot)
 server/app-memory.json
 
+# WhatsApp Web Baileys session state (device-linked credentials, never commit)
+server/wa-session/
+server/test/tmp-wa-session/
+
 # OS files
 .DS_Store
 

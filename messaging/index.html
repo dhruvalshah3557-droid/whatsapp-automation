@@ -763,6 +763,54 @@ body.is-admin .nav-tabs .admin-only { display: inline-block; }
 .task-modal input, .task-modal select, .task-modal textarea { width: 100%; background: var(--bg-2); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 10px; font-size: 13px; outline: none; box-sizing: border-box; }
 .task-modal input:focus, .task-modal select:focus, .task-modal textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,148,58,.14); }
 .task-modal .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ==================== WhatsApp Web theme (body.wa-theme) ==================== */
+body.wa-theme {
+  --bg: #111b21;
+  --bg-2: #1f2c33;
+  --bg-chat: #0b141a;
+  --sidebar: #111b21;
+  --sidebar-h: #202c33;
+  --card: #202c33;
+  --border: #2a3942;
+  --border-strong: #3b4a54;
+  --text: #e9edef;
+  --text-soft: #8696a0;
+  --muted: #8696a0;
+  --gold: #00a884;
+  --gold-1: #25d366;
+  --gold-deep: #25d366;
+  --gold-soft: rgba(37,211,102,.14);
+  --green: #00a884;
+  --green-soft: rgba(0,168,132,.16);
+  --red: #f15c6d;
+  --red-soft: rgba(241,92,109,.12);
+  --amber: #f7c948;
+  --blue: #53bdeb;
+  --in-bubble: #202c33;
+  --out-bubble: #005c4b;
+  --out-bubble-deep: #075e54;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.4);
+  --shadow-md: 0 10px 30px rgba(0,0,0,.5);
+  --shadow-lg: 0 20px 50px rgba(0,0,0,.6);
+}
+body.wa-theme .chat-wrap { background: var(--bg-chat); }
+body.wa-theme .messages { background:
+  radial-gradient(rgba(37,211,102,.045) 1px, transparent 1px) 0 0/26px 26px,
+  var(--bg-chat); }
+body.wa-theme .msg-bubble.in, body.wa-theme .msg-bubble.out {
+  box-shadow: 0 1px .5px rgba(0,0,0,.26);
+}
+body.wa-theme .msg-bubble.out { background: var(--out-bubble); }
+body.wa-theme .msg-bubble.in { background: var(--in-bubble); }
+body.wa-theme .sidebar, body.wa-theme .contact-item { background: var(--sidebar); }
+body.wa-theme .topbar { background: var(--sidebar-h); }
+body.wa-theme .input-bar { background: var(--sidebar-h); border-top: 1px solid var(--border); }
+body.wa-theme .btn, body.wa-theme .btn-ghost { background: var(--green-soft); color: var(--gold-deep); border-color: rgba(37,211,102,.35); }
+body.wa-theme .status-pill.configured { background: rgba(37,211,102,.16); color: #25d366; border-color: rgba(37,211,102,.4); }
+body.wa-theme .composer-input, body.wa-theme input, body.wa-theme textarea, body.wa-theme select {
+  background: var(--bg-2); border-color: var(--border); color: var(--text);
+}
 </style>
 </head>
 <body>
@@ -1020,6 +1068,29 @@ body.is-admin .nav-tabs .admin-only { display: inline-block; }
           <button class="btn btn-ghost" style="width:100%" id="test-server-btn" onclick="testServer()" data-i18n="conn_test">Test connection</button>
           <div class="msg" id="server-test-msg"></div>
           <p class="hint" data-i18n="conn_hint">Enter your deployed webhook server (standalone Node server or Cloudflare Worker). The Chats view then shows live inbound messages from /api/events, and replies are sent through /api/send. Tokens stay on this device.</p>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><div class="logo-lg" style="background:#25d366">W</div><span data-i18n="wa_web_title">WhatsApp Web</span></div>
+            <span class="status-pill notset" id="wa-web-status"><span class="status-dot"></span><span id="wa-web-status-txt" data-i18n="wa_web_checking">Checking…</span></span>
+          </div>
+          <div id="wa-web-pair" style="display:none;text-align:center;padding:10px 0">
+            <p class="hint" data-i18n="wa_web_pair_hint">Open WhatsApp on your phone → Settings → Linked devices → Link a device, then scan this QR code. It connects your own number — no Meta Cloud API token needed.</p>
+            <div id="wa-web-qr-wrap" style="background:#fff;border-radius:14px;padding:10px;display:inline-block;margin:8px auto">
+              <img id="wa-web-qr" alt="QR" style="width:280px;height:280px;display:block;image-rendering:pixelated">
+            </div>
+            <p class="hint" id="wa-web-qr-hint"></p>
+            <div class="form-row" style="max-width:340px;margin:8px auto">
+              <div><button class="btn btn-ghost" onclick="waWebRefresh()" data-i18n="wa_web_refresh">Refresh QR</button></div>
+              <div><button class="btn" onclick="waWebLogout()" data-i18n="wa_web_logout">Log out</button></div>
+            </div>
+          </div>
+          <div id="wa-web-connected" style="display:none;text-align:center;padding:10px 0">
+            <p class="hint"><span data-i18n="wa_web_connected">Connected to</span> <b id="wa-web-phone"></b> <span data-i18n="wa_web_connected2">— inbound messages appear in Chats as “WhatsApp Web”.</span></p>
+            <button class="btn" onclick="waWebLogout()" data-i18n="wa_web_logout">Log out</button>
+          </div>
+          <div id="wa-web-unsupported" style="display:none" class="msg" data-i18n="wa_web_unsupported">WhatsApp Web runs on the standalone server — point the Server URL above at it (the Cloudflare Worker can't hold a live WhatsApp session).</div>
+          <p class="hint" data-i18n="wa_web_hint">Pair your personal WhatsApp number with a QR scan. Replies are sent straight from the connected device via the server's /api/wa/send. Requires the standalone Node server (WA_AUTO_START=1 is the default).</p>
         </div>
         <div class="card">
           <div class="card-head">
@@ -1370,6 +1441,7 @@ const I18N = {
     sec_touchid_sub: "Unlock Colourdiam Messaging with your fingerprint or face on this device.",
     sec_on: "Enabled", sec_off: "Disabled", sec_lock_now: "Lock now", sec_unlock: "Unlock", sec_skip: "Skip for this session",
     sec_touchid_hint: "Confirm with your fingerprint or face to continue.",
+    wa_theme_label: "WhatsApp theme", wa_theme_on: "WhatsApp look", wa_theme_off: "Luxury look",
     sec_unsupported: "Biometrics are not available on this device or browser.",
     sec_failed: "Could not verify — please try again or skip for this session.",
     sec_enabled: "Biometric unlock enabled", sec_disabled: "Biometric unlock disabled",
@@ -1388,6 +1460,11 @@ const I18N = {
     ftp_hint: "Upload product media to an FTP host (cPanel, hosting or a CDN-adjacent FTP). The Public Base URL builds the image links shown in the catalogue.",
     ftp_hint_products: "FTP media is not loaded. If you connected FTP, make sure the server this app points to (Server URL in Connector) has the same FTP config saved, then open the Products tab again.",
     ftp_worker_hint: "On the Cloudflare Worker the FTP config comes from worker secrets / GitHub Actions secrets (FTP_HOST, FTP_USER, FTP_PASS, FTP_BASE_URL). Saving is only available on the standalone server.",
+    wa_web_title: "WhatsApp Web", wa_web_checking: "Checking…", wa_web_pair_hint: "Open WhatsApp on your phone → Settings → Linked devices → Link a device, then scan this QR code. It connects your own number — no Meta Cloud API token needed.",
+    wa_web_refresh: "Refresh QR", wa_web_logout: "Log out", wa_web_connected: "Connected to", wa_web_connected2: "— inbound messages appear in Chats as “WhatsApp Web”.",
+    wa_web_unsupported: "WhatsApp Web runs on the standalone server — point the Server URL above at it (the Cloudflare Worker can't hold a live WhatsApp session).",
+    wa_web_hint: "Pair your personal WhatsApp number with a QR scan. Replies are sent straight from the connected device via the server's /api/wa/send. Requires the standalone Node server (WA_AUTO_START=1 is the default).",
+    wa_web_none: "Not connected", wa_web_scan: "Scan QR to connect", wa_web_unreachable: "Server offline",
     auth_signin: "Sign in to your workspace", auth_email: "Email", auth_password: "Password", auth_signin_btn: "Sign In",
     auth_forgot: "Forgot password?", auth_send_reset: "Send reset link", auth_back: "Back to sign in",
     auth_reset_token: "Reset token", auth_new_password: "New password", auth_reset_btn: "Reset password",
@@ -1473,6 +1550,7 @@ const I18N = {
     sec_touchid_sub: "使用指纹或面容在此设备上解锁 Colourdiam 消息。",
     sec_on: "已启用", sec_off: "已关闭", sec_lock_now: "立即锁定", sec_unlock: "解锁", sec_skip: "本次跳过",
     sec_touchid_hint: "请按指纹或面容以继续。",
+    wa_theme_label: "WhatsApp 主题", wa_theme_on: "WhatsApp 外观", wa_theme_off: "奢华外观",
     sec_unsupported: "此设备或浏览器不支持生物识别。",
     sec_failed: "无法验证——请重试或选择本次跳过。",
     sec_enabled: "已启用生物识别解锁", sec_disabled: "已停用生物识别解锁",
@@ -1491,6 +1569,11 @@ const I18N = {
     ftp_hint: "将产品媒体上传到 FTP 主机（cPanel、主机托管或靠近 CDN 的 FTP）。公开基础 URL 用于构建目录中显示的图片链接。",
     ftp_hint_products: "未加载 FTP 媒体。如果您已连接 FTP，请确保此应用指向的服务器（Connector 中的服务器地址）保存了相同的 FTP 配置，然后重新打开产品标签页。",
     ftp_worker_hint: "在 Cloudflare Worker 上，FTP 配置来自 worker 密钥 / GitHub Actions 密钥（FTP_HOST、FTP_USER、FTP_PASS、FTP_BASE_URL）。只有独立服务器支持从应用保存。",
+    wa_web_title: "WhatsApp Web", wa_web_checking: "检查中…", wa_web_pair_hint: "在手机上打开 WhatsApp → 设置 → 已链接设备 → 链接设备，然后扫描此二维码。它会连接你自己的号码 — 无需 Meta Cloud API 令牌。",
+    wa_web_refresh: "刷新二维码", wa_web_logout: "退出登录", wa_web_connected: "已连接到", wa_web_connected2: "— 收到的消息会以“WhatsApp Web”显示在聊天中。",
+    wa_web_unsupported: "WhatsApp Web 运行在独立服务器上 — 请将上方服务器地址指向独立服务器（Cloudflare Worker 无法保持实时 WhatsApp 会话）。",
+    wa_web_hint: "通过扫描二维码配对您的个人 WhatsApp 号码。回复会通过服务器 /api/wa/send 直接从已连接设备发出。需要独立 Node 服务器（默认 WA_AUTO_START=1）。",
+    wa_web_none: "未连接", wa_web_scan: "扫描二维码连接", wa_web_unreachable: "服务器离线",
     auth_signin: "登录工作区", auth_email: "邮箱", auth_password: "密码", auth_signin_btn: "登录",
     auth_forgot: "忘记密码？", auth_send_reset: "发送重置链接", auth_back: "返回登录",
     auth_reset_token: "重置令牌", auth_new_password: "新密码", auth_reset_btn: "重置密码",
@@ -1576,6 +1659,7 @@ const I18N = {
     sec_touchid_sub: "ปลดล็อก Colourdiam Messaging ด้วยลายนิ้วมือหรือใบหน้าบนอุปกรณ์นี้",
     sec_on: "เปิดใช้", sec_off: "ปิด", sec_lock_now: "ล็อกตอนนี้", sec_unlock: "ปลดล็อก", sec_skip: "ข้ามในครั้งนี้",
     sec_touchid_hint: "ยืนยันด้วยลายนิ้วมือหรือใบหน้าเพื่อดำเนินการต่อ",
+    wa_theme_label: "ธีม WhatsApp", wa_theme_on: "ลุค WhatsApp", wa_theme_off: "ลุคหรูหรา",
     sec_unsupported: "อุปกรณ์หรือเบราว์เซอร์นี้ไม่รองรับไบโอเมตริก",
     sec_failed: "ไม่สามารถยืนยันได้ — โปรดลองอีกครั้งหรือข้ามในครั้งนี้",
     sec_enabled: "เปิดใช้การปลดล็อกด้วยไบโอเมตริกแล้ว", sec_disabled: "ปิดการปลดล็อกด้วยไบโอเมตริกแล้ว",
@@ -1594,6 +1678,11 @@ const I18N = {
     ftp_hint: "อัปโหลดสื่อสินค้าไปยัง FTP host (cPanel โฮสติ้ง หรือ FTP ที่ใกล้ CDN) Public Base URL ใช้สร้างลิงก์รูปภาพที่แสดงในแคตตาล็อก",
     ftp_hint_products: "ยังไม่ได้โหลดสื่อ FTP หากคุณเชื่อมต่อ FTP แล้ว โปรดตรวจสอบว่าเซิร์ฟเวอร์ที่แอปนี้ชี้ไป (Server URL ใน Connector) มีการตั้งค่า FTP เดียวกันบันทึกไว้ แล้วเปิดแท็บ Products อีกครั้ง",
     ftp_worker_hint: "บน Cloudflare Worker การตั้งค่า FTP มาจาก worker secrets / GitHub Actions secrets (FTP_HOST, FTP_USER, FTP_PASS, FTP_BASE_URL) การบันทึกทำได้เฉพาะบนเซิร์ฟเวอร์สแตนด์อโลนเท่านั้น",
+    wa_web_title: "WhatsApp Web", wa_web_checking: "กำลังตรวจสอบ…", wa_web_pair_hint: "เปิด WhatsApp บนโทรศัพท์ → การตั้งค่า → อุปกรณ์ที่เชื่อมโยง → เชื่อมโยงอุปกรณ์ จากนั้นสแกน QR นี้ จะเชื่อมต่อกับเบอร์ของคุณเอง — ไม่ต้องใช้ Meta Cloud API token",
+    wa_web_refresh: "รีเฟรช QR", wa_web_logout: "ออกจากระบบ", wa_web_connected: "เชื่อมต่อกับ", wa_web_connected2: "— ข้อความขาเข้าจะแสดงในแชทเป็น “WhatsApp Web”",
+    wa_web_unsupported: "WhatsApp Web ทำงานบนเซิร์ฟเวอร์สแตนด์อโลน — โปรดชี้ Server URL ด้านบนไปที่เซิร์ฟเวอร์นั้น (Cloudflare Worker เก็บเซสชัน WhatsApp แบบเรียลไทม์ไม่ได้)",
+    wa_web_hint: "จับคู่หมายเลข WhatsApp ส่วนตัวของคุณด้วยการสแกน QR คำตอบจะถูกส่งตรงจากอุปกรณ์ที่เชื่อมต่อผ่าน /api/wa/send ของเซิร์ฟเวอร์ ต้องใช้เซิร์ฟเวอร์ Node แบบสแตนด์อโลน (ค่าเริ่มต้น WA_AUTO_START=1)",
+    wa_web_none: "ยังไม่ได้เชื่อมต่อ", wa_web_scan: "สแกน QR เพื่อเชื่อมต่อ", wa_web_unreachable: "เซิร์ฟเวอร์ออฟไลน์",
     auth_signin: "เข้าสู่ระบบพื้นที่ทำงาน", auth_email: "อีเมล", auth_password: "รหัสผ่าน", auth_signin_btn: "เข้าสู่ระบบ",
     auth_forgot: "ลืมรหัสผ่าน?", auth_send_reset: "ส่งลิงก์รีเซ็ต", auth_back: "กลับไปเข้าสู่ระบบ",
     auth_reset_token: "รหัสรีเซ็ต", auth_new_password: "รหัสผ่านใหม่", auth_reset_btn: "รีเซ็ตรหัสผ่าน",
@@ -1663,7 +1752,7 @@ function applyI18n() {
 /* ==================== UI state + Biometrics ==================== */
 const UI_KEY = "mc_ui_v1";
 function loadUI() {
-  let d = { lang: "en", sec: { touchid: false, creds: [] } };
+  let d = { lang: "en", waTheme: false, sec: { touchid: false, creds: [] } };
   try {
     d = Object.assign(d, JSON.parse(localStorage.getItem(UI_KEY) || "{}"));
   } catch (e) {}
@@ -1778,6 +1867,16 @@ async function tryUnlock() {
 }
 function skipLock() { document.getElementById("lock-screen").hidden = true; }
 
+function applyWaTheme() {
+  document.body.classList.toggle("wa-theme", !!UI.waTheme);
+}
+function toggleWaTheme(on) {
+  UI.waTheme = !!on;
+  save(UI_KEY, UI);
+  applyWaTheme();
+  renderSettingsPanel();
+}
+
 function renderSettingsPanel() {
   const bio = bioAvailable();
   const panel = document.getElementById("settings-panel");
@@ -1795,6 +1894,16 @@ function renderSettingsPanel() {
           </select>
         </div>
       </div>
+      <label class="sec-toggle-row">
+        <span class="sec-toggle-text">
+          <span class="sec-toggle-label">${t("wa_theme_label")}</span>
+          <span class="sec-toggle-sub">${UI.waTheme ? t("wa_theme_on") : t("wa_theme_off")}</span>
+        </span>
+        <span class="switch">
+          <input type="checkbox" ${UI.waTheme ? "checked" : ""} onchange="toggleWaTheme(this.checked)">
+          <span class="slider"></span>
+        </span>
+      </label>
     </div>
     <div class="card">
       <div class="card-head"><div class="card-title"><div class="logo-lg" style="background:#3f6fb5">🔒</div><span>${t("sec_title")}</span></div></div>
@@ -1826,6 +1935,7 @@ function switchView(v) {
   if (sb) sb.classList.remove("hide-mobile");
   if (v === "customers") renderCustomers();
   if (v === "products") { renderProducts(); loadProducts(); loadProductMedia(); }
+  if (v === "connector") waWebStartPolling();
   if (v === "orders") renderOrders();
   if (v === "settings") renderSettingsPanel();
   if (v === "dashboard") renderDashboard();
@@ -1873,7 +1983,9 @@ const PLATFORMS = [
     steps: ["Register a 服务号 (Service Account) and get the AppID/AppSecret.", "In the platform console, set the server URL to your n8n webhook URL and the Token.", "Enable the server config so WeChat can verify the URL and forward messages.", "Replies are returned as passive XML within 5 seconds."] }
 ];
 
-function platformMeta(id) { return PLATFORMS.find(p => p.id === id); }
+const WA_WEB_META = { id: "whatsapp-web", name: "WhatsApp Web", icon: "W", svg: WA_SVG, color: "#25d366", path: "/webhook/whatsapp-hook", extra: true };
+
+function platformMeta(id) { return PLATFORMS.find(p => p.id === id) || (id === "whatsapp-web" ? WA_WEB_META : null); }
 function platformBadge(pid) {
   const p = platformMeta(pid || "whatsapp");
   if (p && p.svg) return `<span class="p-badge" style="color:${p.color}">${p.svg}</span>`;
@@ -1970,6 +2082,73 @@ function resetAll() {
   ids.forEach(([id, v]) => { const el = document.getElementById(id); if (el) el.value = v; });
   render();
   maybeStartPolling();
+}
+
+/* ---------------- WhatsApp Web (QR pairing on the standalone server) ---------------- */
+let waWebQrId = -1;
+let waWebPollTimer = null;
+function waWebServerOk() {
+  const s = serverCfg();
+  return !!(s.url && s.url.indexOf("workers.dev") === -1);
+}
+function waWebEl(id) { return document.getElementById(id); }
+function waWebSetStatus(cls, txt) {
+  const pill = waWebEl("wa-web-status");
+  const label = waWebEl("wa-web-status-txt");
+  if (pill) pill.className = "status-pill " + cls;
+  if (label) label.textContent = txt;
+}
+async function waWebStatus() {
+  if (!waWebServerOk()) {
+    waWebEl("wa-web-unsupported").style.display = "block";
+    waWebEl("wa-web-pair").style.display = "none";
+    waWebEl("wa-web-connected").style.display = "none";
+    waWebSetStatus("notset", t("wa_web_none"));
+    return;
+  }
+  waWebEl("wa-web-unsupported").style.display = "none";
+  try {
+    const st = await apiCall("/api/wa/status");
+    if (st.connected) {
+      waWebSetStatus("configured", t("wa_web_connected"));
+      waWebEl("wa-web-connected").style.display = "block";
+      waWebEl("wa-web-pair").style.display = "none";
+      waWebEl("wa-web-phone").textContent = st.phone || "?";
+    } else if (st.qr) {
+      waWebSetStatus("partial", t("wa_web_scan"));
+      waWebEl("wa-web-pair").style.display = "block";
+      waWebEl("wa-web-connected").style.display = "none";
+      if (st.qrId !== waWebQrId) {
+        waWebQrId = st.qrId;
+        waWebEl("wa-web-qr").src = st.qr;
+      }
+      waWebEl("wa-web-qr-hint").textContent = st.lastError || "";
+    } else {
+      waWebSetStatus("notset", t("wa_web_none"));
+      waWebEl("wa-web-pair").style.display = "none";
+      waWebEl("wa-web-connected").style.display = "none";
+    }
+  } catch (err) {
+    waWebSetStatus("notset", t("wa_web_unreachable"));
+  }
+}
+async function waWebStart() {
+  try { await apiCall("/api/wa/start", { method: "POST", body: "{}" }); } catch (err) {}
+  await waWebStatus();
+}
+async function waWebRefresh() {
+  waWebSetStatus("partial", t("wa_web_checking"));
+  await waWebStart();
+}
+async function waWebLogout() {
+  try { await apiCall("/api/wa/logout", { method: "POST", body: "{}" }); } catch (err) {}
+  waWebQrId = -1;
+  await waWebStart();
+}
+function waWebStartPolling() {
+  if (waWebPollTimer) clearInterval(waWebPollTimer);
+  waWebStatus();
+  waWebPollTimer = setInterval(waWebStatus, 4000);
 }
 
 /* ==================== FTP media config ==================== */
@@ -2180,13 +2359,16 @@ async function restoreMemory() {
 
 /* ==================== What's New (auto-show feature updates) ==================== */
 const WN_KEY = "mc_whatsnew_v1";
-const WN_VERSION = "v40";
+const WN_VERSION = "v41";
 const WHATS_NEW = [
   { v: "v39", items: [
     "Product cards cleaned up again — removed the redundant category · carat line (already shown in the name)",
   ] },
   { v: "v40", items: [
     "Login stays put — your session token is no longer synced to shared memory, so you won't be logged out and forced to reset your password after every reload",
+  ] },
+  { v: "v41", items: [
+    "WhatsApp Web is here — scan a QR code with your own WhatsApp to log in, send and receive messages, and try the new WhatsApp-style dark theme in Settings",
   ] },
 ];
 function showWhatsNew() {
@@ -4375,6 +4557,7 @@ async function renderAdminReport() {
   st.dataset.mode = aic.base && aic.key ? "ai_on" : "ai_off";
   st.textContent = aiStatusText();
   aiInit();
+  applyWaTheme();
   applyI18n();
   renderSettingsPanel();
   maybeStartPolling();
