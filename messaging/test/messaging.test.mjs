@@ -356,6 +356,56 @@ test("memory restore keeps local data when it is newer than both server and Clou
   assert.equal(contacts.contacts[0].name, "Local");
 });
 
+test("memory restore never overwrites existing local data with a stale shared copy", async () => {
+  const sb = evalSandbox();
+  sb.ctx.fetch = async (url, opts = {}) => {
+    return { ok: true, status: 200, json: async () => ({ ok: true, memory: { mc_chat_v2: { contacts: [{ name: "StaleServer" }] }, mc_reminders_v1: [] }, at: 999 }) };
+  };
+  sb.run("localStorage.clear(); localStorage.setItem('mc_memory_at', '100'); localStorage.setItem('mc_chat_v2', JSON.stringify({ contacts: [{ name: 'MyLiveData' }] }));");
+  await sb.run("restoreMemory()");
+  const contacts = sb.run("JSON.parse(localStorage.getItem('mc_chat_v2'))");
+  assert.equal(contacts.contacts[0].name, "MyLiveData", "existing local chat must never be overwritten by the shared copy");
+  const reminders = sb.run("localStorage.getItem('mc_reminders_v1')");
+  assert.ok(reminders !== null && reminders !== "{}", "empty local buckets are still seeded from the newest copy");
+});
+
+test("memory restore applies data in place and never reloads the page", async () => {
+  const sb = evalSandbox();
+  let reloads = 0;
+  sb.ctx.location.reload = () => { reloads += 1; };
+  sb.ctx.fetch = async (url) => {
+    return { ok: true, status: 200, json: async () => ({ ok: true, memory: { mc_chat_v2: { contacts: [{ name: "New" }] } }, at: 500 }) };
+  };
+  sb.run("localStorage.clear();");
+  await sb.run("restoreMemory()");
+  assert.equal(reloads, 0, "restore must apply data in place instead of reloading the page");
+  const contacts = sb.run("JSON.parse(localStorage.getItem('mc_chat_v2'))");
+  assert.equal(contacts.contacts[0].name, "New");
+});
+
+test("authGate keeps the login token on transient server errors", async () => {
+  const sb = evalSandbox();
+  sb.ctx.fetch = async () => { throw new Error("network down"); };
+  sb.run("localStorage.clear(); localStorage.setItem('mc_auth_v1', JSON.stringify({ token: 'my_token', user: { name: 'Me' } })); localStorage.setItem('mc_cfg_v3', JSON.stringify({ server_url: 'https://example.com' }));");
+  await sb.run("authGate()");
+  const auth = sb.run("JSON.parse(localStorage.getItem('mc_auth_v1'))");
+  assert.equal(auth.token, "my_token", "a transient server/network error must NOT clear the login token");
+  assert.equal(auth.user.name, "Me");
+});
+
+test("authGate clears the token only when the server rejects it with 401", async () => {
+  const sb = evalSandbox();
+  sb.ctx.fetch = async () => {
+    const err = new Error("unauthorized");
+    err.status = 401;
+    throw err;
+  };
+  sb.run("localStorage.clear(); localStorage.setItem('mc_auth_v1', JSON.stringify({ token: 'expired_token', user: { name: 'Me' } })); localStorage.setItem('mc_cfg_v3', JSON.stringify({ server_url: 'https://example.com' }));");
+  await sb.run("authGate()");
+  const auth = sb.run("JSON.parse(localStorage.getItem('mc_auth_v1'))");
+  assert.ok(!auth.token, "an explicit 401 rejection should clear the stale token");
+});
+
 test("tags with apostrophes/special chars can be added and removed by index", () => {
   const run = sandbox.run;
   run(`document.getElementById = (function () {

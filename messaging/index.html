@@ -1470,6 +1470,7 @@ const I18N = {
     auth_reset_token: "Reset token", auth_new_password: "New password", auth_reset_btn: "Reset password",
     auth_current_password: "Current password", auth_change_btn: "Change password", auth_must_change: "For security, please choose a new password before continuing.",
     auth_foot: "Secure login · your data stays on the Colour Diam server",
+    auth_unreachable: "Server unreachable — retrying… your login is kept safe",
     ws_dashboard: "Dashboard", ws_my_tasks: "My Tasks", ws_my_activity: "My Activity",
     ws_admin_dashboard: "Admin Dashboard", ws_admin_users: "User Management", ws_admin_tasks: "Task Assignment", ws_admin_report: "Progress Report",
     ws_open: "Open", ws_new_task: "New task", ws_new_user: "New user", ws_recent_activity: "Recent Activity",
@@ -1578,6 +1579,7 @@ const I18N = {
     auth_forgot: "忘记密码？", auth_send_reset: "发送重置链接", auth_back: "返回登录",
     auth_reset_token: "重置令牌", auth_new_password: "新密码", auth_reset_btn: "重置密码",
     auth_current_password: "当前密码", auth_change_btn: "修改密码", auth_must_change: "出于安全考虑，请先设置新密码。",
+    auth_unreachable: "服务器不可用 — 正在重试…您的登录状态已保留",
     auth_foot: "安全登录 · 您的数据仅保存在 Colour Diam 服务器上",
     ws_dashboard: "工作台", ws_my_tasks: "我的任务", ws_my_activity: "我的动态",
     ws_admin_dashboard: "管理后台", ws_admin_users: "用户管理", ws_admin_tasks: "任务分配", ws_admin_report: "进度报告",
@@ -1688,6 +1690,7 @@ const I18N = {
     auth_reset_token: "รหัสรีเซ็ต", auth_new_password: "รหัสผ่านใหม่", auth_reset_btn: "รีเซ็ตรหัสผ่าน",
     auth_current_password: "รหัสผ่านปัจจุบัน", auth_change_btn: "เปลี่ยนรหัสผ่าน", auth_must_change: "เพื่อความปลอดภัย โปรดตั้งรหัสผ่านใหม่ก่อนดำเนินการต่อ",
     auth_foot: "เข้าสู่ระบบอย่างปลอดภัย · ข้อมูลของคุณอยู่บนเซิร์ฟเวอร์ Colour Diam",
+    auth_unreachable: "เซิร์ฟเวอร์ไม่สามารถเข้าถึงได้ — กำลังลองใหม่… สถานะการเข้าสู่ระบบของคุณปลอดภัย",
     ws_dashboard: "แดชบอร์ด", ws_my_tasks: "งานของฉัน", ws_my_activity: "กิจกรรมของฉัน",
     ws_admin_dashboard: "แดชบอร์ดผู้ดูแล", ws_admin_users: "จัดการผู้ใช้", ws_admin_tasks: "มอบหมายงาน", ws_admin_report: "รายงานความคืบหน้า",
     ws_open: "เปิด", ws_new_task: "งานใหม่", ws_new_user: "ผู้ใช้ใหม่", ws_recent_activity: "กิจกรรมล่าสุด",
@@ -2326,6 +2329,11 @@ async function backupMemory() {
   finally { memSaving = false; }
 }
 async function restoreMemory() {
+  // Restore ONLY buckets that are empty locally (first visit to this origin/device).
+  // The shared snapshot is written by every tab/device that uses the same server, so a
+  // "newest" copy can be stale (old tab, another device, a different preview URL). Never
+  // overwrite live local data with it — that caused data resets and the page reloading in a
+  // loop. Local changes always win; the snapshot only seeds a fresh/empty store.
   const candidates = [];
   const s = serverCfg();
   if (s.url) {
@@ -2348,18 +2356,27 @@ async function restoreMemory() {
   for (const k of Object.keys(best.memory)) {
     if (!memoryKeys().includes(k)) continue;
     try {
-      if (localStorage.getItem(k) !== JSON.stringify(best.memory[k])) { localStorage.setItem(k, JSON.stringify(best.memory[k])); changed = true; }
+      const localRaw = localStorage.getItem(k);
+      if (!localRaw || localRaw === "{}") {
+        localStorage.setItem(k, JSON.stringify(best.memory[k]));
+        changed = true;
+      }
     } catch (e) { /* skip */ }
   }
   if (changed) {
     localStorage.setItem(MEMORY_AT_KEY, String(serverAt));
-    location.reload();
+    render();
+    renderContacts();
+    renderTabBadge();
+    renderSettingsPanel();
+    updateAuthUI();
+    maybeStartPolling();
   }
 }
 
 /* ==================== What's New (auto-show feature updates) ==================== */
 const WN_KEY = "mc_whatsnew_v1";
-const WN_VERSION = "v41";
+const WN_VERSION = "v42";
 const WHATS_NEW = [
   { v: "v39", items: [
     "Product cards cleaned up again — removed the redundant category · carat line (already shown in the name)",
@@ -2369,6 +2386,9 @@ const WHATS_NEW = [
   ] },
   { v: "v41", items: [
     "WhatsApp Web is here — scan a QR code with your own WhatsApp to log in, send and receive messages, and try the new WhatsApp-style dark theme in Settings",
+  ] },
+  { v: "v42", items: [
+    "Memory sync fixed — the app no longer overwrites your chats and settings with a stale shared copy and no longer reloads the page in a loop. Your local data always wins.",
   ] },
 ];
 function showWhatsNew() {
@@ -4125,8 +4145,13 @@ async function authGate() {
     if (u.mustChangePassword) { authShow("change"); return; }
     switchView("dashboard");
   } catch (err) {
-    setAuthState({});
-    authShow("login");
+    if (err && (err.status === 401 || err.status === 403)) {
+      setAuthState({});
+      authShow("login");
+    } else {
+      authErr(t("auth_unreachable"));
+      setTimeout(authGate, 5000);
+    }
   }
 }
 
