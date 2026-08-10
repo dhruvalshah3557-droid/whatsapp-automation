@@ -206,10 +206,16 @@ export async function pushGhSecret(name, value) {
     const m = url.match(/github\.com[/:]([^/]+)\/([^/.]+?)(?:\.git)?$/);
     if (!m) return { ok: false, err: "no github origin" };
     const [, owner, repo] = m;
-    const cred = execFileSync("git", ["credential", "fill"], {
-      cwd: ROOT, input: "protocol=https\nhost=github.com\n\n", encoding: "utf8",
-    });
-    const token = (cred.match(/^password=(.+)$/m) || [])[1] || "";
+
+    // Prefer a user-provided secrets token (store/free-api-keys.conf ->
+    // GITHUB_SECRETS_TOKEN), fall back to the git credential helper.
+    let token = loadKeys().GITHUB_SECRETS_TOKEN || "";
+    if (!token) {
+      const cred = execFileSync("git", ["credential", "fill"], {
+        cwd: ROOT, input: "protocol=https\nhost=github.com\n\n", encoding: "utf8",
+      });
+      token = (cred.match(/^password=(.+)$/m) || [])[1] || "";
+    }
     if (!token) return { ok: false, err: "no github token" };
 
     const pubKeyRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/secrets/public-key`, {
@@ -218,18 +224,19 @@ export async function pushGhSecret(name, value) {
     if (!pubKeyRes.ok) return { ok: false, err: "public-key HTTP " + pubKeyRes.status };
     const { key: pubKey, key_id } = await pubKeyRes.json();
 
-    const crypto = await import("node:crypto");
-    const enc = crypto.publicEncrypt(
-      { key: Buffer.from(pubKey, "base64"), padding: crypto.constants.RSA_PKCS1_OAEP_PADDING, oaepHash: "sha256" },
-      Buffer.from(value, "utf8")
-    );
+    // GitHub encrypts secrets with a libsodium sealed box (curve25519
+    // X25519 + XSalsa20-Poly1305). tweetsodium is the reference binding
+    // GitHub's own docs use for this exact API.
+    const sodium = (await import("tweetsodium")).default;
+    const enc = Buffer.from(sodium.seal(Buffer.from(value, "utf8"), Buffer.from(pubKey, "base64")));
 
     const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/secrets/${name}`, {
       method: "PUT",
       headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
       body: JSON.stringify({ encrypted_value: enc.toString("base64"), key_id }),
     });
-    return { ok: putRes.status === 201 || putRes.status === 204, status: putRes.status };
+    const detail = await putRes.text().catch(() => "");
+    return { ok: putRes.status === 201 || putRes.status === 204, status: putRes.status, detail: detail.slice(0, 300) };
   } catch (err) {
     return { ok: false, err: err && err.message };
   }

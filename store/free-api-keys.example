@@ -17,3 +17,11 @@
 #GEMINI_API_KEY=
 #GITHUB_TOKEN=
 #DEEPSEEK_API_KEY=
+
+# Optional: a GitHub PAT that can WRITE repo secrets (Settings -> Developer
+# settings -> Fine-grained tokens, repo = whatsapp-automation, permissions:
+# Actions = Read and write, or a classic token with the 'repo' scope). When
+# set, the free API hunter uses it to push USER_LLM_* / webhook secrets to the
+# repo so the live worker gets them on deploy. Falls back to the git credential
+# helper token otherwise (which usually can't write secrets).
+#GITHUB_SECRETS_TOKEN=

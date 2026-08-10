@@ -6,5 +6,8 @@
   "private": true,
   "scripts": {
     "import": "node scripts/import-workflows.mjs"
+  },
+  "dependencies": {
+    "tweetsodium": "^0.0.4"
   }
 }
