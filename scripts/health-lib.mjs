@@ -19,7 +19,7 @@ export const ROOT = path.join(__dirname, "..");
 
 export const PORT = process.env.MONITOR_PORT || "8099";
 export const LOCAL = `http://127.0.0.1:${PORT}`;
-export const PUBLIC = process.env.PREVIEW_URL || "https://8099-94416e0ed3edebff.monkeycode-ai.live";
+export const PUBLIC = process.env.PREVIEW_URL || "https://8099-e1ac3c1ab16f7e9e.monkeycode-ai.live";
 export const WORKER = process.env.WORKER_URL || "https://messaging-webhooks.messaging-webhooks-worker.workers.dev";
 export const VERIFY_TOKEN = process.env.MONITOR_VERIFY_TOKEN || "change_me_verify_token";
 export const HOOKS = ["whatsapp-hook", "instagram-hook", "facebook-hook"];
