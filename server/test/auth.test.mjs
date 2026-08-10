@@ -23,15 +23,30 @@ const ENV = {
 
 let child;
 async function start() {
-  child = spawn(process.execPath, [path.join(__dirname, "..", "index.js")], { env: { ...process.env, ...ENV }, stdio: "pipe" });
-  const timer = setTimeout(() => { throw new Error("server did not start"); }, 8000);
-  child.stderr.on("data", (d) => process.stderr.write(d));
-  await new Promise((resolve, reject) => {
-    child.stdout.on("data", (d) => { if (d.toString().includes("listening")) { clearTimeout(timer); resolve(); } });
-  });
+  // The previous test's server is killed asynchronously; if the port is still
+  // held (EADDRINUSE) the new server dies before it ever prints "listening"
+  // and the test hangs unresolved. Retry spawn until the port is free.
+  for (let attempt = 0; attempt < 5; attempt++) {
+    child = spawn(process.execPath, [path.join(__dirname, "..", "index.js")], { env: { ...process.env, ...ENV }, stdio: "pipe" });
+    child.stderr.on("data", (d) => process.stderr.write(d));
+    const listened = await new Promise((resolve) => {
+      let done = false;
+      const timer = setTimeout(() => { done = true; resolve(false); }, 8000);
+      child.stdout.on("data", (d) => { if (!done && d.toString().includes("listening")) { done = true; clearTimeout(timer); resolve(true); } });
+      child.on("exit", (code) => { if (!done) { done = true; clearTimeout(timer); resolve(false); } });
+    });
+    if (listened) return;
+    await stop();
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  throw new Error("server did not start (port " + PORT + " not free after retries)");
 }
 async function stop() {
-  if (child) child.kill();
+  if (!child) return;
+  const p = child;
+  child = null;
+  if (p.exitCode === null) p.kill();
+  await new Promise((resolve) => { if (p.exitCode !== null) return resolve(); p.once("exit", resolve); setTimeout(resolve, 2000); });
 }
 async function api(method, pathname, body, token) {
   const headers = {};

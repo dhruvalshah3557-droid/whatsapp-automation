@@ -315,7 +315,7 @@ test("POST /api/llm proxies to an OpenAI-compatible endpoint when configured", a
     env: {
       ...process.env,
       ...ENV,
-      PORT: String(3457),
+      PORT: String(3458),
       USER_LLM_BASE_URL: "http://127.0.0.1:3459/v1",
       USER_LLM_MODEL: "deepseek-chat",
       USER_LLM_API_KEY: "llm_secret",
@@ -332,7 +332,7 @@ test("POST /api/llm proxies to an OpenAI-compatible endpoint when configured", a
     });
   });
   try {
-    const res = await fetch("http://127.0.0.1:3457/api/llm", {
+    const res = await fetch("http://127.0.0.1:3458/api/llm", {
       method: "POST",
       headers: { Authorization: "Bearer test_api_key", "Content-Type": "application/json" },
       body: JSON.stringify({ messages: [{ role: "user", content: "hi" }] }),

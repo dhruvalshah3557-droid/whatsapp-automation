@@ -5,7 +5,10 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "import": "node scripts/import-workflows.mjs"
+    "import": "node scripts/import-workflows.mjs",
+    "copilot": "./scripts/copilot.sh",
+    "copilot:agent": "./scripts/copilot.sh agent",
+    "copilot:plan": "./scripts/copilot.sh plan"
   },
   "dependencies": {
     "tweetsodium": "^0.0.4"
