@@ -321,3 +321,27 @@ test("memory restore keeps local data when it is newer than both server and Clou
   const contacts = sb.run("JSON.parse(localStorage.getItem('mc_chat_v2'))");
   assert.equal(contacts.contacts[0].name, "Local");
 });
+
+test("tags with apostrophes/special chars can be added and removed by index", () => {
+  const run = sandbox.run;
+  run(`document.getElementById = (function () {
+    const cache = {};
+    return function (id) {
+      if (!cache[id]) cache[id] = { innerHTML: "", value: "", textContent: "", style: {}, dataset: {}, classList: { add() {}, remove() {}, contains() { return false; }, toggle() {} }, setAttribute() {}, getAttribute() { return null; }, addEventListener() {}, removeEventListener() {}, focus() {} };
+      return cache[id];
+    };
+  })();`);
+  run("const __d = chatData(); __d.contacts = [{ id: 'c-tag', name: 'Tag Test', tags: [\"VIP client's fav\", \"gold&premium\", 'quote\"here'] }]; __d.activeId = 'c-tag'; save(CHAT_KEY, __d);");
+  const tags0 = run("chatData().contacts[0].tags");
+  assert.deepEqual(tags0, ["VIP client's fav", "gold&premium", 'quote"here']);
+  run("renderDrawer(chatData().contacts[0]);");
+  const bodyHtml = run("document.getElementById('drawer-body').innerHTML");
+  assert.ok(/onclick="removeTag\('c-tag', \d+\)"/.test(bodyHtml), "removeTag uses a numeric index, not inlined tag text");
+  assert.ok(!/removeTag\('[^']*','[^']*'\)/.test(bodyHtml), "removeTag no longer inlines the raw tag text in the onclick attribute");
+  run("removeTag('c-tag', 1)");
+  assert.deepEqual(run("chatData().contacts[0].tags"), ["VIP client's fav", 'quote"here'], "middle tag removed by index");
+  run("removeTag('c-tag', 0)");
+  assert.deepEqual(run("chatData().contacts[0].tags"), ['quote"here'], "first tag removed by index");
+  run("removeTag('c-tag', 0)");
+  assert.deepEqual(run("chatData().contacts[0].tags"), [], "last tag removed by index");
+});

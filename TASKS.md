@@ -9,6 +9,10 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260810: Fix chat tag removal + polish chat UI — status: finished
+  - Done: customer tags containing apostrophes/quotes/backslashes no longer break `removeTag` — the drawer now renders a numeric index (`removeTag('<id>', <idx>)`) instead of inlining the raw tag text in the onclick attribute; regression test covers `VIP client's fav`, `gold&premium`, `quote"here` add/remove by index. Chat UI polish: message hover lift, thin gold custom scrollbar on `.messages`, wider spacing between message runs, friendly empty-chat state when a chat has no messages, and `toggleTranslate` now uses the real message index (was `indexOf`, wrong when two messages were identical). SW bumped to `colourdiam-msg-v37`; new v37 What's New entry (en/zh/th `remove_tag` + `no_messages` keys); MONITOR OK (110/110 tests at commit time).
+  - Note: login was verified working end-to-end (server + client + worker black-box) — no reproducible bug found; awaiting user's exact error text/password to close.
+
 - [x] 260808: Fix monitor false-FAIL after heal + flaky Graph API webhook test — status: finished
   - Done: `MONITOR FAILED` despite all-OK output was caused by `checkServer()` counting the pre-heal failure even when the heal succeeded — now the down-check is only reported if healing fails. Second flake: server webhook tests made real network calls to `graph.facebook.com` (no timeout, errors propagated → 500 → intermittent test failure). `postGraph` on the server and worker now aborts after 5s and swallows errors so a failed reply never breaks the webhook response. MONITOR OK, 127/127 tests.
 
