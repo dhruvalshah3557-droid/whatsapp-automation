@@ -9,6 +9,9 @@ This file is the single source of truth for task status. A fresh session reads t
 
 ## Active Task
 
+- [x] 260810: Create a 24/7 standing deep-QA agent — status: finished
+  - Done: the previously appointed `qa-maintainer` subagent only runs when dispatched — it was configured but never ran on its own, which is why issues kept slipping through. Added two always-on layers: (1) `scripts/qa-agent.mjs` — a standing deep-QA loop (default 180s, `--once`/`--interval`) that runs the full health pass PLUS real API-contract probes (`/api/products`, `/api/wa/status`, `/api/memory`, `/api/events`, auth login+me), served-app element sanity checks (chat pane, composer, auth screen, WhatsApp Web card), and auto re-triggers the Cloudflare worker deploy when it serves a stale app version (the recurring `colourdiam-v4` bug); logs to `logs/qa-agent.log`, fails loudly after 3 consecutive bad cycles. (2) `.github/workflows/qa-cron.yml` — scheduled GitHub Actions QA that runs the full test suite + live-worker probes every 3h on GitHub's servers, so QA truly runs 24/7 even when the sandbox hibernates. QA agent single pass verified: all checks green except uncommitted-work (this change itself). Started in background terminal `term_1786391905828_1`.
+
 - [x] 260810: Fix chat page scroll + shared media not showing — status: finished
   - Done: root cause was `content-visibility: auto; contain-intrinsic-size: auto 120px` on `.msg-row` (added in the earlier render-perf pass). Inside the `.messages` scroll container it makes the browser skip rendering off-screen rows, which breaks the scrollbar/`scrollHeight` (user couldn't scroll up/down) and prevents `loading="lazy"` images from ever loading (shared media — photos/videos/docs — stayed invisible). Removed both properties from `.msg-row`. SW bumped to `colourdiam-msg-v43` with a v43 What's New entry; new regression test asserts `.msg-row` never uses `content-visibility` again. Messaging tests 22/22.
 

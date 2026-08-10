@@ -55,6 +55,13 @@ The repo's `TASKS.md` file is the single source of truth for task status. It let
 
 A self-healing monitor lives in `scripts/monitor.mjs` (single check, exit code) and a standing auto-healing agent lives in `scripts/agent.mjs` (continuous loop). Treat them as the standing "agents" that keep the stack healthy.
 
+The 24/7 deep-QA agent lives in `scripts/qa-agent.mjs` (standing loop, default 180s). On top of the health pass it probes real API contracts (products, wa/status, memory, events, auth login+me), sanity-checks the served app (chat pane, composer, auth screen, WhatsApp Web card), and re-triggers the Cloudflare worker deploy when it serves a stale app version. `.github/workflows/qa-cron.yml` runs the full suite + live-worker probes every 3h on GitHub's servers so QA continues even when the sandbox hibernates. Start the QA agent in a background terminal during a live session:
+
+```bash
+node scripts/qa-agent.mjs            # every 180s
+node scripts/qa-agent.mjs --once     # single deep-QA pass
+```
+
 - At the start of every session (and before finishing), run:
 
 ```bash

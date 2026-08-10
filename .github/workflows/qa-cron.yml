@@ -1,0 +1,55 @@
+name: QA 24/7 Cron
+
+# Scheduled deep-QA that runs 24/7 on GitHub's servers, independent of the
+# sandbox (the sandbox hibernates when idle). Every 3 hours it runs the full
+# test suite and probes the live worker's health, serving a FAILING job +
+# summary when anything breaks so the standing agents pick it up.
+#
+# Also runs on every push to main for fast feedback.
+
+on:
+  schedule:
+    - cron: "0 */3 * * *"   # every 3 hours
+  push:
+    branches: [main]
+    paths:
+      - messaging/**
+      - server/**
+      - worker/**
+      - scripts/**
+  workflow_dispatch:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install server deps
+        working-directory: server
+        run: npm ci || npm install
+
+      - name: Run full test suite
+        working-directory: .
+        run: node --test messaging/test/messaging.test.mjs server/test/server.test.mjs server/test/site-sync.test.mjs server/test/auth.test.mjs worker/test/worker.test.mjs
+
+      - name: Probe live worker API
+        shell: bash
+        run: |
+          curl -fsS -m 30 https://messaging-webhooks.messaging-webhooks-worker.workers.dev/api/health \
+            | grep -q '"ok":true' || { echo "WORKER API UNHEALTHY"; exit 1; }
+          echo "worker /api/health OK"
+
+      - name: Probe live worker app version vs repo
+        shell: bash
+        run: |
+          SERVED=$(curl -fsS -m 30 https://messaging-webhooks.messaging-webhooks-worker.workers.dev/sw.js | grep -o 'colourdiam-msg-v[0-9]*' | head -1 || true)
+          REPO=$(grep -o 'colourdiam-msg-v[0-9]*' messaging/sw.js | head -1)
+          echo "served=$SERVED repo=$REPO"
+          [ -n "$SERVED" ] && [ "$SERVED" = "$REPO" ] || { echo "WORKER SERVES STALE VERSION"; exit 1; }
