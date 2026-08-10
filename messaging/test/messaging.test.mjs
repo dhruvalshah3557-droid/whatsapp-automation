@@ -308,6 +308,40 @@ test("memory restore prefers the newest copy across server and Cloudflare", asyn
   assert.equal(sb.run("localStorage.getItem('mc_memory_at')"), "200");
 });
 
+test("memory restore never overwrites the local auth token with a shared-memory copy", async () => {
+  const sb = evalSandbox();
+  sb.ctx.fetch = async (url, opts = {}) => {
+    if (String(url).startsWith("https://example.com")) {
+      return { ok: true, status: 200, json: async () => ({ ok: true, memory: { mc_auth_v1: { token: "stale_server_token", user: { name: "Old" } }, mc_chat_v2: { contacts: [{ name: "Old" }] } }, at: 500 }) };
+    }
+    return { ok: true, status: 200, json: async () => ({ ok: true, memory: { mc_auth_v1: { token: "stale_cloud_token", user: { name: "Old" } } }, at: 400 }) };
+  };
+  sb.run("localStorage.clear(); localStorage.setItem('mc_memory_at', '100'); localStorage.setItem('mc_auth_v1', JSON.stringify({ token: 'my_valid_token', user: { name: 'Me' } }));");
+  await sb.run("restoreMemory()");
+  const auth = sb.run("JSON.parse(localStorage.getItem('mc_auth_v1'))");
+  assert.equal(auth.token, "my_valid_token", "local auth token must survive a shared-memory restore");
+  assert.equal(auth.user.name, "Me");
+  const contacts = sb.run("JSON.parse(localStorage.getItem('mc_chat_v2'))");
+  assert.equal(contacts.contacts[0].name, "Old", "non-auth buckets still restore from the newest copy");
+});
+
+test("memory backup never uploads the auth token to shared memory", async () => {
+  const sb = evalSandbox();
+  const bodies = [];
+  sb.ctx.fetch = async (url, opts = {}) => {
+    if (String(url).includes("/api/memory") && opts.method === "POST") {
+      bodies.push(JSON.parse(opts.body));
+    }
+    return { ok: true, status: 200, json: async () => ({ ok: true }) };
+  };
+  sb.run("localStorage.clear(); localStorage.setItem('mc_chat_v2', JSON.stringify({ contacts: [{ name: 'A' }] })); localStorage.setItem('mc_auth_v1', JSON.stringify({ token: 'secret', user: { name: 'Me' } }));");
+  await sb.run("backupMemory()");
+  for (const b of bodies) {
+    assert.ok(!b.data || !("mc_auth_v1" in b.data), "auth token must never be uploaded to shared memory");
+    assert.ok(b.data.mc_chat_v2, "non-auth buckets still upload");
+  }
+});
+
 test("memory restore keeps local data when it is newer than both server and Cloudflare", async () => {
   const sb = evalSandbox();
   sb.ctx.fetch = async (url, opts = {}) => {

@@ -1,4 +1,4 @@
-const CACHE = "colourdiam-msg-v39";
+const CACHE = "colourdiam-msg-v40";
 const ASSETS = [
   "./",
   "./index.html",

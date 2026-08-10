@@ -2083,7 +2083,7 @@ const MEMORY_AT_KEY = "mc_memory_at";
 const CLOUD_BACKUP_URL = DEFAULT_SERVER_URL;
 let memTimer = null;
 let memSaving = false;
-function memoryKeys() { return [CHAT_KEY, UI_KEY, CFG_KEY, AUTH_KEY, RM_KEY, REPLIES_KEY, AI_KEY, AI_MSG_KEY, MEDIA_KEY]; }
+function memoryKeys() { return [CHAT_KEY, UI_KEY, CFG_KEY, RM_KEY, REPLIES_KEY, AI_KEY, AI_MSG_KEY, MEDIA_KEY]; }
 function collectMemory() {
   const data = {};
   for (const k of memoryKeys()) {
@@ -2180,26 +2180,13 @@ async function restoreMemory() {
 
 /* ==================== What's New (auto-show feature updates) ==================== */
 const WN_KEY = "mc_whatsnew_v1";
-const WN_VERSION = "v39";
+const WN_VERSION = "v40";
 const WHATS_NEW = [
-  { v: "v34", items: [
-    "AI Reply Suggestions — tap the sparkle ✦ in any chat for 3 smart draft replies",
-    "AI Customer Summary — one click summary of a customer conversation (drawer)",
-    "AI Follow-up & Sales Hints — lead temperature + suggested follow-up date & message",
-    "AI Product Recommendations — suggests matching diamonds/jewellery from the live catalogue",
-    "What's New popup — this panel, shown automatically on every update",
-    "Server-backed app memory — chats & settings now survive updates and URL changes",
-    "Auto-update — the app refreshes itself when a new version is deployed",
-  ] },
-  { v: "v37", items: [
-    "Chat tags fixed — customer tags with apostrophes or special characters can now be removed reliably",
-    "Chat polish — message hover lift, custom scrollbar, wider spacing between message groups, empty-chat state",
-  ] },
-  { v: "v38", items: [
-    "Product cards cleaned up — removed the duplicate spec line (e.g. the repeated colour · lab under the name)",
-  ] },
   { v: "v39", items: [
     "Product cards cleaned up again — removed the redundant category · carat line (already shown in the name)",
+  ] },
+  { v: "v40", items: [
+    "Login stays put — your session token is no longer synced to shared memory, so you won't be logged out and forced to reset your password after every reload",
   ] },
 ];
 function showWhatsNew() {
