@@ -2180,7 +2180,7 @@ async function restoreMemory() {
 
 /* ==================== What's New (auto-show feature updates) ==================== */
 const WN_KEY = "mc_whatsnew_v1";
-const WN_VERSION = "v37";
+const WN_VERSION = "v38";
 const WHATS_NEW = [
   { v: "v34", items: [
     "AI Reply Suggestions — tap the sparkle ✦ in any chat for 3 smart draft replies",
@@ -2194,6 +2194,9 @@ const WHATS_NEW = [
   { v: "v37", items: [
     "Chat tags fixed — customer tags with apostrophes or special characters can now be removed reliably",
     "Chat polish — message hover lift, custom scrollbar, wider spacing between message groups, empty-chat state",
+  ] },
+  { v: "v38", items: [
+    "Product cards cleaned up — removed the duplicate spec line (e.g. the repeated colour · lab under the name)",
   ] },
 ];
 function showWhatsNew() {
@@ -3161,14 +3164,11 @@ function productCardHtml(p) {
   const media = productMedia(p.id);
   const imgSrc = (media && media.url) || p.img;
   const mediaMark = media ? `<span class="pc-media-mark" title="${esc(p.name)}">🖼</span>` : "";
-  const specBits = [p.clarity, p.colorGrade, p.lab].filter(Boolean);
-  const specLine = specBits.length ? `<div class="pc-spec">${esc(specBits.join(" · "))}</div>` : "";
   return `
     <div class="product-card">
       <div class="pc-media" style="background:${p.color}">${imgSrc ? `<img src="${esc(imgSrc)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:12px">` : p.emoji}${mediaMark}</div>
       <div class="pc-name">${esc(p.name)}</div>
       <div class="pc-sub">${esc(p.category)} · ${esc(p.carat)}ct</div>
-      ${specLine}
       <div class="pc-bot">
         <div><div class="pc-price">$${Number(p.price).toLocaleString()}</div><div class="pc-stock">${t("stock")}: ${esc(p.stock)}</div></div>
         <button class="pc-btn" onclick="sendProduct('${esc(p.id)}')">${t("buy")}</button>
