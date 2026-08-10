@@ -255,7 +255,7 @@ input, textarea, select { font-family: inherit; }
 .day-divider { text-align: center; margin: 12px 0 8px; }
 .day-divider span { background: var(--card); border: 1px solid var(--border); color: var(--muted); font-size: 11px; font-weight: 700; padding: 3px 14px; border-radius: 999px; box-shadow: var(--shadow-sm); letter-spacing: .04em; }
 
-.msg-row { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 3px; animation: msgIn .22s ease both; content-visibility: auto; contain-intrinsic-size: auto 120px; }
+.msg-row { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 3px; animation: msgIn .22s ease both; }
 .msg-row:hover .bubble { box-shadow: 0 3px 12px rgba(80,60,20,.14); }
 @keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 .msg-row.new-run { margin-top: 12px; }
@@ -2376,7 +2376,7 @@ async function restoreMemory() {
 
 /* ==================== What's New (auto-show feature updates) ==================== */
 const WN_KEY = "mc_whatsnew_v1";
-const WN_VERSION = "v42";
+const WN_VERSION = "v43";
 const WHATS_NEW = [
   { v: "v39", items: [
     "Product cards cleaned up again — removed the redundant category · carat line (already shown in the name)",
@@ -2389,6 +2389,9 @@ const WHATS_NEW = [
   ] },
   { v: "v42", items: [
     "Memory sync fixed — the app no longer overwrites your chats and settings with a stale shared copy and no longer reloads the page in a loop. Your local data always wins.",
+  ] },
+  { v: "v43", items: [
+    "Chat page fixed — you can now scroll through the conversation again and shared media (photos, videos, documents) shows up as it should.",
   ] },
 ];
 function showWhatsNew() {

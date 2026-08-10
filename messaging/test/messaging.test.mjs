@@ -429,3 +429,9 @@ test("tags with apostrophes/special chars can be added and removed by index", ()
   run("removeTag('c-tag', 0)");
   assert.deepEqual(run("chatData().contacts[0].tags"), [], "last tag removed by index");
 });
+
+test("message rows must not use content-visibility (breaks chat scrolling and lazy media)", () => {
+  const rule = html.match(/\.msg-row\s*\{[^}]*\}/)[0];
+  assert.ok(!/content-visibility/.test(rule), "content-visibility on .msg-row breaks scroll + lazy media loading");
+  assert.ok(!/contain-intrinsic-size/.test(rule), "contain-intrinsic-size must go together with content-visibility (removed too)");
+});
