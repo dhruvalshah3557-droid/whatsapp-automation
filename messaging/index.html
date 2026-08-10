@@ -2180,7 +2180,7 @@ async function restoreMemory() {
 
 /* ==================== What's New (auto-show feature updates) ==================== */
 const WN_KEY = "mc_whatsnew_v1";
-const WN_VERSION = "v38";
+const WN_VERSION = "v39";
 const WHATS_NEW = [
   { v: "v34", items: [
     "AI Reply Suggestions — tap the sparkle ✦ in any chat for 3 smart draft replies",
@@ -2197,6 +2197,9 @@ const WHATS_NEW = [
   ] },
   { v: "v38", items: [
     "Product cards cleaned up — removed the duplicate spec line (e.g. the repeated colour · lab under the name)",
+  ] },
+  { v: "v39", items: [
+    "Product cards cleaned up again — removed the redundant category · carat line (already shown in the name)",
   ] },
 ];
 function showWhatsNew() {
@@ -3168,7 +3171,6 @@ function productCardHtml(p) {
     <div class="product-card">
       <div class="pc-media" style="background:${p.color}">${imgSrc ? `<img src="${esc(imgSrc)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:12px">` : p.emoji}${mediaMark}</div>
       <div class="pc-name">${esc(p.name)}</div>
-      <div class="pc-sub">${esc(p.category)} · ${esc(p.carat)}ct</div>
       <div class="pc-bot">
         <div><div class="pc-price">$${Number(p.price).toLocaleString()}</div><div class="pc-stock">${t("stock")}: ${esc(p.stock)}</div></div>
         <button class="pc-btn" onclick="sendProduct('${esc(p.id)}')">${t("buy")}</button>
