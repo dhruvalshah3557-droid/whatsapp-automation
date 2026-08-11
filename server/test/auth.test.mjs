@@ -6,8 +6,8 @@ import path from "node:path";
 import fs from "node:fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = 3457;
-const BASE = `http://127.0.0.1:${PORT}`;
+const PORT = 0;
+let BASE = `http://127.0.0.1:${PORT}`;
 const AUTH_DIR = path.join(__dirname, "tmp-auth");
 const ENV = {
   PORT: String(PORT),
@@ -23,23 +23,26 @@ const ENV = {
 
 let child;
 async function start() {
-  // The previous test's server is killed asynchronously; if the port is still
-  // held (EADDRINUSE) the new server dies before it ever prints "listening"
-  // and the test hangs unresolved. Retry spawn until the port is free.
+  // Bind an ephemeral port so parallel test files never collide. Retry spawn
+  // in case the previous server is still releasing resources.
   for (let attempt = 0; attempt < 5; attempt++) {
     child = spawn(process.execPath, [path.join(__dirname, "..", "index.js")], { env: { ...process.env, ...ENV }, stdio: "pipe" });
     child.stderr.on("data", (d) => process.stderr.write(d));
     const listened = await new Promise((resolve) => {
       let done = false;
       const timer = setTimeout(() => { done = true; resolve(false); }, 8000);
-      child.stdout.on("data", (d) => { if (!done && d.toString().includes("listening")) { done = true; clearTimeout(timer); resolve(true); } });
+      child.stdout.on("data", (d) => {
+        if (done) return;
+        const m = d.toString().match(/listening on port (\d+)/);
+        if (m) { done = true; clearTimeout(timer); BASE = `http://127.0.0.1:${m[1]}`; resolve(true); }
+      });
       child.on("exit", (code) => { if (!done) { done = true; clearTimeout(timer); resolve(false); } });
     });
     if (listened) return;
     await stop();
     await new Promise((r) => setTimeout(r, 300));
   }
-  throw new Error("server did not start (port " + PORT + " not free after retries)");
+  throw new Error("server did not start (ephemeral port not assigned after retries)");
 }
 async function stop() {
   if (!child) return;

@@ -6,8 +6,8 @@ import path from "node:path";
 import net from "node:net";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = 3456;
-const BASE = `http://127.0.0.1:${PORT}`;
+const PORT = 0;
+let BASE = `http://127.0.0.1:${PORT}`;
 
 const ENV = {
   PORT: String(PORT),
@@ -44,10 +44,8 @@ async function start() {
   ready = new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error("server did not start")), 8000);
     child.stdout.on("data", (d) => {
-      if (d.toString().includes("listening")) {
-        clearTimeout(timer);
-        resolve();
-      }
+      const m = d.toString().match(/listening on port (\d+)/);
+      if (m) { clearTimeout(timer); BASE = `http://127.0.0.1:${m[1]}`; resolve(); }
     });
     child.stderr.on("data", (d) => process.stderr.write(d));
   });
@@ -304,35 +302,35 @@ test("POST /api/llm proxies to an OpenAI-compatible endpoint when configured", a
     let raw = "";
     req.on("data", (c) => (raw += c));
     req.on("end", () => {
-      calls.push({ url: `http://127.0.0.1:3459${req.url}`, body: JSON.parse(raw), auth: req.headers.authorization });
+      calls.push({ url: `http://127.0.0.1:${mockLlm.address().port}${req.url}`, body: JSON.parse(raw), auth: req.headers.authorization });
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ choices: [{ message: { content: "Bonjour" } }] }));
     });
   });
-  await new Promise((resolve) => mockLlm.listen(3459, resolve));
+  await new Promise((resolve) => mockLlm.listen(0, "127.0.0.1", resolve));
+  const llmMockPort = mockLlm.address().port;
 
   const llmServer = spawn(process.execPath, [path.join(__dirname, "..", "index.js")], {
     env: {
       ...process.env,
       ...ENV,
-      PORT: String(3458),
-      USER_LLM_BASE_URL: "http://127.0.0.1:3459/v1",
+      PORT: String(0),
+      USER_LLM_BASE_URL: `http://127.0.0.1:${llmMockPort}/v1`,
       USER_LLM_MODEL: "deepseek-chat",
       USER_LLM_API_KEY: "llm_secret",
     },
     stdio: "pipe",
   });
+  let llmBase = "";
   await new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error("llm server did not start")), 8000);
     llmServer.stdout.on("data", (d) => {
-      if (d.toString().includes("listening")) {
-        clearTimeout(timer);
-        resolve();
-      }
+      const m = d.toString().match(/listening on port (\d+)/);
+      if (m) { clearTimeout(timer); llmBase = `http://127.0.0.1:${m[1]}`; resolve(); }
     });
   });
   try {
-    const res = await fetch("http://127.0.0.1:3458/api/llm", {
+    const res = await fetch(`${llmBase}/api/llm`, {
       method: "POST",
       headers: { Authorization: "Bearer test_api_key", "Content-Type": "application/json" },
       body: JSON.stringify({ messages: [{ role: "user", content: "hi" }] }),
@@ -340,7 +338,7 @@ test("POST /api/llm proxies to an OpenAI-compatible endpoint when configured", a
     assert.equal(res.status, 200);
     assert.equal((await res.json()).text, "Bonjour");
     assert.equal(calls.length, 1);
-    assert.equal(calls[0].url, "http://127.0.0.1:3459/v1/chat/completions");
+    assert.equal(calls[0].url, `http://127.0.0.1:${llmMockPort}/v1/chat/completions`);
     assert.equal(calls[0].auth, "Bearer llm_secret");
     assert.equal(calls[0].body.model, "deepseek-chat");
   } finally {

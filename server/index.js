@@ -291,7 +291,8 @@ const server = http.createServer(async (req, res) => {
 auth.initAuth();
 
 server.listen(PORT, () => {
-  console.log(`webhook server listening on port ${PORT}`);
+  const actualPort = server.address() && server.address().port ? server.address().port : PORT;
+  console.log(`webhook server listening on port ${actualPort}`);
   const inv = loadInventoryFromDisk();
   const cached = inv.list.length;
   console.log(`site-sync: loaded ${cached} diamonds from inventory cache (status=${inv.status})`);
