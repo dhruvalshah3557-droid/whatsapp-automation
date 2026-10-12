@@ -190,3 +190,6 @@ This file is the single source of truth for task status. A fresh session reads t
   - Done: removed `SEED` contacts, `PRODUCTS` catalogue, `OLDER_POOL`/`loadOlder` mock history, sample quick replies; `chatData()` now starts with an empty contact list; empty states added for products; bumped chat storage to `mc_chat_v2` (commit `f4d4fcb`)
 - [x] 260804: Rewrite `messaging` app as luxury light theme + WhatsApp-Web layout + business features — status: finished
   - Done: light theme rewrite, two-column layout, rich messages, drawer, business views, kept connector/AI/live/biometric/i18n, manifest+SW updates, added `messaging/test/messaging.test.mjs` (commit `246554a`)
+
+- [ ] 261013: Enable verified dependency maintenance — status: pending
+  - Prepared: Dependabot package/Actions configuration and isolated config checks; awaiting PR checks and merge. No production publishing or credentials changed.
